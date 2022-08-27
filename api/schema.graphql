@@ -1,0 +1,57 @@
+type Query {
+  listSports(first: Int!, after: String): SportPageInfo!
+  listClubs(first: Int!, after: String): ClubPageInfo!
+  getClub(id: ID!): Club!
+  me: User! # uses JWT token in Authorization header to return the user
+}
+
+type Mutation {
+  signIn(email: String!, password: String!): String! # returns token
+  signUp(email: String!, password: String!): String! # returns token
+}
+
+type User
+  @entity(additionalFields: [{ path: "passwordHash", type: "string" }]) {
+  id: ID @id
+  email: String! @column
+}
+
+type Sport @entity {
+  id: ID @id
+  title: String! @column
+  description: String! @column
+  tags: [String]! @column
+}
+
+type SportPageInfo {
+  sports: [Sport!]!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type Club @entity {
+  id: ID @id
+  name: String! @column # index
+  subtitle: String! @column
+  address: String! @column # contact information, not to be confused with ClubSport
+}
+
+type ClubPageInfo {
+  clubs: [Club!]!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type ClubSport @entity {
+  id: ID @id
+  club: Club! @link # index
+  sport: Sport! @link # index
+  address: String! @column # index (address is not unique but combination of club, sport and address is unique)
+  # activities
+}
+
+type ClubSportPageInfo {
+  clubSports: [ClubSport!]!
+  hasNextPage: Boolean!
+  endCursor: String
+}
