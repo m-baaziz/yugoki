@@ -1,4 +1,4 @@
-# Quizz (API)
+# Yugoki (API)
 
 ## Requirements
 
