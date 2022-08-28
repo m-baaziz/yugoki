@@ -1,13 +1,9 @@
 html,
 body,
-#__next {
+#root {
   height: 100%;
 }
 
-main {
-  height: 100%;
-}
-
-/* body {
+body {
   overflow: hidden;
-} */
+}
