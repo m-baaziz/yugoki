@@ -5,17 +5,12 @@ import { useQuery, gql } from '@apollo/client';
 import {
   QuerySearchClubSportLocationsArgs,
   ClubSportLocationPageInfo,
-  ClubSportLocationSearchQueryInput,
 } from '../generated/graphql';
 import { useLocation } from 'react-router-dom';
-import { decodeQuery, QUERY_KEY } from '../utils/searchQuery';
+import { decodeQuery, QUERY_KEY, DEFAULT_QUERY } from '../utils/searchQuery';
 import CslCard from './CslCard';
 
 const CSL_PAGE_SIZE = 100;
-const DEFAULT_QUERY: ClubSportLocationSearchQueryInput = {
-  sport: '630d3903c8972c1b4d5eb3f6',
-  address: '川崎',
-};
 
 const LIST_CLUB_SPORT_LOCATIONS = gql`
   query searchClubSportLocations(

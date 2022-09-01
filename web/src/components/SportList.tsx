@@ -3,12 +3,15 @@ import { styled } from '@mui/material/styles';
 import { Box, BoxProps, Button, TextField, Typography } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { grey } from '@mui/material/colors';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import {
+  ClubSportLocationSearchQueryInput,
   QueryListSportsArgs,
   Sport,
   SportPageInfo,
 } from '../generated/graphql';
+import { DEFAULT_QUERY, encodeQuery, QUERY_KEY } from '../utils/searchQuery';
 
 const SEARCH_DELAY_MS = 500;
 const SPORTS_PAGE_SIZE = 100;
@@ -72,6 +75,7 @@ const sportIconPath: (sport: Sport) => string = (sport: Sport) => {
 };
 
 export default function SportList() {
+  const navigate = useNavigate();
   const { data } = useQuery<{ listSports: SportPageInfo }, QueryListSportsArgs>(
     LIST_SPORTS,
     {
@@ -108,6 +112,17 @@ export default function SportList() {
     () => data?.listSports.sports.filter(filterSport(search)) || [],
     [data, search],
   );
+
+  const handleSelectClick = () => {
+    if (!selectedSport?.id) return;
+    const query: ClubSportLocationSearchQueryInput = {
+      sport: selectedSport?.id || '',
+      address: DEFAULT_QUERY.address,
+    };
+    const encodedQuery = encodeQuery(query);
+    const url = `/clubs?${QUERY_KEY}=${encodedQuery}`;
+    navigate(url);
+  };
 
   return (
     <Container>
@@ -165,7 +180,9 @@ export default function SportList() {
       </Typography>
       {selectedSport ? (
         <Box sx={{ gridArea: 'select', placeSelf: 'center' }}>
-          <Button variant="contained">Select</Button>
+          <Button variant="contained" onClick={handleSelectClick}>
+            Select
+          </Button>
         </Box>
       ) : null}
     </Container>
