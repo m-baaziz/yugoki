@@ -5,18 +5,8 @@ type Query {
   getClub(id: ID!): Club!
   getClubSportLocation(id: ID!): ClubSportLocation!
   listClubSportLocations(first: Int!, after: String): ClubSportLocationPageInfo!
-  listClubSportLocationsBySportAndArea(
-    sport: ID!
-    topLeftLat: Float!
-    topLeftLon: Float!
-    bottomRightLat: Float!
-    bottomRightLon: Float!
-    first: Int!
-    after: String
-  ): ClubSportLocationPageInfo!
-  listClubSportLocationsBySportAndAddress(
-    sport: ID!
-    address: String!
+  searchClubSportLocations(
+    query: ClubSportLocationSearchQueryInput!
     first: Int!
     after: String
   ): ClubSportLocationPageInfo!
@@ -25,6 +15,19 @@ type Query {
 type Mutation {
   signIn(email: String!, password: String!): String! # returns token
   signUp(email: String!, password: String!): String! # returns token
+}
+
+input SearchArea {
+  topLeftLat: Float!
+  topLeftLon: Float!
+  bottomRightLat: Float!
+  bottomRightLon: Float!
+}
+
+input ClubSportLocationSearchQueryInput {
+  sport: ID!
+  address: String
+  area: SearchArea
 }
 
 type User

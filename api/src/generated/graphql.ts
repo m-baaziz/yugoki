@@ -51,6 +51,12 @@ export type ClubSportLocationPageInfo = {
   hasNextPage: Scalars['Boolean'];
 };
 
+export type ClubSportLocationSearchQueryInput = {
+  address?: InputMaybe<Scalars['String']>;
+  area?: InputMaybe<SearchArea>;
+  sport: Scalars['ID'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   signIn: Scalars['String'];
@@ -74,11 +80,10 @@ export type Query = {
   getClub: Club;
   getClubSportLocation: ClubSportLocation;
   listClubSportLocations: ClubSportLocationPageInfo;
-  listClubSportLocationsBySportAndAddress: ClubSportLocationPageInfo;
-  listClubSportLocationsBySportAndArea: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
   listSports: SportPageInfo;
   me: User;
+  searchClubSportLocations: ClubSportLocationPageInfo;
 };
 
 
@@ -98,25 +103,6 @@ export type QueryListClubSportLocationsArgs = {
 };
 
 
-export type QueryListClubSportLocationsBySportAndAddressArgs = {
-  address: Scalars['String'];
-  after?: InputMaybe<Scalars['String']>;
-  first: Scalars['Int'];
-  sport: Scalars['ID'];
-};
-
-
-export type QueryListClubSportLocationsBySportAndAreaArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  bottomRightLat: Scalars['Float'];
-  bottomRightLon: Scalars['Float'];
-  first: Scalars['Int'];
-  sport: Scalars['ID'];
-  topLeftLat: Scalars['Float'];
-  topLeftLon: Scalars['Float'];
-};
-
-
 export type QueryListClubsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
@@ -126,6 +112,20 @@ export type QueryListClubsArgs = {
 export type QueryListSportsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
+};
+
+
+export type QuerySearchClubSportLocationsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  query: ClubSportLocationSearchQueryInput;
+};
+
+export type SearchArea = {
+  bottomRightLat: Scalars['Float'];
+  bottomRightLon: Scalars['Float'];
+  topLeftLat: Scalars['Float'];
+  topLeftLon: Scalars['Float'];
 };
 
 export type Sport = {
@@ -227,9 +227,11 @@ export type ResolversTypes = {
   ClubSportLocation: ResolverTypeWrapper<ClubSportLocation>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ClubSportLocationPageInfo: ResolverTypeWrapper<ClubSportLocationPageInfo>;
+  ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  SearchArea: SearchArea;
   Sport: ResolverTypeWrapper<Sport>;
   SportPageInfo: ResolverTypeWrapper<SportPageInfo>;
   User: ResolverTypeWrapper<User>;
@@ -246,9 +248,11 @@ export type ResolversParentTypes = {
   ClubSportLocation: ClubSportLocation;
   Float: Scalars['Float'];
   ClubSportLocationPageInfo: ClubSportLocationPageInfo;
+  ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
   Mutation: {};
   Query: {};
   Int: Scalars['Int'];
+  SearchArea: SearchArea;
   Sport: Sport;
   SportPageInfo: SportPageInfo;
   User: User;
@@ -342,11 +346,10 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<QueryGetClubArgs, 'id'>>;
   getClubSportLocation?: Resolver<ResolversTypes['ClubSportLocation'], ParentType, ContextType, RequireFields<QueryGetClubSportLocationArgs, 'id'>>;
   listClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsArgs, 'first'>>;
-  listClubSportLocationsBySportAndAddress?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsBySportAndAddressArgs, 'address' | 'first' | 'sport'>>;
-  listClubSportLocationsBySportAndArea?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsBySportAndAreaArgs, 'bottomRightLat' | 'bottomRightLon' | 'first' | 'sport' | 'topLeftLat' | 'topLeftLon'>>;
   listClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListClubsArgs, 'first'>>;
   listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  searchClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QuerySearchClubSportLocationsArgs, 'first' | 'query'>>;
 };
 
 export type SportResolvers<ContextType = any, ParentType extends ResolversParentTypes['Sport'] = ResolversParentTypes['Sport']> = {

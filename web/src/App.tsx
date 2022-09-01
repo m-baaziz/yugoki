@@ -13,6 +13,7 @@ import ButtonAppBar, {
   ButtonAppBarProps as AppBarProps,
 } from './components/AppBar';
 import Home from './components/Home';
+import CslList from './components/CslList';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 
@@ -105,6 +106,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn refetchMe={refetchMe} />} />
             <Route path="/signup" element={<SignUp refetchMe={refetchMe} />} />
+            <Route path="/clubs" element={<CslList />} />
           </Routes>
         </Content>
       </Container>

@@ -3,8 +3,7 @@ import { listClubs, getClub } from './club';
 import {
   getClubSportLocation,
   listClubSportLocations,
-  listClubSportLocationsBySportAndArea,
-  listClubSportLocationsBySportAndAddress,
+  searchClubSportLocations,
 } from './clubSportLocation';
 import { listSports } from './sport';
 import { signIn, signUp, me } from './user';
@@ -17,8 +16,7 @@ const resolvers: Resolvers = {
     listClubs,
     getClubSportLocation,
     listClubSportLocations,
-    listClubSportLocationsBySportAndArea,
-    listClubSportLocationsBySportAndAddress,
+    searchClubSportLocations,
   },
   Mutation: {
     signIn,

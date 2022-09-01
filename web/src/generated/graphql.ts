@@ -14,8 +14,8 @@ export type Scalars = {
 
 export type Club = {
   __typename?: 'Club';
-  address: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
+  logo: Scalars['String'];
   name: Scalars['String'];
   subtitle: Scalars['String'];
 };
@@ -27,19 +27,27 @@ export type ClubPageInfo = {
   hasNextPage: Scalars['Boolean'];
 };
 
-export type ClubSport = {
-  __typename?: 'ClubSport';
+export type ClubSportLocation = {
+  __typename?: 'ClubSportLocation';
   address: Scalars['String'];
   club: Club;
   id?: Maybe<Scalars['ID']>;
+  lat: Scalars['Float'];
+  lon: Scalars['Float'];
   sport: Sport;
 };
 
-export type ClubSportPageInfo = {
-  __typename?: 'ClubSportPageInfo';
-  clubSports: Array<ClubSport>;
+export type ClubSportLocationPageInfo = {
+  __typename?: 'ClubSportLocationPageInfo';
+  clubSportLocations: Array<ClubSportLocation>;
   endCursor?: Maybe<Scalars['String']>;
   hasNextPage: Scalars['Boolean'];
+};
+
+export type ClubSportLocationSearchQueryInput = {
+  address?: InputMaybe<Scalars['String']>;
+  area?: InputMaybe<SearchArea>;
+  sport: Scalars['ID'];
 };
 
 export type Mutation = {
@@ -63,14 +71,28 @@ export type MutationSignUpArgs = {
 export type Query = {
   __typename?: 'Query';
   getClub: Club;
+  getClubSportLocation: ClubSportLocation;
+  listClubSportLocations: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
   listSports: SportPageInfo;
   me: User;
+  searchClubSportLocations: ClubSportLocationPageInfo;
 };
 
 
 export type QueryGetClubArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryGetClubSportLocationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryListClubSportLocationsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
 };
 
 
@@ -83,6 +105,20 @@ export type QueryListClubsArgs = {
 export type QueryListSportsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
+};
+
+
+export type QuerySearchClubSportLocationsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  query: ClubSportLocationSearchQueryInput;
+};
+
+export type SearchArea = {
+  bottomRightLat: Scalars['Float'];
+  bottomRightLon: Scalars['Float'];
+  topLeftLat: Scalars['Float'];
+  topLeftLon: Scalars['Float'];
 };
 
 export type Sport = {

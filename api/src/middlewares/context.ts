@@ -14,6 +14,7 @@ const UNPRIVILEGED_EDNPOINTS = [
   'signIn',
   'listSports',
   'listClubs',
+  'searchClubSportLocations',
 ];
 
 const authenticationMiddleware =

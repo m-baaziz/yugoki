@@ -11,3 +11,5 @@
 - Connection pools
 - error types
 - better error management
+- sanitize queries
+- 
