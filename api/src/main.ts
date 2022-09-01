@@ -12,6 +12,7 @@ import { _Database, mongoDb, mongoClient, DataSources } from './datasources';
 import authenticationMiddleware from './middlewares/context';
 import ClubAPI from './datasources/club';
 import SportAPI from './datasources/sport';
+import ClubSportLocationAPI from './datasources/clubSportLocation';
 
 const isDev = process.env.NODE_ENV !== 'production';
 const SCHEMA_PATH = path.join(__dirname, '../schema.graphql');
@@ -39,10 +40,12 @@ async function main() {
   });
   const clubAPI = new ClubAPI(db);
   const sportAPI = new SportAPI(db);
+  const clubSportLocationAPI = new ClubSportLocationAPI(db);
 
   await userAPI.createIndexes();
-  await clubAPI.createIndexes();
   await sportAPI.createIndexes();
+  await clubAPI.createIndexes();
+  await clubSportLocationAPI.createIndexes();
 
   const server = new ApolloServer({
     schema,
@@ -50,6 +53,7 @@ async function main() {
       userAPI,
       clubAPI,
       sportAPI,
+      clubSportLocationAPI,
     }),
     context: authenticationMiddleware(userAPI),
     logger,

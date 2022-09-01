@@ -5,6 +5,7 @@ import { AuthenticationContext } from '../middlewares/context';
 import SportAPI from './sport';
 import ClubAPI from './club';
 import UserAPI from './user';
+import ClubSportLocationAPI from './clubSportLocation';
 
 export enum _Database {
   Dev = 'dev',
@@ -16,12 +17,14 @@ export enum _Collection {
   User = 'user',
   Sport = 'sport',
   Club = 'club',
+  ClubSportLocation = 'club-sport-location',
 }
 
 export type DataSources = {
   userAPI: UserAPI;
   sportAPI: SportAPI;
   clubAPI: ClubAPI;
+  clubSportLocationAPI: ClubSportLocationAPI;
 };
 
 export type ContextWithDataSources = Context<AuthenticationContext> & {

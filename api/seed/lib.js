@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { ObjectID } = require('bson');
 
 const DEFAULT_PASSWORD = 'password';
 
@@ -29,7 +30,37 @@ async function seedSports(db) {
     .then(() => db);
 }
 
+async function seedClubs(db) {
+  const clubs = require('./data/clubs.json');
+  console.log(`Inserting ${clubs.length} clubs ...`);
+  return db
+    .collection('club')
+    .insertMany(
+      clubs.map((club) => ({
+        ...club,
+      })),
+    )
+    .then(() => db);
+}
+
+async function seedClubSportLocation(db) {
+  const data = require('./data/club-sport-locations.json');
+  console.log(`Inserting ${data.length} items ...`);
+  return db
+    .collection('club-sport-location')
+    .insertMany(
+      data.map((item) => ({
+        ...item,
+        club: ObjectID(item.club),
+        sport: ObjectID(item.sport),
+      })),
+    )
+    .then(() => db);
+}
+
 module.exports = {
   seedUsers,
   seedSports,
+  seedClubs,
+  seedClubSportLocation,
 };

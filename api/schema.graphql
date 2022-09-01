@@ -1,8 +1,25 @@
 type Query {
+  me: User! # uses JWT token in Authorization header to return the user
   listSports(first: Int!, after: String): SportPageInfo!
   listClubs(first: Int!, after: String): ClubPageInfo!
   getClub(id: ID!): Club!
-  me: User! # uses JWT token in Authorization header to return the user
+  getClubSportLocation(id: ID!): ClubSportLocation!
+  listClubSportLocations(first: Int!, after: String): ClubSportLocationPageInfo!
+  listClubSportLocationsBySportAndArea(
+    sport: ID!
+    topLeftLat: Float!
+    topLeftLon: Float!
+    bottomRightLat: Float!
+    bottomRightLon: Float!
+    first: Int!
+    after: String
+  ): ClubSportLocationPageInfo!
+  listClubSportLocationsBySportAndAddress(
+    sport: ID!
+    address: String!
+    first: Int!
+    after: String
+  ): ClubSportLocationPageInfo!
 }
 
 type Mutation {
@@ -33,7 +50,7 @@ type Club @entity {
   id: ID @id
   name: String! @column # index
   subtitle: String! @column
-  address: String! @column # contact information, not to be confused with ClubSport
+  logo: String! @column
 }
 
 type ClubPageInfo {
@@ -42,16 +59,18 @@ type ClubPageInfo {
   endCursor: String
 }
 
-type ClubSport @entity {
+type ClubSportLocation @entity {
   id: ID @id
   club: Club! @link # index
   sport: Sport! @link # index
   address: String! @column # index (address is not unique but combination of club, sport and address is unique)
+  lat: Float! @column
+  lon: Float! @column
   # activities
 }
 
-type ClubSportPageInfo {
-  clubSports: [ClubSport!]!
+type ClubSportLocationPageInfo {
+  clubSportLocations: [ClubSportLocation!]!
   hasNextPage: Boolean!
   endCursor: String
 }

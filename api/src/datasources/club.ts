@@ -20,8 +20,6 @@ export default class ClubAPI extends DataSource {
 
   async createIndexes(): Promise<void> {
     try {
-      await this.collection.createIndex({ name: 1 }, { unique: false });
-      await this.collection.createIndex({ address: 1 }, { unique: true });
       return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
