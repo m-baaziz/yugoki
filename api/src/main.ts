@@ -13,6 +13,8 @@ import authenticationMiddleware from './middlewares/context';
 import ClubAPI from './datasources/club';
 import SportAPI from './datasources/sport';
 import ClubSportLocationAPI from './datasources/clubSportLocation';
+import TrainerAPI from './datasources/trainer';
+import EventAPI from './datasources/event';
 
 const isDev = process.env.NODE_ENV !== 'production';
 const SCHEMA_PATH = path.join(__dirname, '../schema.graphql');
@@ -41,6 +43,8 @@ async function main() {
   const clubAPI = new ClubAPI(db);
   const sportAPI = new SportAPI(db);
   const clubSportLocationAPI = new ClubSportLocationAPI(db);
+  const trainerAPI = new TrainerAPI(db);
+  const eventAPI = new EventAPI(db);
 
   await userAPI.createIndexes();
   await sportAPI.createIndexes();
@@ -54,6 +58,8 @@ async function main() {
       clubAPI,
       sportAPI,
       clubSportLocationAPI,
+      trainerAPI,
+      eventAPI,
     }),
     context: authenticationMiddleware(userAPI),
     logger,

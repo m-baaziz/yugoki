@@ -53,6 +53,34 @@ async function seedClubSportLocation(db) {
         ...item,
         club: ObjectID(item.club),
         sport: ObjectID(item.sport),
+        trainers: item.trainers.map((trainer) => ObjectID(trainer)),
+      })),
+    )
+    .then(() => db);
+}
+
+async function seedTrainers(db) {
+  const data = require('./data/trainers.json');
+  console.log(`Inserting ${data.length} items ...`);
+  return db
+    .collection('trainer')
+    .insertMany(
+      data.map((item) => ({
+        ...item,
+        club: ObjectID(item.club),
+      })),
+    )
+    .then(() => db);
+}
+
+async function seedEvents(db) {
+  const data = require('./data/events.json');
+  console.log(`Inserting ${data.length} items ...`);
+  return db
+    .collection('event')
+    .insertMany(
+      data.map((item) => ({
+        ...item,
       })),
     )
     .then(() => db);
@@ -63,4 +91,6 @@ module.exports = {
   seedSports,
   seedClubs,
   seedClubSportLocation,
+  seedTrainers,
+  seedEvents,
 };

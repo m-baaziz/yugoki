@@ -4,13 +4,129 @@
     "sport": "630d3903c8972c1b4d5eb3f7",
     "address": "〒212-0012 神奈川県川崎市幸区中幸町3丁目32",
     "lat": 35.531793385123336,
-    "lon": 139.6933929982749
+    "lon": 139.6933929982749,
+    "phone": "+81445114677",
+    "website": "http://www.s-gym.co.jp/kawasaki",
+    "description": "Come and train in this gym and practice Muay Thai like in the traditional training camps of Thaïland. All the trainers are ex. Pros from Thaïland that have trained since childhood and fought legends like Senchai and Buakaw. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "activities": [
+      {
+        "name": "Training",
+        "description": "Sand bag and shadow training to perfectionate the technique",
+        "icon": "/muscle.png"
+      },
+      {
+        "name": "Cardio",
+        "description": "Sand bag and shadow training to perfectionate the technique",
+        "icon": "/cardio.png"
+      },
+      {
+        "name": "Competition",
+        "description": "Sand bag and shadow training to perfectionate the technique",
+        "icon": "/trophey.png"
+      }
+    ],
+    "trainers": ["632886c50e2e11df74bafc21", "632886c50e2e11df74bafc22"],
+    "schedule": [
+      {
+        "title": "Training and Coaching (all)",
+        "fromDay": 1,
+        "toDay": 1,
+        "fromTime": "09:00:00",
+        "toTime": "22:00:00"
+      },
+      {
+        "title": "Training and Coaching (all)",
+        "fromDay": 2,
+        "toDay": 2,
+        "fromTime": "09:00:00",
+        "toTime": "22:00:00"
+      },
+      {
+        "title": "Competition preparation (pro)",
+        "fromDay": 3,
+        "toDay": 3,
+        "fromTime": "14:00:00",
+        "toTime": "20:00:00"
+      },
+      {
+        "title": "Training and Coaching (all)",
+        "fromDay": 4,
+        "toDay": 4,
+        "fromTime": "09:00:00",
+        "toTime": "22:00:00"
+      },
+      {
+        "title": "Training and Coaching (all)",
+        "fromDay": 5,
+        "toDay": 5,
+        "fromTime": "09:00:00",
+        "toTime": "22:00:00"
+      }
+    ]
   },
   {
     "club": "630d3903c8972c1b4d5eb3f9",
     "sport": "630d3903c8972c1b4d5eb3f6",
     "address": "〒210-0007 神奈川県川崎市川崎区駅前本町21-12",
     "lat": 35.53284490350651,
-    "lon": 139.70034965644012
+    "lon": 139.70034965644012,
+    "phone": "+81445114678",
+    "website": "https://kawasaki-bravethunders.com",
+    "description": "Basketball club. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "activities": [
+      {
+        "name": "Training",
+        "description": "Basketball training",
+        "icon": "/muscle.png"
+      },
+      {
+        "name": "Cardio",
+        "description": "Running and cardio",
+        "icon": "/cardio.png"
+      },
+      {
+        "name": "Competition",
+        "description": "Tournaments and challenges",
+        "icon": "/trophey.png"
+      }
+    ],
+    "trainers": ["632886c50e2e11df74bafc23"],
+    "schedule": [
+      {
+        "title": "Junior training",
+        "fromDay": 1,
+        "toDay": 1,
+        "fromTime": "16:00:00",
+        "toTime": "18:00:00"
+      },
+      {
+        "title": "Senior training",
+        "fromDay": 1,
+        "toDay": 1,
+        "fromTime": "18:00:00",
+        "toTime": "20:00:00"
+      },
+      {
+        "title": "Training and Coaching (all)",
+        "fromDay": 2,
+        "toDay": 2,
+        "fromTime": "17:00:00",
+        "toTime": "20:00:00"
+      },
+      {
+        "title": "Competition preparation (pro)",
+        "fromDay": 3,
+        "toDay": 3,
+        "fromTime": "18:00:00",
+        "toTime": "20:00:00"
+      },
+      {
+        "title": "Free matchs (all)",
+        "fromDay": 5,
+        "toDay": 5,
+        "fromTime": "09:00:00",
+        "toTime": "20:00:00"
+      }
+    ]
   }
 ]

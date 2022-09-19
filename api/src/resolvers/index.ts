@@ -5,6 +5,7 @@ import {
   listClubSportLocations,
   searchClubSportLocations,
 } from './clubSportLocation';
+import { getEvent, listClubSportLocationEvents } from './event';
 import { listSports } from './sport';
 import { signIn, signUp, me } from './user';
 
@@ -17,6 +18,8 @@ const resolvers: Resolvers = {
     getClubSportLocation,
     listClubSportLocations,
     searchClubSportLocations,
+    getEvent,
+    listClubSportLocationEvents,
   },
   Mutation: {
     signIn,

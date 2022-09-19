@@ -4,6 +4,8 @@ const {
   seedSports,
   seedClubs,
   seedClubSportLocation,
+  seedTrainers,
+  seedEvents,
 } = require('./lib');
 
 const DATABASE = 'dev';
@@ -15,7 +17,9 @@ mongoClient
   // .then(seedUsers)
   // .then(seedSports)
   // .then(seedClubs)
-  .then(seedClubSportLocation)
+  // .then(seedClubSportLocation)
+  // .then(seedTrainers)
+  .then(seedEvents)
   .then(() => {
     mongoClient.close();
   })

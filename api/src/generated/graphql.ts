@@ -19,10 +19,26 @@ export type AdditionalEntityFields = {
   type?: InputMaybe<Scalars['String']>;
 };
 
+export type Activity = {
+  __typename?: 'Activity';
+  description: Scalars['String'];
+  icon?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+};
+
+export type CalendarSpan = {
+  __typename?: 'CalendarSpan';
+  fromDay: Scalars['Int'];
+  fromTime: Scalars['String'];
+  title: Scalars['String'];
+  toDay: Scalars['Int'];
+  toTime: Scalars['String'];
+};
+
 export type Club = {
   __typename?: 'Club';
   id?: Maybe<Scalars['ID']>;
-  logo: Scalars['String'];
+  logo?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   subtitle: Scalars['String'];
 };
@@ -36,12 +52,18 @@ export type ClubPageInfo = {
 
 export type ClubSportLocation = {
   __typename?: 'ClubSportLocation';
+  activities: Array<Activity>;
   address: Scalars['String'];
   club: Club;
+  description: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
   lat: Scalars['Float'];
   lon: Scalars['Float'];
+  phone: Scalars['String'];
+  schedule: Array<CalendarSpan>;
   sport: Sport;
+  trainers: Array<Trainer>;
+  website?: Maybe<Scalars['String']>;
 };
 
 export type ClubSportLocationPageInfo = {
@@ -55,6 +77,22 @@ export type ClubSportLocationSearchQueryInput = {
   address?: InputMaybe<Scalars['String']>;
   area?: InputMaybe<SearchArea>;
   sport: Scalars['ID'];
+};
+
+export type Event = {
+  __typename?: 'Event';
+  clubSportLocation: Scalars['String'];
+  dateRFC3339: Scalars['String'];
+  description: Scalars['String'];
+  id?: Maybe<Scalars['ID']>;
+  image?: Maybe<Scalars['String']>;
+};
+
+export type EventPageInfo = {
+  __typename?: 'EventPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  events: Array<Event>;
+  hasNextPage: Scalars['Boolean'];
 };
 
 export type Mutation = {
@@ -79,6 +117,8 @@ export type Query = {
   __typename?: 'Query';
   getClub: Club;
   getClubSportLocation: ClubSportLocation;
+  getEvent: Event;
+  listClubSportLocationEvents: EventPageInfo;
   listClubSportLocations: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
   listSports: SportPageInfo;
@@ -94,6 +134,18 @@ export type QueryGetClubArgs = {
 
 export type QueryGetClubSportLocationArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryGetEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryListClubSportLocationEventsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  cslId: Scalars['ID'];
+  first: Scalars['Int'];
 };
 
 
@@ -141,6 +193,17 @@ export type SportPageInfo = {
   endCursor?: Maybe<Scalars['String']>;
   hasNextPage: Scalars['Boolean'];
   sports: Array<Sport>;
+};
+
+export type Trainer = {
+  __typename?: 'Trainer';
+  club?: Maybe<Club>;
+  description: Scalars['String'];
+  displayname: Scalars['String'];
+  firstname: Scalars['String'];
+  id?: Maybe<Scalars['ID']>;
+  lastname: Scalars['String'];
+  photo?: Maybe<Scalars['String']>;
 };
 
 export type User = {
@@ -220,6 +283,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AdditionalEntityFields: AdditionalEntityFields;
   String: ResolverTypeWrapper<Scalars['String']>;
+  Activity: ResolverTypeWrapper<Activity>;
+  CalendarSpan: ResolverTypeWrapper<CalendarSpan>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   Club: ResolverTypeWrapper<Club>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   ClubPageInfo: ResolverTypeWrapper<ClubPageInfo>;
@@ -228,12 +294,14 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ClubSportLocationPageInfo: ResolverTypeWrapper<ClubSportLocationPageInfo>;
   ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
+  Event: ResolverTypeWrapper<Event>;
+  EventPageInfo: ResolverTypeWrapper<EventPageInfo>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
   SearchArea: SearchArea;
   Sport: ResolverTypeWrapper<Sport>;
   SportPageInfo: ResolverTypeWrapper<SportPageInfo>;
+  Trainer: ResolverTypeWrapper<Trainer>;
   User: ResolverTypeWrapper<User>;
 };
 
@@ -241,6 +309,9 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AdditionalEntityFields: AdditionalEntityFields;
   String: Scalars['String'];
+  Activity: Activity;
+  CalendarSpan: CalendarSpan;
+  Int: Scalars['Int'];
   Club: Club;
   ID: Scalars['ID'];
   ClubPageInfo: ClubPageInfo;
@@ -249,12 +320,14 @@ export type ResolversParentTypes = {
   Float: Scalars['Float'];
   ClubSportLocationPageInfo: ClubSportLocationPageInfo;
   ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
+  Event: Event;
+  EventPageInfo: EventPageInfo;
   Mutation: {};
   Query: {};
-  Int: Scalars['Int'];
   SearchArea: SearchArea;
   Sport: Sport;
   SportPageInfo: SportPageInfo;
+  Trainer: Trainer;
   User: User;
 };
 
@@ -305,9 +378,25 @@ export type MapDirectiveArgs = {
 
 export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
+export type ActivityResolvers<ContextType = any, ParentType extends ResolversParentTypes['Activity'] = ResolversParentTypes['Activity']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  icon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CalendarSpanResolvers<ContextType = any, ParentType extends ResolversParentTypes['CalendarSpan'] = ResolversParentTypes['CalendarSpan']> = {
+  fromDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  fromTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  toTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ClubResolvers<ContextType = any, ParentType extends ResolversParentTypes['Club'] = ResolversParentTypes['Club']> = {
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  logo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   subtitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -321,18 +410,40 @@ export type ClubPageInfoResolvers<ContextType = any, ParentType extends Resolver
 };
 
 export type ClubSportLocationResolvers<ContextType = any, ParentType extends ResolversParentTypes['ClubSportLocation'] = ResolversParentTypes['ClubSportLocation']> = {
+  activities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   club?: Resolver<ResolversTypes['Club'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   lon?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  schedule?: Resolver<Array<ResolversTypes['CalendarSpan']>, ParentType, ContextType>;
   sport?: Resolver<ResolversTypes['Sport'], ParentType, ContextType>;
+  trainers?: Resolver<Array<ResolversTypes['Trainer']>, ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ClubSportLocationPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['ClubSportLocationPageInfo'] = ResolversParentTypes['ClubSportLocationPageInfo']> = {
   clubSportLocations?: Resolver<Array<ResolversTypes['ClubSportLocation']>, ParentType, ContextType>;
   endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = {
+  clubSportLocation?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dateRFC3339?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EventPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['EventPageInfo'] = ResolversParentTypes['EventPageInfo']> = {
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  events?: Resolver<Array<ResolversTypes['Event']>, ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -345,6 +456,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   getClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<QueryGetClubArgs, 'id'>>;
   getClubSportLocation?: Resolver<ResolversTypes['ClubSportLocation'], ParentType, ContextType, RequireFields<QueryGetClubSportLocationArgs, 'id'>>;
+  getEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<QueryGetEventArgs, 'id'>>;
+  listClubSportLocationEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationEventsArgs, 'cslId' | 'first'>>;
   listClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsArgs, 'first'>>;
   listClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListClubsArgs, 'first'>>;
   listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
@@ -367,6 +480,17 @@ export type SportPageInfoResolvers<ContextType = any, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TrainerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Trainer'] = ResolversParentTypes['Trainer']> = {
+  club?: Resolver<Maybe<ResolversTypes['Club']>, ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  displayname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  lastname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  photo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
@@ -374,14 +498,19 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type Resolvers<ContextType = any> = {
+  Activity?: ActivityResolvers<ContextType>;
+  CalendarSpan?: CalendarSpanResolvers<ContextType>;
   Club?: ClubResolvers<ContextType>;
   ClubPageInfo?: ClubPageInfoResolvers<ContextType>;
   ClubSportLocation?: ClubSportLocationResolvers<ContextType>;
   ClubSportLocationPageInfo?: ClubSportLocationPageInfoResolvers<ContextType>;
+  Event?: EventResolvers<ContextType>;
+  EventPageInfo?: EventPageInfoResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Sport?: SportResolvers<ContextType>;
   SportPageInfo?: SportPageInfoResolvers<ContextType>;
+  Trainer?: TrainerResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
 
@@ -397,20 +526,48 @@ export type DirectiveResolvers<ContextType = any> = {
 };
 
 import { ObjectId } from 'mongodb';
+export type ActivityDbObject = {
+  description: string,
+  icon?: Maybe<string>,
+  name: string,
+};
+
+export type CalendarSpanDbObject = {
+  fromDay: number,
+  fromTime: string,
+  title: string,
+  toDay: number,
+  toTime: string,
+};
+
 export type ClubDbObject = {
   _id?: Maybe<ObjectId>,
-  logo: string,
+  logo?: Maybe<string>,
   name: string,
   subtitle: string,
 };
 
 export type ClubSportLocationDbObject = {
+  activities: Array<ActivityDbObject>,
   address: string,
   club: ClubDbObject['_id'],
+  description: string,
   _id?: Maybe<ObjectId>,
   lat: number,
   lon: number,
+  phone: string,
+  schedule: Array<CalendarSpanDbObject>,
   sport: SportDbObject['_id'],
+  trainers: Array<TrainerDbObject['_id']>,
+  website?: Maybe<string>,
+};
+
+export type EventDbObject = {
+  clubSportLocation: string,
+  dateRFC3339: string,
+  description: string,
+  _id?: Maybe<ObjectId>,
+  image?: Maybe<string>,
 };
 
 export type SportDbObject = {
@@ -418,6 +575,16 @@ export type SportDbObject = {
   _id?: Maybe<ObjectId>,
   tags: Array<string>,
   title: string,
+};
+
+export type TrainerDbObject = {
+  club?: Maybe<ClubDbObject['_id']>,
+  description: string,
+  displayname: string,
+  firstname: string,
+  _id?: Maybe<ObjectId>,
+  lastname: string,
+  photo?: Maybe<string>,
 };
 
 export type UserDbObject = {

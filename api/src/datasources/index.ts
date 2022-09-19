@@ -6,6 +6,8 @@ import SportAPI from './sport';
 import ClubAPI from './club';
 import UserAPI from './user';
 import ClubSportLocationAPI from './clubSportLocation';
+import TrainerAPI from './trainer';
+import EventAPI from './event';
 
 export enum _Database {
   Dev = 'dev',
@@ -18,6 +20,8 @@ export enum _Collection {
   Sport = 'sport',
   Club = 'club',
   ClubSportLocation = 'club-sport-location',
+  Trainer = 'trainer',
+  Event = 'event',
 }
 
 export type DataSources = {
@@ -25,6 +29,8 @@ export type DataSources = {
   sportAPI: SportAPI;
   clubAPI: ClubAPI;
   clubSportLocationAPI: ClubSportLocationAPI;
+  trainerAPI: TrainerAPI;
+  eventAPI: EventAPI;
 };
 
 export type ContextWithDataSources = Context<AuthenticationContext> & {

@@ -71,7 +71,7 @@ const filterSport: (search: string) => (sport: Sport) => boolean =
 
 const sportIconPath: (sport: Sport) => string = (sport: Sport) => {
   const titleKebabCase = sport.title.toLocaleLowerCase().replaceAll(' ', '-');
-  return `/sport_icons/80/${titleKebabCase}.png`;
+  return `/icons/80/${titleKebabCase}.png`;
 };
 
 export default function SportList() {
