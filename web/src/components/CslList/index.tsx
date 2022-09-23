@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, BoxProps, TextField } from '@mui/material';
@@ -7,14 +8,14 @@ import {
   ClubSportLocationPageInfo,
   SearchArea,
   ClubSportLocationSearchQueryInput,
-} from '../generated/graphql';
+} from '../../generated/graphql';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   decodeQuery,
   QUERY_KEY,
   DEFAULT_QUERY,
   encodeQuery,
-} from '../utils/searchQuery';
+} from '../../utils/searchQuery';
 import CslCard from './CslCard';
 import CslMap from './CslMap';
 
@@ -124,9 +125,6 @@ export default function CslList() {
     });
   }, [searchArea]);
 
-  // initial search query => map computes center from query.address => boundaries are changes
-  // => query is changed =>
-
   React.useEffect(() => {
     if (!searchInput && query.address) {
       setSearchInput(query.address || '');
@@ -165,6 +163,9 @@ export default function CslList() {
       area: undefined,
     });
   };
+  const handleCslClick = (cslId: string) => {
+    navigate(`/locations/${cslId}`);
+  };
 
   return (
     <Container>
@@ -181,21 +182,27 @@ export default function CslList() {
         </form>
       </SearchContainer>
       <ListContainer>
-        {data?.searchClubSportLocations.clubSportLocations.map((csl, i) => (
-          <CslCard
-            key={csl.id || i}
-            name={csl.club.name}
-            subtitle={csl.club.subtitle}
-            address={csl.address}
-          />
-        ))}
+        {data?.searchClubSportLocations.clubSportLocations
+          .filter((csl) => csl.id)
+          .map((csl) => (
+            <CslCard
+              key={csl.id!}
+              id={csl.id!}
+              name={csl.club.name}
+              subtitle={csl.club.subtitle}
+              address={csl.address}
+              onClick={handleCslClick}
+              sx={{ cursor: 'pointer' }}
+            />
+          ))}
       </ListContainer>
       <MapContainer>
-        <CslMap
+        {/* <CslMap
           locations={data?.searchClubSportLocations.clubSportLocations || []}
           onChange={onMapChange}
           query={mapQuery}
-        />
+        /> */}
+        map
       </MapContainer>
     </Container>
   );

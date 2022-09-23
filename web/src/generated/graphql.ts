@@ -12,10 +12,26 @@ export type Scalars = {
   Float: number;
 };
 
+export type Activity = {
+  __typename?: 'Activity';
+  description: Scalars['String'];
+  icon?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+};
+
+export type CalendarSpan = {
+  __typename?: 'CalendarSpan';
+  fromDay: Scalars['Int'];
+  fromTime: Scalars['String'];
+  title: Scalars['String'];
+  toDay: Scalars['Int'];
+  toTime: Scalars['String'];
+};
+
 export type Club = {
   __typename?: 'Club';
   id?: Maybe<Scalars['ID']>;
-  logo: Scalars['String'];
+  logo?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   subtitle: Scalars['String'];
 };
@@ -29,12 +45,18 @@ export type ClubPageInfo = {
 
 export type ClubSportLocation = {
   __typename?: 'ClubSportLocation';
+  activities: Array<Activity>;
   address: Scalars['String'];
   club: Club;
+  description: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
   lat: Scalars['Float'];
   lon: Scalars['Float'];
+  phone: Scalars['String'];
+  schedule: Array<CalendarSpan>;
   sport: Sport;
+  trainers: Array<Trainer>;
+  website?: Maybe<Scalars['String']>;
 };
 
 export type ClubSportLocationPageInfo = {
@@ -48,6 +70,22 @@ export type ClubSportLocationSearchQueryInput = {
   address?: InputMaybe<Scalars['String']>;
   area?: InputMaybe<SearchArea>;
   sport: Scalars['ID'];
+};
+
+export type Event = {
+  __typename?: 'Event';
+  clubSportLocation: Scalars['String'];
+  dateRFC3339: Scalars['String'];
+  description: Scalars['String'];
+  id?: Maybe<Scalars['ID']>;
+  image?: Maybe<Scalars['String']>;
+};
+
+export type EventPageInfo = {
+  __typename?: 'EventPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  events: Array<Event>;
+  hasNextPage: Scalars['Boolean'];
 };
 
 export type Mutation = {
@@ -72,6 +110,8 @@ export type Query = {
   __typename?: 'Query';
   getClub: Club;
   getClubSportLocation: ClubSportLocation;
+  getEvent: Event;
+  listClubSportLocationEvents: EventPageInfo;
   listClubSportLocations: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
   listSports: SportPageInfo;
@@ -87,6 +127,18 @@ export type QueryGetClubArgs = {
 
 export type QueryGetClubSportLocationArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryGetEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryListClubSportLocationEventsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  cslId: Scalars['ID'];
+  first: Scalars['Int'];
 };
 
 
@@ -134,6 +186,17 @@ export type SportPageInfo = {
   endCursor?: Maybe<Scalars['String']>;
   hasNextPage: Scalars['Boolean'];
   sports: Array<Sport>;
+};
+
+export type Trainer = {
+  __typename?: 'Trainer';
+  club?: Maybe<Club>;
+  description: Scalars['String'];
+  displayname: Scalars['String'];
+  firstname: Scalars['String'];
+  id?: Maybe<Scalars['ID']>;
+  lastname: Scalars['String'];
+  photo?: Maybe<Scalars['String']>;
 };
 
 export type User = {

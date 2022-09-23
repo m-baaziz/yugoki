@@ -8,7 +8,7 @@ import { isLatLngLiteral } from '@googlemaps/typescript-guards';
 import {
   ClubSportLocation,
   ClubSportLocationSearchQueryInput,
-} from '../generated/graphql';
+} from '../../generated/graphql';
 import { styled } from '@mui/material/styles';
 import { Box, BoxProps, CircularProgress } from '@mui/material';
 import { Error as ErrorIcon } from '@mui/icons-material';

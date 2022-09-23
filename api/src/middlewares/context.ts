@@ -8,32 +8,19 @@ export type AuthenticationContext = {
   user?: User;
 };
 
-const UNPRIVILEGED_EDNPOINTS = [
-  'IntrospectionQuery',
-  'signUp',
-  'signIn',
-  'listSports',
-  'listClubs',
-  'searchClubSportLocations',
-];
-
 const authenticationMiddleware =
   (userAPI: UserAPI) =>
   async ({ req }: ExpressContext): Promise<Context<AuthenticationContext>> => {
     try {
-      const { operationName } = req.body;
-      if (UNPRIVILEGED_EDNPOINTS.includes(operationName)) {
-        return Promise.resolve({});
-      }
       const authoriaztionSplit = req.headers.authorization?.split(' ');
       if (!authoriaztionSplit || authoriaztionSplit.length !== 2) {
-        return Promise.reject({ message: 'Unauthorized' });
+        return Promise.resolve({ user: undefined });
       }
       const token = authoriaztionSplit[1];
       const user = await userAPI.verifyToken(token);
       return Promise.resolve({ user: dbUserToUser(user) });
     } catch (e) {
-      return Promise.reject({ message: 'Unauthorized' });
+      return Promise.resolve({ user: undefined });
     }
   };
 

@@ -10,6 +10,12 @@ type Query {
     first: Int!
     after: String
   ): ClubSportLocationPageInfo!
+  getEvent(id: ID!): Event!
+  listClubSportLocationEvents(
+    cslId: ID!
+    first: Int!
+    after: String
+  ): EventPageInfo!
 }
 
 type Mutation {
@@ -36,6 +42,12 @@ type User
   email: String! @column
 }
 
+type Activity @entity(embedded: true) {
+  name: String! @column
+  description: String! @column
+  icon: String @column
+}
+
 type Sport @entity {
   id: ID @id
   title: String! @column
@@ -53,13 +65,47 @@ type Club @entity {
   id: ID @id
   name: String! @column # index
   subtitle: String! @column
-  logo: String! @column
+  logo: String @column
 }
 
 type ClubPageInfo {
   clubs: [Club!]!
   hasNextPage: Boolean!
   endCursor: String
+}
+
+# new
+type Trainer @entity {
+  id: ID @id
+  firstname: String! @column
+  lastname: String! @column
+  displayname: String! @column
+  description: String! @column
+  club: Club @link # index
+  photo: String @column
+}
+
+# new
+type Event @entity {
+  id: ID @id
+  clubSportLocation: String! @column # index
+  dateRFC3339: String! @column
+  description: String! @column
+  image: String @column
+}
+
+type EventPageInfo {
+  events: [Event!]!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type CalendarSpan @entity(embedded: true) {
+  title: String! @column
+  fromDay: Int! @column
+  toDay: Int! @column
+  fromTime: String! @column
+  toTime: String! @column
 }
 
 type ClubSportLocation @entity {
@@ -69,7 +115,13 @@ type ClubSportLocation @entity {
   address: String! @column # index (address is not unique but combination of club, sport and address is unique)
   lat: Float! @column
   lon: Float! @column
-  # activities
+  # new
+  phone: String! @column
+  website: String @column
+  description: String! @column
+  activities: [Activity!]! @embedded
+  trainers: [Trainer!]! @link
+  schedule: [CalendarSpan!]! @embedded
 }
 
 type ClubSportLocationPageInfo {

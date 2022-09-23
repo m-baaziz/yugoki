@@ -1,21 +1,27 @@
 import * as React from 'react';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { SxProps, Theme } from '@mui/material';
 
 export type CslCardProps = {
+  id: string;
   name: string;
   subtitle: string;
   address: string;
+  onClick: (id: string) => void;
+  sx?: SxProps<Theme>;
 };
 
 export default function CslCard(props: CslCardProps) {
-  const { name, subtitle, address } = props;
+  const { id, name, subtitle, address, onClick, sx } = props;
+
+  const handleClick = () => {
+    onClick(id);
+  };
 
   return (
-    <Card sx={{ minWidth: 275, height: 200 }}>
+    <Card sx={{ minWidth: 275, height: 200, ...sx }} onClick={handleClick}>
       <CardContent>
         <Typography variant="h5" component="div">
           {name}
@@ -25,9 +31,6 @@ export default function CslCard(props: CslCardProps) {
         </Typography>
         <Typography variant="body2">{address}</Typography>
       </CardContent>
-      <CardActions>
-        <Button size="small">Learn More</Button>
-      </CardActions>
     </Card>
   );
 }
