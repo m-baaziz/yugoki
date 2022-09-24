@@ -50,6 +50,7 @@ export type ClubSportLocation = {
   club: Club;
   description: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
+  images: Array<Scalars['String']>;
   lat: Scalars['Float'];
   lon: Scalars['Float'];
   phone: Scalars['String'];
@@ -79,6 +80,7 @@ export type Event = {
   description: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
   image?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
 };
 
 export type EventPageInfo = {

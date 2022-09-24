@@ -57,6 +57,7 @@ export type ClubSportLocation = {
   club: Club;
   description: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
+  images: Array<Scalars['String']>;
   lat: Scalars['Float'];
   lon: Scalars['Float'];
   phone: Scalars['String'];
@@ -86,6 +87,7 @@ export type Event = {
   description: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
   image?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
 };
 
 export type EventPageInfo = {
@@ -415,6 +417,7 @@ export type ClubSportLocationResolvers<ContextType = any, ParentType extends Res
   club?: Resolver<ResolversTypes['Club'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  images?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   lon?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -438,6 +441,7 @@ export type EventResolvers<ContextType = any, ParentType extends ResolversParent
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -553,6 +557,7 @@ export type ClubSportLocationDbObject = {
   club: ClubDbObject['_id'],
   description: string,
   _id?: Maybe<ObjectId>,
+  images: Array<string>,
   lat: number,
   lon: number,
   phone: string,
@@ -568,6 +573,7 @@ export type EventDbObject = {
   description: string,
   _id?: Maybe<ObjectId>,
   image?: Maybe<string>,
+  title: string,
 };
 
 export type SportDbObject = {

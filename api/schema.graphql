@@ -74,7 +74,6 @@ type ClubPageInfo {
   endCursor: String
 }
 
-# new
 type Trainer @entity {
   id: ID @id
   firstname: String! @column
@@ -85,11 +84,11 @@ type Trainer @entity {
   photo: String @column
 }
 
-# new
 type Event @entity {
   id: ID @id
   clubSportLocation: String! @column # index
   dateRFC3339: String! @column
+  title: String! @column
   description: String! @column
   image: String @column
 }
@@ -115,9 +114,9 @@ type ClubSportLocation @entity {
   address: String! @column # index (address is not unique but combination of club, sport and address is unique)
   lat: Float! @column
   lon: Float! @column
-  # new
   phone: String! @column
   website: String @column
+  images: [String!]! @column
   description: String! @column
   activities: [Activity!]! @embedded
   trainers: [Trainer!]! @link

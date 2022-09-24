@@ -11,6 +11,7 @@ import {
 import ContactInfos from './ContactInfos';
 import IconTextCombo from '../IconTextCombo';
 import InfoTabs from './InfoTabs';
+import Images from './Images';
 
 const ICON_SIZE = 20;
 
@@ -25,6 +26,7 @@ const GET_CLUB_SPORT_LOCATION = gql`
       address
       phone
       website
+      images
       description
       activities {
         name
@@ -59,6 +61,8 @@ const Container = styled(Box)<BoxProps>(() => ({
     '   .          name            .    '  ${ICON_SIZE}px  \
     '   .           .              .    '  1em   \
     '   .         contact          .    '  auto  \
+    '   .           .              .    '  2em   \
+    '   .         images           .    '  auto  \
     '   .           .              .    '  2em   \
     '   .       description        .    '  auto  \
     '   .           .              .    '  2em   \
@@ -130,6 +134,10 @@ export default function CslPage() {
               web={data.getClubSportLocation.website || undefined}
             />
           </Box>
+          <Images
+            images={data.getClubSportLocation.images}
+            sx={{ gridArea: 'images', height: '100%', width: '100%' }}
+          />
           <Box
             sx={{
               gridArea: 'description',

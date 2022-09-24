@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Box, SxProps, Tab, Tabs, Theme } from '@mui/material';
 import { ClubSportLocation } from '../../../generated/graphql';
 import Activities from './Activities';
+import Team from './Team';
+import Events from './Events';
 
 enum InfoTabValue {
   Activities,
@@ -84,6 +86,12 @@ export default function InfoTabs(props: InfoTabsProps) {
       </Box>
       <TabPanel tab={tab} showOnTab={InfoTabValue.Activities}>
         <Activities activities={csl.activities} />
+      </TabPanel>
+      <TabPanel tab={tab} showOnTab={InfoTabValue.Team}>
+        <Team trainers={csl.trainers} />
+      </TabPanel>
+      <TabPanel tab={tab} showOnTab={InfoTabValue.Events}>
+        <Events cslId={csl.id || ''} />
       </TabPanel>
     </Box>
   );
