@@ -28,11 +28,10 @@ export type Activity = {
 
 export type CalendarSpan = {
   __typename?: 'CalendarSpan';
-  fromDay: Scalars['Int'];
-  fromTime: Scalars['String'];
+  day: Scalars['Int'];
+  fromMinute: Scalars['Int'];
   title: Scalars['String'];
-  toDay: Scalars['Int'];
-  toTime: Scalars['String'];
+  toMinute: Scalars['Int'];
 };
 
 export type Club = {
@@ -388,11 +387,10 @@ export type ActivityResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type CalendarSpanResolvers<ContextType = any, ParentType extends ResolversParentTypes['CalendarSpan'] = ResolversParentTypes['CalendarSpan']> = {
-  fromDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  fromTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  day?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  fromMinute?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  toDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  toTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toMinute?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -537,11 +535,10 @@ export type ActivityDbObject = {
 };
 
 export type CalendarSpanDbObject = {
-  fromDay: number,
-  fromTime: string,
+  day: number,
+  fromMinute: number,
   title: string,
-  toDay: number,
-  toTime: string,
+  toMinute: number,
 };
 
 export type ClubDbObject = {

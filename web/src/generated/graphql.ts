@@ -21,11 +21,10 @@ export type Activity = {
 
 export type CalendarSpan = {
   __typename?: 'CalendarSpan';
-  fromDay: Scalars['Int'];
-  fromTime: Scalars['String'];
+  day: Scalars['Int'];
+  fromMinute: Scalars['Int'];
   title: Scalars['String'];
-  toDay: Scalars['Int'];
-  toTime: Scalars['String'];
+  toMinute: Scalars['Int'];
 };
 
 export type Club = {

@@ -12,6 +12,7 @@ import ContactInfos from './ContactInfos';
 import IconTextCombo from '../IconTextCombo';
 import InfoTabs from './InfoTabs';
 import Images from './Images';
+import Schedule from './Schedule';
 
 const ICON_SIZE = 20;
 
@@ -43,10 +44,9 @@ const GET_CLUB_SPORT_LOCATION = gql`
       }
       schedule {
         title
-        fromDay
-        toDay
-        fromTime
-        toTime
+        day
+        fromMinute
+        toMinute
       }
     }
   }
@@ -67,6 +67,7 @@ const Container = styled(Box)<BoxProps>(() => ({
     '   .       description        .    '  auto  \
     '   .           .              .    '  2em   \
     '   .          info            .    '  auto  \
+    '   .           .              .    '  2em   \
     '   .        schedule          .    '  1fr   \
     '   .           .              .    '  1em   \
     /   5%         1fr             5%            \
@@ -154,6 +155,10 @@ export default function CslPage() {
               width: '100%',
             }}
             csl={data.getClubSportLocation}
+          />
+          <Schedule
+            calendarSpans={data.getClubSportLocation.schedule}
+            sx={{ gridArea: 'schedule', height: '100%', width: '100%' }}
           />
         </>
       ) : (

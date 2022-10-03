@@ -36,38 +36,33 @@
     "schedule": [
       {
         "title": "Training and Coaching (all)",
-        "fromDay": 1,
-        "toDay": 1,
-        "fromTime": "09:00:00",
-        "toTime": "22:00:00"
+        "day": 1,
+        "fromMinute": 540,
+        "toMinute": 1320
       },
       {
         "title": "Training and Coaching (all)",
-        "fromDay": 2,
-        "toDay": 2,
-        "fromTime": "09:00:00",
-        "toTime": "22:00:00"
+        "day": 2,
+        "fromMinute": 540,
+        "toMinute": 1320
       },
       {
         "title": "Competition preparation (pro)",
-        "fromDay": 3,
-        "toDay": 3,
-        "fromTime": "14:00:00",
-        "toTime": "20:00:00"
+        "day": 3,
+        "fromMinute": 840,
+        "toMinute": 1200
       },
       {
         "title": "Training and Coaching (all)",
-        "fromDay": 4,
-        "toDay": 4,
-        "fromTime": "09:00:00",
-        "toTime": "22:00:00"
+        "day": 4,
+        "fromMinute": 540,
+        "toMinute": 1320
       },
       {
         "title": "Training and Coaching (all)",
-        "fromDay": 5,
-        "toDay": 5,
-        "fromTime": "09:00:00",
-        "toTime": "22:00:00"
+        "day": 5,
+        "fromMinute": 540,
+        "toMinute": 1320
       }
     ]
   },
@@ -108,38 +103,33 @@
     "schedule": [
       {
         "title": "Junior training",
-        "fromDay": 1,
-        "toDay": 1,
-        "fromTime": "16:00:00",
-        "toTime": "18:00:00"
+        "day": 1,
+        "fromMinute": 960,
+        "toMinute": 1080
       },
       {
         "title": "Senior training",
-        "fromDay": 1,
-        "toDay": 1,
-        "fromTime": "18:00:00",
-        "toTime": "20:00:00"
+        "day": 1,
+        "fromMinute": 1080,
+        "toMinute": 1200
       },
       {
         "title": "Training and Coaching (all)",
-        "fromDay": 2,
-        "toDay": 2,
-        "fromTime": "17:00:00",
-        "toTime": "20:00:00"
+        "day": 2,
+        "fromMinute": 1020,
+        "toMinute": 1200
       },
       {
         "title": "Competition preparation (pro)",
-        "fromDay": 3,
-        "toDay": 3,
-        "fromTime": "18:00:00",
-        "toTime": "20:00:00"
+        "day": 3,
+        "fromMinute": 1080,
+        "toMinute": 1200
       },
       {
         "title": "Free matchs (all)",
-        "fromDay": 5,
-        "toDay": 5,
-        "fromTime": "09:00:00",
-        "toTime": "20:00:00"
+        "day": 5,
+        "fromMinute": 540,
+        "toMinute": 1200
       }
     ]
   }
