@@ -15,6 +15,8 @@ import SportAPI from './datasources/sport';
 import ClubSportLocationAPI from './datasources/clubSportLocation';
 import TrainerAPI from './datasources/trainer';
 import EventAPI from './datasources/event';
+import SubscriptionAPI from './datasources/subscription';
+import SubscriptionOptionAPI from './datasources/subscriptionOption';
 
 const isDev = process.env.NODE_ENV !== 'production';
 const SCHEMA_PATH = path.join(__dirname, '../schema.graphql');
@@ -40,14 +42,22 @@ async function main() {
     jwtSecret: JWT_SECRET,
     jwtValiditySec: JWT_VALIDITY_SEC,
   });
-  const clubAPI = new ClubAPI(db);
-  const sportAPI = new SportAPI(db);
-  const clubSportLocationAPI = new ClubSportLocationAPI(db);
+  const subscriptionOptionAPI = new SubscriptionOptionAPI(db);
+  const subscriptionAPI = new SubscriptionAPI(db);
   const trainerAPI = new TrainerAPI(db);
+  const clubSportLocationAPI = new ClubSportLocationAPI(
+    db,
+    subscriptionOptionAPI,
+  );
+  const clubAPI = new ClubAPI(db, trainerAPI, clubSportLocationAPI);
+  const sportAPI = new SportAPI(db);
   const eventAPI = new EventAPI(db);
 
   await userAPI.createIndexes();
   await sportAPI.createIndexes();
+  await subscriptionOptionAPI.createIndexes();
+  await subscriptionAPI.createIndexes();
+  await trainerAPI.createIndexes();
   await clubAPI.createIndexes();
   await clubSportLocationAPI.createIndexes();
 
@@ -60,6 +70,8 @@ async function main() {
       clubSportLocationAPI,
       trainerAPI,
       eventAPI,
+      subscriptionOptionAPI,
+      subscriptionAPI,
     }),
     context: authenticationMiddleware(userAPI),
     logger,

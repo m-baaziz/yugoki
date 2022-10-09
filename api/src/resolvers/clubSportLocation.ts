@@ -7,7 +7,10 @@ import {
   QueryGetClubSportLocationArgs,
   QuerySearchClubSportLocationsArgs,
   ClubSportLocationDbObject,
+  MutationCreateClubSportLocationArgs,
+  MutationDeleteClubSportLocationArgs,
 } from '../generated/graphql';
+import { isUserAuthorized } from '../utils/club';
 import { dbClubSportLocationToClubSportLocation } from '../utils/clubSportLocation';
 // import { logger } from '../logger';
 
@@ -131,6 +134,61 @@ export async function getClubSportLocation(
       csl.trainers.map((tid) => tid.toString()),
     );
     return dbClubSportLocationToClubSportLocation(csl, sport, club, trainers);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export async function createClubSportLocation(
+  _parent: unknown,
+  { clubId, sportId, input }: MutationCreateClubSportLocationArgs,
+  {
+    user,
+    dataSources: { clubSportLocationAPI, sportAPI, clubAPI, trainerAPI },
+  }: ContextWithDataSources,
+): Promise<ClubSportLocation> {
+  try {
+    if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    const club = await clubAPI.findClubById(clubId);
+    if (!isUserAuthorized(club, user)) {
+      return Promise.reject('Unauthorized');
+    }
+    const sport = await sportAPI.findSportById(sportId);
+    const csl = await clubSportLocationAPI.createClubSportLocation(
+      clubId,
+      sportId,
+      input,
+    );
+    const trainers = await trainerAPI.findTrainersByIds(
+      csl.trainers.map((tid) => tid.toString()),
+    );
+    return dbClubSportLocationToClubSportLocation(csl, sport, club, trainers);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
+export async function deleteClubSportLocation(
+  _parent: unknown,
+  { id }: MutationDeleteClubSportLocationArgs,
+  {
+    user,
+    dataSources: { clubSportLocationAPI, clubAPI },
+  }: ContextWithDataSources,
+): Promise<boolean> {
+  try {
+    if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    const csl = await clubSportLocationAPI.findClubSportLocationById(id);
+    const club = await clubAPI.findClubById(csl.club.toString());
+    if (!isUserAuthorized(club, user)) {
+      return Promise.reject('Unauthorized');
+    }
+    const result = clubSportLocationAPI.deleteClubSportLocation(id);
+    return Promise.resolve(result);
   } catch (e) {
     return Promise.reject(e);
   }

@@ -39,7 +39,7 @@ export type Club = {
   id?: Maybe<Scalars['ID']>;
   logo?: Maybe<Scalars['String']>;
   name: Scalars['String'];
-  subtitle: Scalars['String'];
+  owner: Scalars['String'];
 };
 
 export type ClubPageInfo = {
@@ -59,11 +59,26 @@ export type ClubSportLocation = {
   images: Array<Scalars['String']>;
   lat: Scalars['Float'];
   lon: Scalars['Float'];
+  name: Scalars['String'];
   phone: Scalars['String'];
   schedule: Array<CalendarSpan>;
   sport: Sport;
   trainers: Array<Trainer>;
   website?: Maybe<Scalars['String']>;
+};
+
+export type ClubSportLocationInput = {
+  activities: Array<Activity>;
+  address: Scalars['String'];
+  description: Scalars['String'];
+  images: Array<Scalars['String']>;
+  lat: Scalars['Float'];
+  lon: Scalars['Float'];
+  name: Scalars['String'];
+  phone: Scalars['String'];
+  schedule: Array<CalendarSpan>;
+  trainerIds: Array<Scalars['ID']>;
+  website?: InputMaybe<Scalars['String']>;
 };
 
 export type ClubSportLocationPageInfo = {
@@ -96,10 +111,69 @@ export type EventPageInfo = {
   hasNextPage: Scalars['Boolean'];
 };
 
+export enum Gender {
+  Female = 'Female',
+  Male = 'Male',
+  Other = 'Other'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createClub: Club;
+  createClubSportLocation?: Maybe<ClubSportLocation>;
+  createSubscription: Subscription;
+  createSubscriptionOption: SubscriptionOption;
+  createTrainer: Trainer;
+  deleteClub: Scalars['Boolean'];
+  deleteClubSportLocation: Scalars['Boolean'];
+  deleteTrainer: Scalars['Boolean'];
   signIn: Scalars['String'];
   signUp: Scalars['String'];
+};
+
+
+export type MutationCreateClubArgs = {
+  name: Scalars['String'];
+};
+
+
+export type MutationCreateClubSportLocationArgs = {
+  clubId: Scalars['ID'];
+  input: ClubSportLocationInput;
+  sportId: Scalars['ID'];
+};
+
+
+export type MutationCreateSubscriptionArgs = {
+  details: SubscriberDetailsInput;
+  subcriptionOption: Scalars['ID'];
+};
+
+
+export type MutationCreateSubscriptionOptionArgs = {
+  cslId: Scalars['ID'];
+  input: SubscriptionOptionInput;
+};
+
+
+export type MutationCreateTrainerArgs = {
+  clubId: Scalars['ID'];
+  input: TrainerInput;
+};
+
+
+export type MutationDeleteClubArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteClubSportLocationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTrainerArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -123,6 +197,9 @@ export type Query = {
   listClubSportLocations: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
   listSports: SportPageInfo;
+  listSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
+  listSubscriptionsBySubscriptionOption: SubscriptionPageInfo;
+  listTrainersByClub: TrainerPageInfo;
   me: User;
   searchClubSportLocations: ClubSportLocationPageInfo;
 };
@@ -168,6 +245,27 @@ export type QueryListSportsArgs = {
 };
 
 
+export type QueryListSubscriptionOptionsByClubSportLocationArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  cslId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
+export type QueryListSubscriptionsBySubscriptionOptionArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  subscriptionOptionId: Scalars['ID'];
+};
+
+
+export type QueryListTrainersByClubArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  clubId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
 export type QuerySearchClubSportLocationsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
@@ -196,6 +294,65 @@ export type SportPageInfo = {
   sports: Array<Sport>;
 };
 
+export type SubscriberDetails = {
+  __typename?: 'SubscriberDetails';
+  address: Scalars['String'];
+  dateOfBirth: Scalars['String'];
+  email: Scalars['String'];
+  firstname: Scalars['String'];
+  gender: Gender;
+  lastname: Scalars['String'];
+  phone: Scalars['String'];
+};
+
+export type SubscriberDetailsInput = {
+  address: Scalars['String'];
+  dateOfBirth: Scalars['String'];
+  email: Scalars['String'];
+  firstname: Scalars['String'];
+  gender: Gender;
+  lastname: Scalars['String'];
+  phone: Scalars['String'];
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  createdAtRFC3339: Scalars['String'];
+  id?: Maybe<Scalars['ID']>;
+  subscriberDetails: SubscriberDetails;
+  subscriptionOption: SubscriptionOption;
+};
+
+export type SubscriptionOption = {
+  __typename?: 'SubscriptionOption';
+  clubSportLocation: Scalars['String'];
+  enabled: Scalars['Boolean'];
+  features: Array<Scalars['String']>;
+  id?: Maybe<Scalars['ID']>;
+  price: Scalars['Float'];
+  title: Scalars['String'];
+};
+
+export type SubscriptionOptionInput = {
+  features: Array<Scalars['String']>;
+  price: Scalars['Float'];
+  title: Scalars['String'];
+};
+
+export type SubscriptionOptionPageInfo = {
+  __typename?: 'SubscriptionOptionPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  subscriptionOptions: Array<SubscriptionOption>;
+};
+
+export type SubscriptionPageInfo = {
+  __typename?: 'SubscriptionPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  subscriptions: Array<Subscription>;
+};
+
 export type Trainer = {
   __typename?: 'Trainer';
   club?: Maybe<Club>;
@@ -205,6 +362,20 @@ export type Trainer = {
   id?: Maybe<Scalars['ID']>;
   lastname: Scalars['String'];
   photo?: Maybe<Scalars['String']>;
+};
+
+export type TrainerInput = {
+  description: Scalars['String'];
+  displayname: Scalars['String'];
+  firstname: Scalars['String'];
+  lastname: Scalars['String'];
+};
+
+export type TrainerPageInfo = {
+  __typename?: 'TrainerPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  trainers: Array<Trainer>;
 };
 
 export type User = {
@@ -293,16 +464,27 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   ClubSportLocation: ResolverTypeWrapper<ClubSportLocation>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  ClubSportLocationInput: ClubSportLocationInput;
   ClubSportLocationPageInfo: ResolverTypeWrapper<ClubSportLocationPageInfo>;
   ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
   Event: ResolverTypeWrapper<Event>;
   EventPageInfo: ResolverTypeWrapper<EventPageInfo>;
+  Gender: Gender;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   SearchArea: SearchArea;
   Sport: ResolverTypeWrapper<Sport>;
   SportPageInfo: ResolverTypeWrapper<SportPageInfo>;
+  SubscriberDetails: ResolverTypeWrapper<SubscriberDetails>;
+  SubscriberDetailsInput: SubscriberDetailsInput;
+  Subscription: ResolverTypeWrapper<{}>;
+  SubscriptionOption: ResolverTypeWrapper<SubscriptionOption>;
+  SubscriptionOptionInput: SubscriptionOptionInput;
+  SubscriptionOptionPageInfo: ResolverTypeWrapper<SubscriptionOptionPageInfo>;
+  SubscriptionPageInfo: ResolverTypeWrapper<SubscriptionPageInfo>;
   Trainer: ResolverTypeWrapper<Trainer>;
+  TrainerInput: TrainerInput;
+  TrainerPageInfo: ResolverTypeWrapper<TrainerPageInfo>;
   User: ResolverTypeWrapper<User>;
 };
 
@@ -319,6 +501,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   ClubSportLocation: ClubSportLocation;
   Float: Scalars['Float'];
+  ClubSportLocationInput: ClubSportLocationInput;
   ClubSportLocationPageInfo: ClubSportLocationPageInfo;
   ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
   Event: Event;
@@ -328,7 +511,16 @@ export type ResolversParentTypes = {
   SearchArea: SearchArea;
   Sport: Sport;
   SportPageInfo: SportPageInfo;
+  SubscriberDetails: SubscriberDetails;
+  SubscriberDetailsInput: SubscriberDetailsInput;
+  Subscription: {};
+  SubscriptionOption: SubscriptionOption;
+  SubscriptionOptionInput: SubscriptionOptionInput;
+  SubscriptionOptionPageInfo: SubscriptionOptionPageInfo;
+  SubscriptionPageInfo: SubscriptionPageInfo;
   Trainer: Trainer;
+  TrainerInput: TrainerInput;
+  TrainerPageInfo: TrainerPageInfo;
   User: User;
 };
 
@@ -398,7 +590,7 @@ export type ClubResolvers<ContextType = any, ParentType extends ResolversParentT
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  subtitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -418,6 +610,7 @@ export type ClubSportLocationResolvers<ContextType = any, ParentType extends Res
   images?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   lon?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   schedule?: Resolver<Array<ResolversTypes['CalendarSpan']>, ParentType, ContextType>;
   sport?: Resolver<ResolversTypes['Sport'], ParentType, ContextType>;
@@ -451,6 +644,14 @@ export type EventPageInfoResolvers<ContextType = any, ParentType extends Resolve
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'name'>>;
+  createClubSportLocation?: Resolver<Maybe<ResolversTypes['ClubSportLocation']>, ParentType, ContextType, RequireFields<MutationCreateClubSportLocationArgs, 'clubId' | 'input' | 'sportId'>>;
+  createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'subcriptionOption'>>;
+  createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'cslId' | 'input'>>;
+  createTrainer?: Resolver<ResolversTypes['Trainer'], ParentType, ContextType, RequireFields<MutationCreateTrainerArgs, 'clubId' | 'input'>>;
+  deleteClub?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubArgs, 'id'>>;
+  deleteClubSportLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubSportLocationArgs, 'id'>>;
+  deleteTrainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainerArgs, 'id'>>;
   signIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
   signUp?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
 };
@@ -463,6 +664,9 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   listClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsArgs, 'first'>>;
   listClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListClubsArgs, 'first'>>;
   listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
+  listSubscriptionOptionsByClubSportLocation?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionOptionsByClubSportLocationArgs, 'cslId' | 'first'>>;
+  listSubscriptionsBySubscriptionOption?: Resolver<ResolversTypes['SubscriptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionsBySubscriptionOptionArgs, 'first' | 'subscriptionOptionId'>>;
+  listTrainersByClub?: Resolver<ResolversTypes['TrainerPageInfo'], ParentType, ContextType, RequireFields<QueryListTrainersByClubArgs, 'clubId' | 'first'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   searchClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QuerySearchClubSportLocationsArgs, 'first' | 'query'>>;
 };
@@ -482,6 +686,48 @@ export type SportPageInfoResolvers<ContextType = any, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SubscriberDetailsResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriberDetails'] = ResolversParentTypes['SubscriberDetails']> = {
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dateOfBirth?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  gender?: Resolver<ResolversTypes['Gender'], ParentType, ContextType>;
+  lastname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  createdAtRFC3339?: SubscriptionResolver<ResolversTypes['String'], "createdAtRFC3339", ParentType, ContextType>;
+  id?: SubscriptionResolver<Maybe<ResolversTypes['ID']>, "id", ParentType, ContextType>;
+  subscriberDetails?: SubscriptionResolver<ResolversTypes['SubscriberDetails'], "subscriberDetails", ParentType, ContextType>;
+  subscriptionOption?: SubscriptionResolver<ResolversTypes['SubscriptionOption'], "subscriptionOption", ParentType, ContextType>;
+};
+
+export type SubscriptionOptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionOption'] = ResolversParentTypes['SubscriptionOption']> = {
+  clubSportLocation?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  features?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  price?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionOptionPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionOptionPageInfo'] = ResolversParentTypes['SubscriptionOptionPageInfo']> = {
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  subscriptionOptions?: Resolver<Array<ResolversTypes['SubscriptionOption']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionPageInfo'] = ResolversParentTypes['SubscriptionPageInfo']> = {
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TrainerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Trainer'] = ResolversParentTypes['Trainer']> = {
   club?: Resolver<Maybe<ResolversTypes['Club']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -490,6 +736,13 @@ export type TrainerResolvers<ContextType = any, ParentType extends ResolversPare
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   lastname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   photo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TrainerPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['TrainerPageInfo'] = ResolversParentTypes['TrainerPageInfo']> = {
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  trainers?: Resolver<Array<ResolversTypes['Trainer']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -512,7 +765,13 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   Sport?: SportResolvers<ContextType>;
   SportPageInfo?: SportPageInfoResolvers<ContextType>;
+  SubscriberDetails?: SubscriberDetailsResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
+  SubscriptionOption?: SubscriptionOptionResolvers<ContextType>;
+  SubscriptionOptionPageInfo?: SubscriptionOptionPageInfoResolvers<ContextType>;
+  SubscriptionPageInfo?: SubscriptionPageInfoResolvers<ContextType>;
   Trainer?: TrainerResolvers<ContextType>;
+  TrainerPageInfo?: TrainerPageInfoResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
 
@@ -545,7 +804,7 @@ export type ClubDbObject = {
   _id?: Maybe<ObjectId>,
   logo?: Maybe<string>,
   name: string,
-  subtitle: string,
+  owner: string,
 };
 
 export type ClubSportLocationDbObject = {
@@ -557,6 +816,7 @@ export type ClubSportLocationDbObject = {
   images: Array<string>,
   lat: number,
   lon: number,
+  name: string,
   phone: string,
   schedule: Array<CalendarSpanDbObject>,
   sport: SportDbObject['_id'],
@@ -577,6 +837,32 @@ export type SportDbObject = {
   description: string,
   _id?: Maybe<ObjectId>,
   tags: Array<string>,
+  title: string,
+};
+
+export type SubscriberDetailsDbObject = {
+  address: string,
+  dateOfBirth: string,
+  email: string,
+  firstname: string,
+  gender: string,
+  lastname: string,
+  phone: string,
+};
+
+export type SubscriptionDbObject = {
+  createdAtRFC3339: string,
+  _id?: Maybe<ObjectId>,
+  subscriberDetails: SubscriberDetailsDbObject,
+  subscriptionOption: SubscriptionOptionDbObject['_id'],
+};
+
+export type SubscriptionOptionDbObject = {
+  clubSportLocation: string,
+  enabled: boolean,
+  features: Array<string>,
+  _id?: Maybe<ObjectId>,
+  price: number,
   title: string,
 };
 

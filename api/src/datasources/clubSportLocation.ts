@@ -3,17 +3,24 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource';
 import { Collection, Db, Filter, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
-import { ClubSportLocationDbObject } from '../generated/graphql';
+import {
+  ClubSportLocationDbObject,
+  ClubSportLocationInput,
+} from '../generated/graphql';
+import { logger } from '../logger';
+import SubscriptionOptionAPI from './subscriptionOption';
 
 export default class ClubSportLocationAPI extends DataSource {
   collection: Collection<ClubSportLocationDbObject>;
   context: any;
+  subscriptionOptionAPI: SubscriptionOptionAPI;
 
-  constructor(db: Db) {
+  constructor(db: Db, subscriptionOptionAPI: SubscriptionOptionAPI) {
     super();
     this.collection = db.collection<ClubSportLocationDbObject>(
       _Collection.ClubSportLocation,
     );
+    this.subscriptionOptionAPI = subscriptionOptionAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -22,6 +29,7 @@ export default class ClubSportLocationAPI extends DataSource {
 
   async createIndexes(): Promise<void> {
     try {
+      await this.collection.createIndex({ name: 1 }, { unique: true });
       await this.collection.createIndex({ sport: 1 }, { unique: false });
       await this.collection.createIndex({ address: 1 }, { unique: false });
       return Promise.resolve();
@@ -113,6 +121,75 @@ export default class ClubSportLocationAPI extends DataSource {
         clubs.pop();
       }
       return Promise.resolve([clubs, hasNext]);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async createClubSportLocation(
+    clubId: string,
+    sportId: string,
+    input: ClubSportLocationInput,
+  ): Promise<ClubSportLocationDbObject> {
+    try {
+      const clubSportLocation: ClubSportLocationDbObject = {
+        club: new ObjectId(clubId),
+        sport: new ObjectId(sportId),
+        ...input,
+        trainers: input.trainerIds.map((id) => new ObjectId(id)),
+      };
+
+      const result = await this.collection.insertOne(clubSportLocation);
+
+      return {
+        ...clubSportLocation,
+        _id: result.insertedId,
+      };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteClubSportLocation(id: string): Promise<boolean> {
+    try {
+      const clubSportLocation = await this.findClubSportLocationById(id);
+
+      const subscriptionOptionsDeleteCount =
+        this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
+          id,
+        );
+      logger.info(
+        `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
+      );
+
+      const result = await this.collection.deleteOne({
+        _id: clubSportLocation._id,
+      });
+      return Promise.resolve(result.deletedCount === 1);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteClubSportLocationsByClub(clubId: string): Promise<number> {
+    try {
+      const cursor = await this.collection.find({
+        club: new ObjectId(clubId),
+      });
+      let subscriptionOptionsDeleteCount = 0;
+      while (await cursor.hasNext()) {
+        subscriptionOptionsDeleteCount +=
+          await this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
+            (await cursor.next())._id.toString(),
+          );
+      }
+      logger.info(
+        `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
+      );
+      const result = await this.collection.deleteMany({
+        club: new ObjectId(clubId),
+      });
+      return Promise.resolve(result.deletedCount);
     } catch (e) {
       return Promise.reject(e);
     }

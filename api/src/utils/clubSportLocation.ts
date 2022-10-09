@@ -17,6 +17,7 @@ export function dbClubSportLocationToClubSportLocation(
 ): ClubSportLocation {
   const {
     _id,
+    name,
     address,
     lat,
     lon,
@@ -29,6 +30,7 @@ export function dbClubSportLocationToClubSportLocation(
   } = clubSportLocation;
   return {
     id: _id.toString(),
+    name,
     club: dbClubToClub(club),
     sport: dbSportToSport(sport),
     address,

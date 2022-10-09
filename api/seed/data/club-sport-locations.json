@@ -1,6 +1,7 @@
 [
   {
     "club": "630d3903c8972c1b4d5eb3f8",
+    "name": "ebisujimu-kawasaki",
     "sport": "630d3903c8972c1b4d5eb3f7",
     "address": "〒212-0012 神奈川県川崎市幸区中幸町3丁目32",
     "lat": 35.531793385123336,
@@ -68,6 +69,7 @@
   },
   {
     "club": "630d3903c8972c1b4d5eb3f9",
+    "name": "dena-basket-kawasaki",
     "sport": "630d3903c8972c1b4d5eb3f6",
     "address": "〒210-0007 神奈川県川崎市川崎区駅前本町21-12",
     "lat": 35.53284490350651,

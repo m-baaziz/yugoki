@@ -4,14 +4,25 @@ import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
 import { ClubDbObject } from '../generated/graphql';
+import { logger } from '../logger';
+import ClubSportLocationAPI from './clubSportLocation';
+import TrainerAPI from './trainer';
 
 export default class ClubAPI extends DataSource {
   collection: Collection<ClubDbObject>;
   context: any;
+  trainerAPI: TrainerAPI;
+  clubSportLocationAPI: ClubSportLocationAPI;
 
-  constructor(db: Db) {
+  constructor(
+    db: Db,
+    trainerAPI: TrainerAPI,
+    clubSportLocationAPI: ClubSportLocationAPI,
+  ) {
     super();
     this.collection = db.collection<ClubDbObject>(_Collection.Club);
+    this.trainerAPI = trainerAPI;
+    this.clubSportLocationAPI = clubSportLocationAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -20,6 +31,8 @@ export default class ClubAPI extends DataSource {
 
   async createIndexes(): Promise<void> {
     try {
+      await this.collection.createIndex({ name: 1 }, { unique: false });
+      await this.collection.createIndex({ owner: 1 }, { unique: false });
       return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
@@ -64,6 +77,43 @@ export default class ClubAPI extends DataSource {
         clubs.pop();
       }
       return Promise.resolve([clubs, hasNext]);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async createClub(ownerId: string, name: string): Promise<ClubDbObject> {
+    try {
+      const club: ClubDbObject = {
+        owner: ownerId,
+        name,
+      };
+
+      const result = await this.collection.insertOne(club);
+
+      return {
+        ...club,
+        _id: result.insertedId,
+      };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteClub(id: string): Promise<boolean> {
+    try {
+      const club = await this.findClubById(id);
+      const trainersDeleteCount = await this.trainerAPI.deleteTrainersByClub(
+        id,
+      );
+      logger.info(`Deleted ${trainersDeleteCount} trainers`);
+      const cslDeleteCount =
+        await this.clubSportLocationAPI.deleteClubSportLocationsByClub(id);
+      logger.info(`Deleted ${cslDeleteCount} club sport locations`);
+
+      const result = await this.collection.deleteOne({ _id: club._id });
+      logger.info(`Deleted ${result.deletedCount} club`);
+      return Promise.resolve(result.deletedCount === 1);
     } catch (e) {
       return Promise.reject(e);
     }

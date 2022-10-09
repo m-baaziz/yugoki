@@ -225,13 +225,21 @@ export default function Schedule(props: ScheduleProps) {
                   }}
                 >
                   <Typography
-                    variant="body1"
-                    sx={{ margin: 'auto', padding: '5px' }}
+                    variant="body2"
+                    sx={{
+                      margin: 'auto',
+                      padding: '5px',
+                      maxHeight: '70%',
+                      width: '100%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      WebkitLineClamp: 3,
+                    }}
                   >
                     {relativeEventPosition.event.title}
                   </Typography>
                   <Typography
-                    variant="body1"
+                    variant="body2"
                     sx={{ margin: 'auto', padding: '1px' }}
                   >
                     ({minutesToString(relativeEventPosition.event.fromMinute)} -{' '}

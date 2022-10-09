@@ -3,10 +3,10 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource';
 import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
-import { TrainerDbObject } from '../generated/graphql';
+import { TrainerDbObject, TrainerInput } from '../generated/graphql';
 import { logger } from '../logger';
 
-const TRAINERS_LIST_LIMIT = 1000;
+export const TRAINERS_LIST_LIMIT = 1000;
 
 export default class TrainerAPI extends DataSource {
   collection: Collection<TrainerDbObject>;
@@ -89,6 +89,80 @@ export default class TrainerAPI extends DataSource {
         trainers.pop();
       }
       return Promise.resolve([trainers, hasNext]);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async listTrainersByClub(
+    clubId: string,
+    first: number,
+    after?: string,
+  ): Promise<[WithId<TrainerDbObject>[], boolean]> {
+    try {
+      const filter = {
+        club: new ObjectId(clubId),
+        ...(after
+          ? {
+              _id: {
+                $gt: new ObjectId(after),
+              },
+            }
+          : {}),
+      };
+      const cursor = this.collection
+        .find(filter)
+        .limit(first + 1)
+        .sort({ _id: 1 });
+      const trainers = await cursor.toArray();
+      const hasNext = trainers.length > first;
+      if (hasNext) {
+        trainers.pop();
+      }
+      return Promise.resolve([trainers, hasNext]);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async createTrainer(
+    clubId: string,
+    input: TrainerInput,
+  ): Promise<TrainerDbObject> {
+    try {
+      const trainer: TrainerDbObject = {
+        club: new ObjectId(clubId),
+        ...input,
+      };
+
+      const result = await this.collection.insertOne(trainer);
+
+      return {
+        ...trainer,
+        _id: result.insertedId,
+      };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteTrainer(id: string): Promise<boolean> {
+    try {
+      const trainer = await this.findTrainerById(id);
+
+      const result = await this.collection.deleteOne({ _id: trainer._id });
+      return Promise.resolve(result.deletedCount === 1);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteTrainersByClub(clubId: string): Promise<number> {
+    try {
+      const result = await this.collection.deleteMany({
+        club: new ObjectId(clubId),
+      });
+      return Promise.resolve(result.deletedCount);
     } catch (e) {
       return Promise.reject(e);
     }

@@ -4,9 +4,11 @@ import {
   ClubPageInfo,
   QueryListClubsArgs,
   QueryGetClubArgs,
+  MutationCreateClubArgs,
+  MutationDeleteClubArgs,
 } from '../generated/graphql';
-import { dbClubToClub } from '../utils/club';
-// import { logger } from '../logger';
+import { dbClubToClub, isUserAuthorized } from '../utils/club';
+import { logger } from '../logger';
 
 export async function listClubs(
   _parent: unknown,
@@ -36,6 +38,49 @@ export async function getClub(
     const club = await clubAPI.findClubById(id);
     return Promise.resolve(dbClubToClub(club));
   } catch (e) {
+    logger.error(e);
+    return Promise.reject(e);
+  }
+}
+
+export async function createClub(
+  _parent: unknown,
+  { name }: MutationCreateClubArgs,
+  { user, dataSources: { clubAPI } }: ContextWithDataSources,
+): Promise<Club> {
+  try {
+    if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    if (!user.id) {
+      logger.error('Unexpected empty user id');
+      return Promise.reject('Internal Server Error');
+    }
+    const club = await clubAPI.createClub(user.id, name);
+    return Promise.resolve(dbClubToClub(club));
+  } catch (e) {
+    logger.error(e);
+    return Promise.reject(e);
+  }
+}
+
+export async function deleteClub(
+  _parent: unknown,
+  { id }: MutationDeleteClubArgs,
+  { user, dataSources: { clubAPI } }: ContextWithDataSources,
+): Promise<boolean> {
+  try {
+    if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    const club = await clubAPI.findClubById(id);
+    if (!isUserAuthorized(club, user)) {
+      return Promise.reject('Unauthorized');
+    }
+    const result = await clubAPI.deleteClub(id);
+    return Promise.resolve(result);
+  } catch (e) {
+    logger.error(e);
     return Promise.reject(e);
   }
 }
