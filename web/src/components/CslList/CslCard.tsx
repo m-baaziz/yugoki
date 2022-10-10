@@ -7,7 +7,7 @@ import { SxProps, Theme } from '@mui/material';
 export type CslCardProps = {
   id: string;
   name: string;
-  subtitle: string;
+  subtitle?: string;
   address: string;
   onClick: (id: string) => void;
   sx?: SxProps<Theme>;
@@ -26,9 +26,11 @@ export default function CslCard(props: CslCardProps) {
         <Typography variant="h5" component="div">
           {name}
         </Typography>
-        <Typography sx={{ mb: 1.5 }} color="text.secondary">
-          {subtitle}
-        </Typography>
+        {subtitle ? (
+          <Typography sx={{ mb: 1.5 }} color="text.secondary">
+            {subtitle}
+          </Typography>
+        ) : null}
         <Typography variant="body2">{address}</Typography>
       </CardContent>
     </Card>

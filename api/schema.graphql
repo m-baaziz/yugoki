@@ -2,9 +2,15 @@ type Query {
   me: User! # uses JWT token in Authorization header to return the user
   listSports(first: Int!, after: String): SportPageInfo!
   listClubs(first: Int!, after: String): ClubPageInfo!
+  listUserClubs(first: Int!, after: String): ClubPageInfo!
   getClub(id: ID!): Club!
   getClubSportLocation(id: ID!): ClubSportLocation!
   listClubSportLocations(first: Int!, after: String): ClubSportLocationPageInfo!
+  listClubSportLocationsByClub(
+    clubId: ID!
+    first: Int!
+    after: String
+  ): ClubSportLocationPageInfo!
   searchClubSportLocations(
     query: ClubSportLocationSearchQueryInput!
     first: Int!
@@ -71,12 +77,6 @@ type User
   email: String! @column
 }
 
-type Activity @entity(embedded: true) {
-  name: String! @column
-  description: String! @column
-  icon: String @column
-}
-
 type Sport @entity {
   id: ID @id
   title: String! @column
@@ -141,6 +141,25 @@ type EventPageInfo {
   endCursor: String
 }
 
+input ActivityInput {
+  name: String!
+  description: String!
+  icon: String
+}
+
+type Activity @entity(embedded: true) {
+  name: String! @column
+  description: String! @column
+  icon: String @column
+}
+
+input CalendarSpanInput {
+  title: String!
+  day: Int!
+  fromMinute: Int!
+  toMinute: Int!
+}
+
 type CalendarSpan @entity(embedded: true) {
   title: String! @column
   day: Int! @column
@@ -157,9 +176,9 @@ input ClubSportLocationInput {
   website: String
   images: [String!]!
   description: String!
-  activities: [Activity!]!
+  activities: [ActivityInput!]!
   trainerIds: [ID!]!
-  schedule: [CalendarSpan!]!
+  schedule: [CalendarSpanInput!]!
 }
 
 type ClubSportLocation @entity {

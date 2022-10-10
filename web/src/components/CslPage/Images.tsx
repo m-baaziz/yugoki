@@ -24,8 +24,6 @@ export type ImagesProps = {
 export default function Images(props: ImagesProps) {
   const { images, sx } = props;
 
-  console.log('images = ', images);
-
   return (
     <Box sx={{ ...sx }}>
       <ImageList

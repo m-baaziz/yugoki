@@ -31,9 +31,17 @@ export default function ButtonAppBar(props: ButtonAppBarProps) {
             <Box></Box>
             <Box>
               {user ? (
-                <Button color="inherit" onClick={onLogOut}>
-                  Sign Out
-                </Button>
+                <Box>
+                  <Link
+                    to="/profile/clubs"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    <Button color="inherit">clubs</Button>
+                  </Link>
+                  <Button color="inherit" onClick={onLogOut}>
+                    Sign Out
+                  </Button>
+                </Box>
               ) : (
                 <Link
                   to="/signin"

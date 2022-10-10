@@ -2,9 +2,15 @@ type Query {
   me: User! # uses JWT token in Authorization header to return the user
   listSports(first: Int!, after: String): SportPageInfo!
   listClubs(first: Int!, after: String): ClubPageInfo!
+  listUserClubs(first: Int!, after: String): ClubPageInfo!
   getClub(id: ID!): Club!
   getClubSportLocation(id: ID!): ClubSportLocation!
   listClubSportLocations(first: Int!, after: String): ClubSportLocationPageInfo!
+  listClubSportLocationsByClub(
+    clubId: ID!
+    first: Int!
+    after: String
+  ): ClubSportLocationPageInfo!
   searchClubSportLocations(
     query: ClubSportLocationSearchQueryInput!
     first: Int!
@@ -16,11 +22,40 @@ type Query {
     first: Int!
     after: String
   ): EventPageInfo!
+  listSubscriptionOptionsByClubSportLocation(
+    cslId: ID!
+    first: Int!
+    after: String
+  ): SubscriptionOptionPageInfo!
+  listSubscriptionsBySubscriptionOption(
+    subscriptionOptionId: ID!
+    first: Int!
+    after: String
+  ): SubscriptionPageInfo!
+  listTrainersByClub(clubId: ID!, first: Int!, after: String): TrainerPageInfo!
 }
 
 type Mutation {
   signIn(email: String!, password: String!): String! # returns token
   signUp(email: String!, password: String!): String! # returns token
+  createClub(name: String!): Club!
+  deleteClub(id: ID!): Boolean!
+  createTrainer(clubId: ID!, input: TrainerInput!): Trainer!
+  deleteTrainer(id: ID!): Boolean!
+  createClubSportLocation(
+    clubId: ID!
+    sportId: ID!
+    input: ClubSportLocationInput!
+  ): ClubSportLocation
+  deleteClubSportLocation(id: ID!): Boolean!
+  createSubscriptionOption(
+    cslId: ID!
+    input: SubscriptionOptionInput!
+  ): SubscriptionOption!
+  createSubscription(
+    subcriptionOption: ID!
+    details: SubscriberDetailsInput!
+  ): Subscription!
 }
 
 input SearchArea {
@@ -42,12 +77,6 @@ type User
   email: String! @column
 }
 
-type Activity @entity(embedded: true) {
-  name: String! @column
-  description: String! @column
-  icon: String @column
-}
-
 type Sport @entity {
   id: ID @id
   title: String! @column
@@ -63,8 +92,8 @@ type SportPageInfo {
 
 type Club @entity {
   id: ID @id
+  owner: String! @column # index
   name: String! @column # index
-  subtitle: String! @column
   logo: String @column
 }
 
@@ -72,6 +101,13 @@ type ClubPageInfo {
   clubs: [Club!]!
   hasNextPage: Boolean!
   endCursor: String
+}
+
+input TrainerInput {
+  firstname: String!
+  lastname: String!
+  displayname: String!
+  description: String!
 }
 
 type Trainer @entity {
@@ -82,6 +118,12 @@ type Trainer @entity {
   description: String! @column
   club: Club @link # index
   photo: String @column
+}
+
+type TrainerPageInfo {
+  trainers: [Trainer!]!
+  hasNextPage: Boolean!
+  endCursor: String
 }
 
 type Event @entity {
@@ -99,6 +141,25 @@ type EventPageInfo {
   endCursor: String
 }
 
+input ActivityInput {
+  name: String!
+  description: String!
+  icon: String
+}
+
+type Activity @entity(embedded: true) {
+  name: String! @column
+  description: String! @column
+  icon: String @column
+}
+
+input CalendarSpanInput {
+  title: String!
+  day: Int!
+  fromMinute: Int!
+  toMinute: Int!
+}
+
 type CalendarSpan @entity(embedded: true) {
   title: String! @column
   day: Int! @column
@@ -106,8 +167,23 @@ type CalendarSpan @entity(embedded: true) {
   toMinute: Int! @column
 }
 
+input ClubSportLocationInput {
+  name: String!
+  address: String!
+  lat: Float!
+  lon: Float!
+  phone: String!
+  website: String
+  images: [String!]!
+  description: String!
+  activities: [ActivityInput!]!
+  trainerIds: [ID!]!
+  schedule: [CalendarSpanInput!]!
+}
+
 type ClubSportLocation @entity {
   id: ID @id
+  name: String! @column #index
   club: Club! @link # index
   sport: Sport! @link # index
   address: String! @column # index (address is not unique but combination of club, sport and address is unique)
@@ -124,6 +200,66 @@ type ClubSportLocation @entity {
 
 type ClubSportLocationPageInfo {
   clubSportLocations: [ClubSportLocation!]!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+input SubscriptionOptionInput {
+  title: String!
+  features: [String!]!
+  price: Float!
+}
+
+type SubscriptionOption @entity {
+  id: ID @id
+  clubSportLocation: String! @column # index
+  title: String! @column
+  features: [String!]! @column
+  price: Float! @column
+  enabled: Boolean! @column
+}
+
+type SubscriptionOptionPageInfo {
+  subscriptionOptions: [SubscriptionOption!]!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+input SubscriberDetailsInput {
+  firstname: String!
+  lastname: String!
+  gender: Gender!
+  email: String!
+  address: String!
+  phone: String!
+  dateOfBirth: String!
+}
+
+type SubscriberDetails @entity(embedded: true) {
+  firstname: String! @column
+  lastname: String! @column
+  gender: Gender! @column
+  email: String! @column
+  address: String! @column
+  phone: String! @column
+  dateOfBirth: String! @column
+}
+
+type Subscription @entity {
+  id: ID @id
+  subscriptionOption: SubscriptionOption! @link #index
+  subscriberDetails: SubscriberDetails! @embedded
+  createdAtRFC3339: String! @column
+}
+
+type SubscriptionPageInfo {
+  subscriptions: [Subscription!]!
   hasNextPage: Boolean!
   endCursor: String
 }

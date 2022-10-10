@@ -26,8 +26,21 @@ export type Activity = {
   name: Scalars['String'];
 };
 
+export type ActivityInput = {
+  description: Scalars['String'];
+  icon?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+};
+
 export type CalendarSpan = {
   __typename?: 'CalendarSpan';
+  day: Scalars['Int'];
+  fromMinute: Scalars['Int'];
+  title: Scalars['String'];
+  toMinute: Scalars['Int'];
+};
+
+export type CalendarSpanInput = {
   day: Scalars['Int'];
   fromMinute: Scalars['Int'];
   title: Scalars['String'];
@@ -68,7 +81,7 @@ export type ClubSportLocation = {
 };
 
 export type ClubSportLocationInput = {
-  activities: Array<Activity>;
+  activities: Array<ActivityInput>;
   address: Scalars['String'];
   description: Scalars['String'];
   images: Array<Scalars['String']>;
@@ -76,7 +89,7 @@ export type ClubSportLocationInput = {
   lon: Scalars['Float'];
   name: Scalars['String'];
   phone: Scalars['String'];
-  schedule: Array<CalendarSpan>;
+  schedule: Array<CalendarSpanInput>;
   trainerIds: Array<Scalars['ID']>;
   website?: InputMaybe<Scalars['String']>;
 };
@@ -195,11 +208,13 @@ export type Query = {
   getEvent: Event;
   listClubSportLocationEvents: EventPageInfo;
   listClubSportLocations: ClubSportLocationPageInfo;
+  listClubSportLocationsByClub: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
   listSports: SportPageInfo;
   listSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
   listSubscriptionsBySubscriptionOption: SubscriptionPageInfo;
   listTrainersByClub: TrainerPageInfo;
+  listUserClubs: ClubPageInfo;
   me: User;
   searchClubSportLocations: ClubSportLocationPageInfo;
 };
@@ -233,6 +248,13 @@ export type QueryListClubSportLocationsArgs = {
 };
 
 
+export type QueryListClubSportLocationsByClubArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  clubId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
 export type QueryListClubsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
@@ -262,6 +284,12 @@ export type QueryListSubscriptionsBySubscriptionOptionArgs = {
 export type QueryListTrainersByClubArgs = {
   after?: InputMaybe<Scalars['String']>;
   clubId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
+export type QueryListUserClubsArgs = {
+  after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
 };
 
@@ -456,8 +484,10 @@ export type ResolversTypes = {
   AdditionalEntityFields: AdditionalEntityFields;
   String: ResolverTypeWrapper<Scalars['String']>;
   Activity: ResolverTypeWrapper<Activity>;
+  ActivityInput: ActivityInput;
   CalendarSpan: ResolverTypeWrapper<CalendarSpan>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  CalendarSpanInput: CalendarSpanInput;
   Club: ResolverTypeWrapper<Club>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   ClubPageInfo: ResolverTypeWrapper<ClubPageInfo>;
@@ -493,8 +523,10 @@ export type ResolversParentTypes = {
   AdditionalEntityFields: AdditionalEntityFields;
   String: Scalars['String'];
   Activity: Activity;
+  ActivityInput: ActivityInput;
   CalendarSpan: CalendarSpan;
   Int: Scalars['Int'];
+  CalendarSpanInput: CalendarSpanInput;
   Club: Club;
   ID: Scalars['ID'];
   ClubPageInfo: ClubPageInfo;
@@ -662,11 +694,13 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<QueryGetEventArgs, 'id'>>;
   listClubSportLocationEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationEventsArgs, 'cslId' | 'first'>>;
   listClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsArgs, 'first'>>;
+  listClubSportLocationsByClub?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsByClubArgs, 'clubId' | 'first'>>;
   listClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListClubsArgs, 'first'>>;
   listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
   listSubscriptionOptionsByClubSportLocation?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionOptionsByClubSportLocationArgs, 'cslId' | 'first'>>;
   listSubscriptionsBySubscriptionOption?: Resolver<ResolversTypes['SubscriptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionsBySubscriptionOptionArgs, 'first' | 'subscriptionOptionId'>>;
   listTrainersByClub?: Resolver<ResolversTypes['TrainerPageInfo'], ParentType, ContextType, RequireFields<QueryListTrainersByClubArgs, 'clubId' | 'first'>>;
+  listUserClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListUserClubsArgs, 'first'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   searchClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QuerySearchClubSportLocationsArgs, 'first' | 'query'>>;
 };

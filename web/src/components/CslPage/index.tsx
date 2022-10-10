@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, BoxProps, CircularProgress, Typography } from '@mui/material';
+import {
+  Box,
+  BoxProps,
+  CircularProgress,
+  Typography,
+  SxProps,
+  Theme,
+} from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import {
@@ -74,7 +81,12 @@ const Container = styled(Box)<BoxProps>(() => ({
   `,
 }));
 
-export default function CslPage() {
+export type CslPageProps = {
+  sx?: SxProps<Theme>;
+};
+
+export default function CslPage(props: CslPageProps) {
+  const { sx } = props;
   const { id: cslId } = useParams();
 
   const { data } = useQuery<
@@ -91,7 +103,7 @@ export default function CslPage() {
   console.log('data = ', data);
 
   return (
-    <Container>
+    <Container sx={{ ...sx }}>
       {data?.getClubSportLocation ? (
         <>
           <Box

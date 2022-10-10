@@ -93,6 +93,11 @@ export default function SignUp(props: SignUpProps) {
     setPasswordConfirmation(event.target.value);
   };
 
+  const handleSubmit = (e: React.ChangeEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    handleSignUpClick();
+  };
+
   const handleSignUpClick = () => {
     if (passwordConfirmation !== password) {
       notify({
@@ -105,7 +110,7 @@ export default function SignUp(props: SignUpProps) {
   };
 
   return (
-    <Container component="form">
+    <Container component="form" onSubmit={handleSubmit}>
       <TextField
         sx={{ gridArea: 'email' }}
         label="email"
@@ -130,6 +135,7 @@ export default function SignUp(props: SignUpProps) {
         onChange={handlePasswordConfirmationChange}
       />
       <Button
+        type="submit"
         sx={{ gridArea: 'submit' }}
         variant="outlined"
         onClick={handleSignUpClick}

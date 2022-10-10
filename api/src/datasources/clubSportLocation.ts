@@ -61,6 +61,18 @@ export default class ClubSportLocationAPI extends DataSource {
     return this._listClubSportLocationsByFilter({}, first, after);
   }
 
+  listClubSportLocationsByClub(
+    clubId: string,
+    first: number,
+    after?: string,
+  ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
+    return this._listClubSportLocationsByFilter(
+      { club: new ObjectId(clubId) },
+      first,
+      after,
+    );
+  }
+
   listClubSportLocationsBySportAndArea(
     sport: string,
     topLeftLat: number,

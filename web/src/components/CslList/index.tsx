@@ -32,7 +32,6 @@ const LIST_CLUB_SPORT_LOCATIONS = gql`
         id
         club {
           name
-          subtitle
         }
         address
         lat
@@ -189,7 +188,6 @@ export default function CslList() {
               key={csl.id!}
               id={csl.id!}
               name={csl.club.name}
-              subtitle={csl.club.subtitle}
               address={csl.address}
               onClick={handleCslClick}
               sx={{ cursor: 'pointer' }}

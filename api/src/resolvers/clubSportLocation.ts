@@ -9,10 +9,11 @@ import {
   ClubSportLocationDbObject,
   MutationCreateClubSportLocationArgs,
   MutationDeleteClubSportLocationArgs,
+  QueryListClubSportLocationsByClubArgs,
 } from '../generated/graphql';
 import { isUserAuthorized } from '../utils/club';
 import { dbClubSportLocationToClubSportLocation } from '../utils/clubSportLocation';
-// import { logger } from '../logger';
+import { logger } from '../logger';
 
 export async function listClubSportLocations(
   _parent: unknown,
@@ -49,6 +50,51 @@ export async function listClubSportLocations(
       endCursor,
     };
   } catch (e) {
+    logger.error(e);
+    return Promise.reject(e);
+  }
+}
+
+export async function listClubSportLocationsByClub(
+  _parent: unknown,
+  { clubId, first, after }: QueryListClubSportLocationsByClubArgs,
+  {
+    dataSources: { clubSportLocationAPI, sportAPI, clubAPI, trainerAPI },
+  }: ContextWithDataSources,
+): Promise<ClubSportLocationPageInfo> {
+  try {
+    const [clubSportLocations, hasNextPage] =
+      await clubSportLocationAPI.listClubSportLocationsByClub(
+        clubId,
+        first,
+        after,
+      );
+    const endCursor =
+      clubSportLocations.length > 0
+        ? clubSportLocations[clubSportLocations.length - 1]._id.toString()
+        : undefined;
+    const fullClubSportLocations = await Promise.all(
+      clubSportLocations.map(async (csl) => {
+        const sport = await sportAPI.findSportById(csl.sport.toString());
+        const club = await clubAPI.findClubById(csl.club.toString());
+        const trainers = await trainerAPI.findTrainersByIds(
+          csl.trainers.map((tid) => tid.toString()),
+        );
+        return dbClubSportLocationToClubSportLocation(
+          csl,
+          sport,
+          club,
+          trainers,
+        );
+      }),
+    );
+    return {
+      clubSportLocations: fullClubSportLocations,
+      hasNextPage,
+      endCursor,
+    };
+  } catch (e) {
+    logger.error(e);
     return Promise.reject(e);
   }
 }
@@ -115,6 +161,7 @@ export async function searchClubSportLocations(
       endCursor,
     };
   } catch (e) {
+    logger.error(e);
     return Promise.reject(e);
   }
 }
@@ -135,6 +182,7 @@ export async function getClubSportLocation(
     );
     return dbClubSportLocationToClubSportLocation(csl, sport, club, trainers);
   } catch (e) {
+    logger.error(e);
     return Promise.reject(e);
   }
 }
@@ -166,6 +214,7 @@ export async function createClubSportLocation(
     );
     return dbClubSportLocationToClubSportLocation(csl, sport, club, trainers);
   } catch (e) {
+    logger.error(e);
     return Promise.reject(e);
   }
 }
@@ -190,6 +239,7 @@ export async function deleteClubSportLocation(
     const result = clubSportLocationAPI.deleteClubSportLocation(id);
     return Promise.resolve(result);
   } catch (e) {
+    logger.error(e);
     return Promise.reject(e);
   }
 }

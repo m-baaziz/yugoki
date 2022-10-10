@@ -17,6 +17,8 @@ import CslList from './components/CslList';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import CslPage from './components/CslPage';
+import UserClubs from './components/Profile/UserClubs';
+import UserClubSportLocations from './components/Profile/UserClubSportLocations';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -109,6 +111,11 @@ function App() {
             <Route path="/signup" element={<SignUp refetchMe={refetchMe} />} />
             <Route path="/clubs" element={<CslList />} />
             <Route path="/locations/:id" element={<CslPage />} />
+            <Route path="/profile/clubs" element={<UserClubs />} />
+            <Route
+              path="/profile/clubs/:id/locations"
+              element={<UserClubSportLocations />}
+            />
           </Routes>
         </Content>
       </Container>

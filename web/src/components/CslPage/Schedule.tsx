@@ -7,7 +7,7 @@ import { Box, SxProps, Theme, Typography } from '@mui/material';
 import { CalendarSpan } from '../../generated/graphql';
 import range from 'lodash/range';
 
-const DAYS = [
+export const DAYS = [
   'Monday',
   'Tuesday',
   'Wednesday',
@@ -17,7 +17,7 @@ const DAYS = [
   'Sunday',
 ];
 
-const dayIndex = (arrayIndex: number) => arrayIndex + 1;
+export const dayIndex = (arrayIndex: number) => arrayIndex + 1;
 
 const MIN_MINUTE = 6 * 60;
 const MAX_MINUTE = 24 * 60;

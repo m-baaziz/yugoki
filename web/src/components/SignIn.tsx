@@ -86,12 +86,17 @@ export default function SignIn(props: SignInProps) {
     setPassword(event.target.value);
   };
 
+  const handleSubmit = (e: React.ChangeEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    handleSignInClick();
+  };
+
   const handleSignInClick = () => {
     signIn();
   };
 
   return (
-    <Container component="form">
+    <Container component="form" onSubmit={handleSubmit}>
       <TextField
         sx={{ gridArea: 'email' }}
         label="email"
@@ -108,11 +113,12 @@ export default function SignIn(props: SignInProps) {
         onChange={handlePasswordChange}
       />
       <Button
+        type="submit"
         sx={{ gridArea: 'submit' }}
         variant="outlined"
         onClick={handleSignInClick}
       >
-        Sign In
+        Pro
       </Button>
       <Typography sx={{ gridArea: 'signup' }}>
         Don't have an account ?{' '}

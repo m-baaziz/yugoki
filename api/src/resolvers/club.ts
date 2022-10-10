@@ -25,6 +25,38 @@ export async function listClubs(
       endCursor,
     };
   } catch (e) {
+    logger.error(e);
+    return Promise.reject(e);
+  }
+}
+
+export async function listUserClubs(
+  _parent: unknown,
+  { first, after }: QueryListClubsArgs,
+  { user, dataSources: { clubAPI } }: ContextWithDataSources,
+): Promise<ClubPageInfo> {
+  try {
+    if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    if (!user.id) {
+      logger.error('Unexpected empty user id');
+      return Promise.reject('Internal Server Error');
+    }
+    const [clubs, hasNextPage] = await clubAPI.listUserClubs(
+      user.id,
+      first,
+      after,
+    );
+    const endCursor =
+      clubs.length > 0 ? clubs[clubs.length - 1]._id.toString() : undefined;
+    return {
+      clubs: clubs.map(dbClubToClub),
+      hasNextPage,
+      endCursor,
+    };
+  } catch (e) {
+    logger.error(e);
     return Promise.reject(e);
   }
 }

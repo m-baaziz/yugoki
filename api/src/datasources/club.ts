@@ -82,6 +82,37 @@ export default class ClubAPI extends DataSource {
     }
   }
 
+  async listUserClubs(
+    userId: string,
+    first: number,
+    after?: string,
+  ): Promise<[WithId<ClubDbObject>[], boolean]> {
+    try {
+      const filter = {
+        owner: userId,
+        ...(after
+          ? {
+              _id: {
+                $gt: new ObjectId(after),
+              },
+            }
+          : {}),
+      };
+      const cursor = this.collection
+        .find(filter)
+        .limit(first + 1)
+        .sort({ _id: 1 });
+      const clubs = await cursor.toArray();
+      const hasNext = clubs.length > first;
+      if (hasNext) {
+        clubs.pop();
+      }
+      return Promise.resolve([clubs, hasNext]);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
   async createClub(ownerId: string, name: string): Promise<ClubDbObject> {
     try {
       const club: ClubDbObject = {
