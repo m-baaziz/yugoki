@@ -167,7 +167,7 @@ export default class ClubSportLocationAPI extends DataSource {
       const clubSportLocation = await this.findClubSportLocationById(id);
 
       const subscriptionOptionsDeleteCount =
-        this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
+        await this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
           id,
         );
       logger.info(

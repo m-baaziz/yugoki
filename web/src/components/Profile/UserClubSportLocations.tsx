@@ -97,7 +97,7 @@ export default function UserClubSportLocations() {
   };
 
   const handleAddClick = () => {
-    navigate('locations/new');
+    navigate('new');
   };
 
   return (

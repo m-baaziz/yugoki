@@ -17,7 +17,7 @@ export default function Activities(props: ActivitiesProps) {
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
         rowGap: 5,
         ...sx,
       }}

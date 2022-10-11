@@ -83,6 +83,7 @@ export type ClubSportLocationInput = {
   name: Scalars['String'];
   phone: Scalars['String'];
   schedule: Array<CalendarSpanInput>;
+  sportId: Scalars['ID'];
   trainerIds: Array<Scalars['ID']>;
   website?: InputMaybe<Scalars['String']>;
 };
@@ -146,7 +147,6 @@ export type MutationCreateClubArgs = {
 export type MutationCreateClubSportLocationArgs = {
   clubId: Scalars['ID'];
   input: ClubSportLocationInput;
-  sportId: Scalars['ID'];
 };
 
 

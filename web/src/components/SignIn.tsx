@@ -118,7 +118,7 @@ export default function SignIn(props: SignInProps) {
         variant="outlined"
         onClick={handleSignInClick}
       >
-        Pro
+        sign in
       </Button>
       <Typography sx={{ gridArea: 'signup' }}>
         Don't have an account ?{' '}

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Box, BoxProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useQuery, gql } from '@apollo/client';
@@ -19,6 +19,7 @@ import SignUp from './components/SignUp';
 import CslPage from './components/CslPage';
 import UserClubs from './components/Profile/UserClubs';
 import UserClubSportLocations from './components/Profile/UserClubSportLocations';
+import ClubSportLocationForm from './components/Profile/ClubSportLocationForm';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -81,6 +82,9 @@ function App() {
     navigate('/');
   };
 
+  const withUser = (component: ReactElement): ReactElement =>
+    user ? component : <Navigate replace to="/signin" />;
+
   return (
     <AppContext.Provider
       value={{
@@ -111,10 +115,14 @@ function App() {
             <Route path="/signup" element={<SignUp refetchMe={refetchMe} />} />
             <Route path="/clubs" element={<CslList />} />
             <Route path="/locations/:id" element={<CslPage />} />
-            <Route path="/profile/clubs" element={<UserClubs />} />
+            <Route path="/profile/clubs" element={withUser(<UserClubs />)} />
             <Route
               path="/profile/clubs/:id/locations"
-              element={<UserClubSportLocations />}
+              element={withUser(<UserClubSportLocations />)}
+            />
+            <Route
+              path="/profile/clubs/:id/locations/new"
+              element={withUser(<ClubSportLocationForm />)}
             />
           </Routes>
         </Content>

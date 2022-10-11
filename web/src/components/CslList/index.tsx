@@ -8,6 +8,7 @@ import {
   ClubSportLocationPageInfo,
   SearchArea,
   ClubSportLocationSearchQueryInput,
+  ClubSportLocation,
 } from '../../generated/graphql';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -17,7 +18,7 @@ import {
   encodeQuery,
 } from '../../utils/searchQuery';
 import CslCard from './CslCard';
-import CslMap from './CslMap';
+import CslMap, { MapQuery, Position } from './CslMap';
 
 const CSL_PAGE_SIZE = 100;
 
@@ -42,6 +43,10 @@ const LIST_CLUB_SPORT_LOCATIONS = gql`
     }
   }
 `;
+
+const cslToLatLng = (csl: ClubSportLocation): Position => {
+  return { lat: csl.lat, lon: csl.lon };
+};
 
 const Container = styled(Box)<BoxProps>(() => ({
   display: 'grid',
@@ -86,8 +91,7 @@ export default function CslList() {
     undefined,
   );
   const [searchInput, setSearchInput] = React.useState('');
-  const [mapQuery, setMapQuery] =
-    React.useState<ClubSportLocationSearchQueryInput>();
+  const [mapQuery, setMapQuery] = React.useState<MapQuery>();
 
   const query = React.useMemo(() => {
     const params = new window.URLSearchParams(search);
@@ -133,7 +137,10 @@ export default function CslList() {
   React.useEffect(() => {
     if (!query) return;
     if (!mapQuery || mapQuery.address !== query.address) {
-      setMapQuery(query);
+      setMapQuery({
+        address: query.address || undefined,
+        area: query.area || undefined,
+      });
     }
   }, [query, mapQuery]);
 
@@ -195,11 +202,15 @@ export default function CslList() {
           ))}
       </ListContainer>
       <MapContainer>
-        {/* <CslMap
-          locations={data?.searchClubSportLocations.clubSportLocations || []}
+        <CslMap
+          positions={
+            data?.searchClubSportLocations.clubSportLocations.map(
+              cslToLatLng,
+            ) || []
+          }
           onChange={onMapChange}
           query={mapQuery}
-        /> */}
+        />
         map
       </MapContainer>
     </Container>

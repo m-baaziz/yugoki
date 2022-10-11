@@ -189,7 +189,7 @@ export async function getClubSportLocation(
 
 export async function createClubSportLocation(
   _parent: unknown,
-  { clubId, sportId, input }: MutationCreateClubSportLocationArgs,
+  { clubId, input }: MutationCreateClubSportLocationArgs,
   {
     user,
     dataSources: { clubSportLocationAPI, sportAPI, clubAPI, trainerAPI },
@@ -203,10 +203,10 @@ export async function createClubSportLocation(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const sport = await sportAPI.findSportById(sportId);
+    const sport = await sportAPI.findSportById(input.sportId);
     const csl = await clubSportLocationAPI.createClubSportLocation(
       clubId,
-      sportId,
+      input.sportId,
       input,
     );
     const trainers = await trainerAPI.findTrainersByIds(

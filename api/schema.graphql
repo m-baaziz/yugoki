@@ -44,7 +44,6 @@ type Mutation {
   deleteTrainer(id: ID!): Boolean!
   createClubSportLocation(
     clubId: ID!
-    sportId: ID!
     input: ClubSportLocationInput!
   ): ClubSportLocation
   deleteClubSportLocation(id: ID!): Boolean!
@@ -169,6 +168,7 @@ type CalendarSpan @entity(embedded: true) {
 
 input ClubSportLocationInput {
   name: String!
+  sportId: ID!
   address: String!
   lat: Float!
   lon: Float!

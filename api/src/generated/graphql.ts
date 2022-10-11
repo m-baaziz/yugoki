@@ -90,6 +90,7 @@ export type ClubSportLocationInput = {
   name: Scalars['String'];
   phone: Scalars['String'];
   schedule: Array<CalendarSpanInput>;
+  sportId: Scalars['ID'];
   trainerIds: Array<Scalars['ID']>;
   website?: InputMaybe<Scalars['String']>;
 };
@@ -153,7 +154,6 @@ export type MutationCreateClubArgs = {
 export type MutationCreateClubSportLocationArgs = {
   clubId: Scalars['ID'];
   input: ClubSportLocationInput;
-  sportId: Scalars['ID'];
 };
 
 
@@ -677,7 +677,7 @@ export type EventPageInfoResolvers<ContextType = any, ParentType extends Resolve
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'name'>>;
-  createClubSportLocation?: Resolver<Maybe<ResolversTypes['ClubSportLocation']>, ParentType, ContextType, RequireFields<MutationCreateClubSportLocationArgs, 'clubId' | 'input' | 'sportId'>>;
+  createClubSportLocation?: Resolver<Maybe<ResolversTypes['ClubSportLocation']>, ParentType, ContextType, RequireFields<MutationCreateClubSportLocationArgs, 'clubId' | 'input'>>;
   createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'subcriptionOption'>>;
   createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'cslId' | 'input'>>;
   createTrainer?: Resolver<ResolversTypes['Trainer'], ParentType, ContextType, RequireFields<MutationCreateTrainerArgs, 'clubId' | 'input'>>;

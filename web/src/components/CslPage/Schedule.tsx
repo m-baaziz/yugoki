@@ -1,28 +1,16 @@
-// use css grid
-// calculate number of rows based on max hour granularity
-// calculate number of columns based on max same time granularity (multiple activities)
-
 import * as React from 'react';
 import { Box, SxProps, Theme, Typography } from '@mui/material';
 import { CalendarSpan } from '../../generated/graphql';
 import range from 'lodash/range';
 
-export const DAYS = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Satursday',
-  'Sunday',
-];
+export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export const dayIndex = (arrayIndex: number) => arrayIndex + 1;
 
 const MIN_MINUTE = 6 * 60;
 const MAX_MINUTE = 24 * 60;
 const STEP_MINUTE = 2 * 60;
-const COLUMN_WIDTH = 150;
+const COLUMN_WIDTH = 130;
 const COLUMN_HEIGHT = 500;
 const HEADER_HEIGHT = 40;
 const STEP_HEIGHT = (COLUMN_HEIGHT * STEP_MINUTE) / (MAX_MINUTE - MIN_MINUTE);
@@ -56,7 +44,8 @@ function computeIntersectingIntervals(
     const intersectingInterval = intervals.find(
       ({ fromMinute, toMinute }) =>
         (e.fromMinute <= fromMinute && e.toMinute > fromMinute) ||
-        (e.fromMinute < toMinute && e.toMinute >= toMinute),
+        (e.fromMinute < toMinute && e.toMinute >= toMinute) ||
+        (e.fromMinute >= fromMinute && e.toMinute <= toMinute),
     );
     if (intersectingInterval) {
       intersectingInterval.fromMinute = Math.min(
@@ -94,7 +83,7 @@ export function computeEventPositions(
         height: (e.toMinute - e.fromMinute) / (maxTime - minTime),
         width: 1 / length,
         vOffset: (e.fromMinute - minTime) / (maxTime - minTime),
-        hOffset: (i * 1) / length,
+        hOffset: i / length,
       };
       eventPositions.push(position);
     });
@@ -152,10 +141,8 @@ export default function Schedule(props: ScheduleProps) {
     return dayEventsPositionMap;
   }, [calendarSpans]);
 
-  console.log('span = ', eventPositions);
-
   return (
-    <Box sx={{ ...sx, display: 'flex', flexDirection: 'row' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'row', ...sx }}>
       <Box
         sx={{
           height: COLUMN_HEIGHT,
@@ -177,9 +164,7 @@ export default function Schedule(props: ScheduleProps) {
           </Box>
         ))}
       </Box>
-      <Box
-        sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', ...sx }}
-      >
+      <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
         {DAYS.map((day, i) => (
           <Box
             key={day}
@@ -212,8 +197,7 @@ export default function Schedule(props: ScheduleProps) {
                 <Box
                   key={relativeEventPosition.event.id}
                   sx={{
-                    borderTop: '0.2px solid',
-                    borderBottom: '0.2px solid',
+                    border: '0.1px solid',
                     position: 'absolute',
                     height: `${relativeEventPosition.height * 100}%`,
                     width: `${relativeEventPosition.width * 100}%`,
@@ -238,13 +222,16 @@ export default function Schedule(props: ScheduleProps) {
                   >
                     {relativeEventPosition.event.title}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ margin: 'auto', padding: '1px' }}
-                  >
-                    ({minutesToString(relativeEventPosition.event.fromMinute)} -{' '}
-                    {minutesToString(relativeEventPosition.event.toMinute)})
-                  </Typography>
+                  {!isNaN(relativeEventPosition.event.fromMinute) &&
+                  !isNaN(relativeEventPosition.event.toMinute) ? (
+                    <Typography
+                      variant="body2"
+                      sx={{ margin: 'auto', padding: '1px' }}
+                    >
+                      ({minutesToString(relativeEventPosition.event.fromMinute)}{' '}
+                      - {minutesToString(relativeEventPosition.event.toMinute)})
+                    </Typography>
+                  ) : null}
                 </Box>
               ))}
             </Box>

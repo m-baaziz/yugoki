@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, BoxProps } from '@mui/material';
-import appContext from '../context';
 
 import SportList from './SportList';
 
@@ -19,9 +18,6 @@ const Container = styled(Box)<BoxProps>(() => ({
 }));
 
 export default function Home() {
-  const { user } = React.useContext(appContext);
-  console.log('user = ', user);
-
   return (
     <Container>
       <Box

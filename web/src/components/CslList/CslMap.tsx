@@ -5,14 +5,18 @@ import * as React from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { createCustomEqual } from 'fast-equals';
 import { isLatLngLiteral } from '@googlemaps/typescript-guards';
+import { SearchArea } from '../../generated/graphql';
 import {
-  ClubSportLocation,
-  ClubSportLocationSearchQueryInput,
-} from '../../generated/graphql';
-import { styled } from '@mui/material/styles';
-import { Box, BoxProps, CircularProgress } from '@mui/material';
+  Box,
+  BoxProps,
+  CircularProgress,
+  styled,
+  SxProps,
+  Theme,
+} from '@mui/material';
 import { Error as ErrorIcon } from '@mui/icons-material';
 
+export const MAPS_API_KEY = 'AIzaSyA4iYD91nzR3c4YXwpB9EAcGFugk3jjVPE';
 const INITIAL_ZOOM = 14;
 
 const render = (status: Status): React.ReactElement => {
@@ -20,19 +24,32 @@ const render = (status: Status): React.ReactElement => {
   return <CircularProgress />;
 };
 
-const cslToLatLng = (csl: ClubSportLocation): google.maps.LatLng => {
-  return new window.google.maps.LatLng(csl.lat, csl.lon);
+export type Position = {
+  lat: number;
+  lon: number;
+};
+
+export type MapQuery = {
+  address?: string;
+  area?: SearchArea;
+};
+
+const positionToGoogleLatLng = (pos: Position): google.maps.LatLng => {
+  return new window.google.maps.LatLng(pos.lat, pos.lon);
 };
 
 export type CslMapProps = {
-  locations: ClubSportLocation[];
-  onChange: (
+  positions: Position[];
+  onChange?: (
     topLeftLat: number,
     topLeftLon: number,
     bottomRightLat: number,
     bottomRightLon: number,
   ) => void;
-  query?: ClubSportLocationSearchQueryInput;
+  query?: MapQuery;
+  onClick?: (e: google.maps.MapMouseEvent) => void;
+  onQueryResult?: (position: Position) => void;
+  sx?: SxProps<Theme>;
 };
 
 const Container = styled(Box)<BoxProps>(() => ({
@@ -42,9 +59,10 @@ const Container = styled(Box)<BoxProps>(() => ({
 }));
 
 export default function CslMap(props: CslMapProps) {
-  const { locations, onChange, query } = props;
+  const { positions, query, sx, onChange, onClick, onQueryResult } = props;
 
   const onIdle = (m: google.maps.Map) => {
+    if (!onChange) return;
     const northEast = m.getBounds()?.getNorthEast();
     const southWest = m.getBounds()?.getSouthWest();
     if (!northEast || !southWest) return;
@@ -57,21 +75,21 @@ export default function CslMap(props: CslMapProps) {
   };
 
   return (
-    <Container>
-      <Wrapper
-        apiKey={'AIzaSyA4iYD91nzR3c4YXwpB9EAcGFugk3jjVPE'}
-        render={render}
-      >
+    <Container sx={{ ...sx }}>
+      <Wrapper apiKey={MAPS_API_KEY} render={render}>
         <Map
-          // center={INITIAL_CENTER}
           onIdle={onIdle}
+          onClick={onClick}
+          onQueryResult={onQueryResult}
+          // center={INITIAL_CENTER}
           zoom={INITIAL_ZOOM}
           style={{ flexGrow: '1', height: '100%' }}
           query={query}
+          streetViewControl={false}
         >
           {window.google
-            ? locations.map((csl, i) => (
-                <Marker key={i} position={cslToLatLng(csl)} />
+            ? positions.map((position, i) => (
+                <Marker key={i} position={positionToGoogleLatLng(position)} />
               ))
             : null}
         </Map>
@@ -79,17 +97,19 @@ export default function CslMap(props: CslMapProps) {
     </Container>
   );
 }
-interface MapProps extends google.maps.MapOptions {
+export interface MapProps extends google.maps.MapOptions {
   style: { [key: string]: string };
   onClick?: (e: google.maps.MapMouseEvent) => void;
   onIdle?: (map: google.maps.Map) => void;
-  query?: ClubSportLocationSearchQueryInput;
+  onQueryResult?: (position: Position) => void;
+  query?: MapQuery;
   children?: React.ReactNode;
 }
 
-const Map: React.FC<MapProps> = ({
+export const Map: React.FC<MapProps> = ({
   onClick,
   onIdle,
+  onQueryResult,
   children,
   style,
   query,
@@ -120,6 +140,9 @@ const Map: React.FC<MapProps> = ({
         (query.area.topLeftLon + query.area.bottomRightLon) / 2.0;
       const center = new window.google.maps.LatLng(centerLat, centerLng);
       map.setCenter(center);
+      if (onQueryResult) {
+        onQueryResult({ lat: centerLat, lon: centerLng });
+      }
       return;
     }
     const req: google.maps.GeocoderRequest = {
@@ -128,6 +151,12 @@ const Map: React.FC<MapProps> = ({
     geocoder.geocode(req, (results, status) => {
       if (status !== window.google.maps.GeocoderStatus.OK || !results) return;
       map.setCenter(results[0].geometry.location);
+      if (onQueryResult) {
+        onQueryResult({
+          lat: results[0].geometry.location.lat(),
+          lon: results[0].geometry.location.lng(),
+        });
+      }
     });
   }, [geocoder, map, query]);
 

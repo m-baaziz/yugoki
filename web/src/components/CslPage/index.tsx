@@ -100,8 +100,6 @@ export default function CslPage(props: CslPageProps) {
     fetchPolicy: 'no-cache',
   });
 
-  console.log('data = ', data);
-
   return (
     <Container sx={{ ...sx }}>
       {data?.getClubSportLocation ? (
@@ -168,10 +166,19 @@ export default function CslPage(props: CslPageProps) {
             }}
             csl={data.getClubSportLocation}
           />
-          <Schedule
-            calendarSpans={data.getClubSportLocation.schedule}
-            sx={{ gridArea: 'schedule', height: '100%', width: '100%' }}
-          />
+          <Box
+            sx={{
+              gridArea: 'schedule',
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+            }}
+          >
+            <Schedule
+              calendarSpans={data.getClubSportLocation.schedule}
+              sx={{ margin: 'auto' }}
+            />
+          </Box>
         </>
       ) : (
         <CircularProgress />
