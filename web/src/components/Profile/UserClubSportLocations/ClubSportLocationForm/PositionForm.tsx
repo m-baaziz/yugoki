@@ -7,8 +7,8 @@ import {
   BoxProps,
   TextField,
 } from '@mui/material';
-import CslMap, { MapQuery, Position } from '../../CslList/CslMap';
-import { useTimeout } from '../../../hooks/timeout';
+import CslMap, { MapQuery, Position } from '../../../CslList/CslMap';
+import { useTimeout } from '../../../../hooks/timeout';
 
 const UPDATE_DELAY_MS = 1000;
 

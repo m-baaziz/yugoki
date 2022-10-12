@@ -32,7 +32,7 @@ export async function listTrainersByClub(
       endCursor,
     };
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -53,7 +53,7 @@ export async function createTrainer(
     const trainer = await trainerAPI.createTrainer(clubId, input);
     return Promise.resolve(dbTrainerToTrainer(trainer, club));
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -75,7 +75,7 @@ export async function deleteTrainer(
     const result = await trainerAPI.deleteTrainer(id);
     return Promise.resolve(result);
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }

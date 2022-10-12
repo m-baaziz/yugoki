@@ -44,18 +44,20 @@ async function main() {
   });
   const subscriptionOptionAPI = new SubscriptionOptionAPI(db);
   const subscriptionAPI = new SubscriptionAPI(db);
+  const eventAPI = new EventAPI(db);
   const trainerAPI = new TrainerAPI(db);
   const clubSportLocationAPI = new ClubSportLocationAPI(
     db,
     subscriptionOptionAPI,
+    eventAPI,
   );
   const clubAPI = new ClubAPI(db, trainerAPI, clubSportLocationAPI);
   const sportAPI = new SportAPI(db);
-  const eventAPI = new EventAPI(db);
 
   await userAPI.createIndexes();
   await sportAPI.createIndexes();
   await subscriptionOptionAPI.createIndexes();
+  await eventAPI.createIndexes();
   await subscriptionAPI.createIndexes();
   await trainerAPI.createIndexes();
   await clubAPI.createIndexes();

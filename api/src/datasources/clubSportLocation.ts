@@ -8,19 +8,26 @@ import {
   ClubSportLocationInput,
 } from '../generated/graphql';
 import { logger } from '../logger';
+import EventAPI from './event';
 import SubscriptionOptionAPI from './subscriptionOption';
 
 export default class ClubSportLocationAPI extends DataSource {
   collection: Collection<ClubSportLocationDbObject>;
   context: any;
   subscriptionOptionAPI: SubscriptionOptionAPI;
+  eventAPI: EventAPI;
 
-  constructor(db: Db, subscriptionOptionAPI: SubscriptionOptionAPI) {
+  constructor(
+    db: Db,
+    subscriptionOptionAPI: SubscriptionOptionAPI,
+    eventAPI: EventAPI,
+  ) {
     super();
     this.collection = db.collection<ClubSportLocationDbObject>(
       _Collection.ClubSportLocation,
     );
     this.subscriptionOptionAPI = subscriptionOptionAPI;
+    this.eventAPI = eventAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -170,9 +177,13 @@ export default class ClubSportLocationAPI extends DataSource {
         await this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
           id,
         );
+      const eventsDeleteCount =
+        await this.eventAPI.deleteEventssByClubSportLocation(id);
+
       logger.info(
         `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
       );
+      logger.info(`Deleted ${eventsDeleteCount} events`);
 
       const result = await this.collection.deleteOne({
         _id: clubSportLocation._id,
@@ -189,15 +200,20 @@ export default class ClubSportLocationAPI extends DataSource {
         club: new ObjectId(clubId),
       });
       let subscriptionOptionsDeleteCount = 0;
+      let eventsDeleteCount = 0;
       while (await cursor.hasNext()) {
+        const cslId = (await cursor.next())._id.toString();
         subscriptionOptionsDeleteCount +=
           await this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
-            (await cursor.next())._id.toString(),
+            cslId,
           );
+        eventsDeleteCount +=
+          await this.eventAPI.deleteEventssByClubSportLocation(cslId);
       }
       logger.info(
         `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
       );
+      logger.info(`Deleted ${eventsDeleteCount} events`);
       const result = await this.collection.deleteMany({
         club: new ObjectId(clubId),
       });

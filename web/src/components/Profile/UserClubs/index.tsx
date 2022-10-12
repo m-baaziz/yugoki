@@ -13,16 +13,16 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, gql, useMutation } from '@apollo/client';
-import appContext, { NotificationLevel } from '../../context';
+import appContext, { NotificationLevel } from '../../../context';
 import {
   Club,
   ClubPageInfo,
   MutationCreateClubArgs,
   MutationDeleteClubArgs,
   QueryListUserClubsArgs,
-} from '../../generated/graphql';
+} from '../../../generated/graphql';
 import UserClubCard from './UserClubCard';
-import LabelInputCombo from '../LabelInputCombo';
+import LabelInputCombo from '../../LabelInputCombo';
 
 const CLUBS_PAGE_SIZE = 100;
 const NEW_CLUB_DEFAULT_NAME = 'New Club';

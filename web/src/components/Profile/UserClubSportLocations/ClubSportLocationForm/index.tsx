@@ -27,19 +27,19 @@ import {
   SportPageInfo,
   Trainer,
   TrainerPageInfo,
-} from '../../../generated/graphql';
+} from '../../../../generated/graphql';
 import ScheduleForm, {
   CalendarEntry,
   calendarEntryToSpan,
 } from './ScheduleForm';
-import ImagesForm from './ImagesForm';
-import Schedule from '../../CslPage/Schedule';
+import ImagesForm from '../../ImagesForm';
+import Schedule from '../../../CslPage/Schedule';
 import PositionForm from './PositionForm';
-import { Position } from '../../CslList/CslMap';
+import { Position } from '../../../CslList/CslMap';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams } from 'react-router-dom';
-import appContext, { NotificationLevel } from '../../../context';
+import appContext, { NotificationLevel } from '../../../../context';
 
 const SPORTS_PAGE_SIZE = 100;
 const TRAINERS_PAGE_SIZE = 100;
@@ -123,6 +123,7 @@ const Container = styled(Box)<BoxProps>(() => ({
     "  \
     '   .        .       .       .       .      '  1em  \
     '   .      form    form    form      .      '  auto \
+    '   .        .       .       .       .      '  1fr  \
     '   .        .       .       .       .      '  2em  \
     '   .     cancel     .     submit    .      '  auto \
     '   .        .       .       .       .      '  1em  \
@@ -203,7 +204,7 @@ export default function ClubSportLocationForm() {
   };
 
   const handleBackClick = () => {
-    navigate(`/profiel/clubs/${clubId}/locations`);
+    navigate(`/profile/clubs/${clubId}/locations`);
   };
 
   const handleSubmitClick = async () => {
@@ -323,7 +324,7 @@ export default function ClubSportLocationForm() {
           />
         </Box>
         <Box>
-          <ImagesForm onChange={handleImagesChange} />
+          <ImagesForm multiple onChange={handleImagesChange} />
         </Box>
         <TextField
           id="description"

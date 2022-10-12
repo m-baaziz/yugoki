@@ -22,22 +22,26 @@ type FileWithUrl = {
 
 export type ImagesFormProps = {
   onChange: (urls: string[]) => void;
+  multiple?: boolean;
   sx?: SxProps<Theme>;
 };
 
 export default function ImagesForm(props: ImagesFormProps) {
-  const { sx, onChange } = props;
+  const { sx, onChange, multiple } = props;
   const [files, setFiles] = React.useState<FileWithUrl[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles: FileList = event.target.files || new FileList();
-    setFiles([
-      ...files,
-      ...Array.from(newFiles).map((file) => ({
-        file,
-        url: URL.createObjectURL(file),
-      })),
-    ]);
+    const newFiles: FileWithUrl[] = Array.from(
+      event.target.files || new FileList(),
+    ).map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
+    if (!multiple) {
+      setFiles([...newFiles]);
+      return;
+    }
+    setFiles([...files, ...newFiles]);
   };
 
   React.useEffect(() => {

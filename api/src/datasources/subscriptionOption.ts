@@ -133,6 +133,24 @@ export default class SubscriptionOptionAPI extends DataSource {
     }
   }
 
+  async enableSubscriptionOption(
+    id: string,
+  ): Promise<SubscriptionOptionDbObject> {
+    try {
+      await this.collection.updateOne(
+        {
+          _id: new ObjectId(id),
+        },
+        { $set: { enabled: true } },
+        { upsert: false },
+      );
+      const subscriptionOption = await this.findSubscriptionOptionById(id);
+      return Promise.resolve(subscriptionOption);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
   async disableSubscriptionOption(
     id: string,
   ): Promise<SubscriptionOptionDbObject> {
@@ -141,7 +159,8 @@ export default class SubscriptionOptionAPI extends DataSource {
         {
           _id: new ObjectId(id),
         },
-        { enabled: false },
+        { $set: { enabled: false } },
+        { upsert: false },
       );
       const subscriptionOption = await this.findSubscriptionOptionById(id);
       return Promise.resolve(subscriptionOption);
@@ -158,7 +177,8 @@ export default class SubscriptionOptionAPI extends DataSource {
         {
           clubSportLocation: cslId,
         },
-        { enabled: false },
+        { $set: { enabled: false } },
+        { upsert: false },
       );
       return Promise.resolve(result.modifiedCount);
     } catch (e) {

@@ -20,6 +20,8 @@ import { signIn, signUp, me } from './user';
 import {
   listSubscriptionOptionsByClubSportLocation,
   createSubscriptionOption,
+  enableSubscriptionOption,
+  disableSubscriptionOption,
 } from './subscriptionOption';
 import {
   listSubscriptionsBySubscriptionOption,
@@ -54,6 +56,8 @@ const resolvers: Resolvers = {
     createClubSportLocation,
     deleteClubSportLocation,
     createSubscriptionOption,
+    enableSubscriptionOption,
+    disableSubscriptionOption,
     createSubscription,
   },
 };

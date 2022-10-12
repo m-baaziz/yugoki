@@ -25,7 +25,7 @@ export async function listClubs(
       endCursor,
     };
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -56,7 +56,7 @@ export async function listUserClubs(
       endCursor,
     };
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -70,7 +70,7 @@ export async function getClub(
     const club = await clubAPI.findClubById(id);
     return Promise.resolve(dbClubToClub(club));
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -91,7 +91,7 @@ export async function createClub(
     const club = await clubAPI.createClub(user.id, name);
     return Promise.resolve(dbClubToClub(club));
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -112,7 +112,7 @@ export async function deleteClub(
     const result = await clubAPI.deleteClub(id);
     return Promise.resolve(result);
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }

@@ -49,6 +49,7 @@ export async function listSubscriptionsBySubscriptionOption(
       endCursor,
     };
   } catch (e) {
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -87,6 +88,7 @@ export async function createSubscription(
     // send emails
     return await dbSubscriptionToSubscription(subscription, subscriptionOption);
   } catch (e) {
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }

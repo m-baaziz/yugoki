@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Box, BoxProps } from '@mui/material';
+import { Box, BoxProps, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
@@ -19,7 +19,13 @@ import SignUp from './components/SignUp';
 import CslPage from './components/CslPage';
 import UserClubs from './components/Profile/UserClubs';
 import UserClubSportLocations from './components/Profile/UserClubSportLocations';
-import ClubSportLocationForm from './components/Profile/ClubSportLocationForm';
+import ClubSportLocationForm from './components/Profile/UserClubSportLocations/ClubSportLocationForm';
+import UserClubTrainers from './components/Profile/UserClubTrainers';
+import ClubTrainerForm from './components/Profile/UserClubTrainers/ClubTrainerForm';
+import UserClub from './components/Profile/UserClubs/UserClub';
+import Subscriptions from './components/Profile/UserClubSportLocations/Subscriptions';
+import SubscriptionOptionForm from './components/Profile/UserClubSportLocations/Subscriptions/SubscriptionOptionForm';
+import UserClubSportLocation from './components/Profile/UserClubSportLocations/UserClubSportLocation';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -54,7 +60,12 @@ function App() {
   const [notification, setNotification] = React.useState<
     Notification | undefined
   >();
-  const { data: meData, refetch: refetchMe } = useQuery<{ me: User }>(ME, {
+  const {
+    data: meData,
+    refetch: refetchMe,
+    loading: userFetchLoading,
+    called: userFetchCalled,
+  } = useQuery<{ me: User }>(ME, {
     skip: localStorage.getItem('token') === null,
     fetchPolicy: 'no-cache',
   });
@@ -82,8 +93,16 @@ function App() {
     navigate('/');
   };
 
-  const withUser = (component: ReactElement): ReactElement =>
-    user ? component : <Navigate replace to="/signin" />;
+  const withUser = (component: ReactElement): ReactElement => {
+    if (userFetchCalled && !userFetchLoading && !meData?.me)
+      return <Navigate replace to="/signin" />;
+    if (meData?.me) return component;
+    return (
+      <Box sx={{ display: 'flex', width: '100%', height: '100%' }}>
+        <CircularProgress sx={{ margin: 'auto' }} />
+      </Box>
+    );
+  };
 
   return (
     <AppContext.Provider
@@ -116,6 +135,15 @@ function App() {
             <Route path="/clubs" element={<CslList />} />
             <Route path="/locations/:id" element={<CslPage />} />
             <Route path="/profile/clubs" element={withUser(<UserClubs />)} />
+            <Route path="/profile/clubs/:id" element={withUser(<UserClub />)} />
+            <Route
+              path="/profile/clubs/:id/trainers"
+              element={withUser(<UserClubTrainers />)}
+            />
+            <Route
+              path="/profile/clubs/:id/trainers/new"
+              element={withUser(<ClubTrainerForm />)}
+            />
             <Route
               path="/profile/clubs/:id/locations"
               element={withUser(<UserClubSportLocations />)}
@@ -123,6 +151,18 @@ function App() {
             <Route
               path="/profile/clubs/:id/locations/new"
               element={withUser(<ClubSportLocationForm />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/locations/:cslId"
+              element={withUser(<UserClubSportLocation />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/locations/:cslId/subscriptions"
+              element={withUser(<Subscriptions />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/locations/:cslId/subscriptions/options/new"
+              element={withUser(<SubscriptionOptionForm />)}
             />
           </Routes>
         </Content>

@@ -6,7 +6,7 @@ import {
   QueryGetEventArgs,
 } from '../generated/graphql';
 import { dbEventToEvent } from '../utils/event';
-// import { logger } from '../logger';
+import { logger } from '../logger';
 
 export async function listClubSportLocationEvents(
   _parent: unknown,
@@ -27,6 +27,7 @@ export async function listClubSportLocationEvents(
       endCursor,
     };
   } catch (e) {
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -40,6 +41,7 @@ export async function getEvent(
     const event = await eventAPI.findEventById(id);
     return Promise.resolve(dbEventToEvent(event));
   } catch (e) {
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }

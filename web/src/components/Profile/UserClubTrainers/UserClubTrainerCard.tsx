@@ -4,43 +4,35 @@ import {
   CardContent,
   CardActions,
   Button,
-  Typography,
   SxProps,
   Theme,
 } from '@mui/material';
-import { ClubSportLocation } from '../../generated/graphql';
+import { Trainer } from '../../../generated/graphql';
 import { Link } from 'react-router-dom';
+import TrainerCard from '../../CslPage/InfoTabs/TrainerCard';
 
-export type UserClubSportLocationCardProps = {
-  clubSportLocation: ClubSportLocation;
+export type UserClubTrainerCardProps = {
+  trainer: Trainer;
   onDelete: (id: string) => void;
   sx?: SxProps<Theme>;
 };
 
-export default function UserClubSportLocationCard(
-  props: UserClubSportLocationCardProps,
-) {
-  const { sx, clubSportLocation, onDelete } = props;
+export default function UserClubTrainerCard(props: UserClubTrainerCardProps) {
+  const { sx, trainer, onDelete } = props;
 
   const handleDeleteClick = () => {
-    if (!clubSportLocation.id) return;
-    onDelete(clubSportLocation.id);
+    if (!trainer.id) return;
+    onDelete(trainer.id);
   };
 
   return (
     <Card variant="outlined" sx={{ ...sx }}>
       <Link
-        to={`${clubSportLocation.id || ''}`}
+        to={`${trainer.id || ''}`}
         style={{ textDecoration: 'none', color: 'inherit' }}
       >
         <CardContent>
-          <Typography variant="h5" component="div">
-            {clubSportLocation.name}
-          </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            {clubSportLocation.sport.title}
-          </Typography>
-          <Typography variant="body2">{clubSportLocation.address}</Typography>
+          <TrainerCard trainer={trainer} />
         </CardContent>
       </Link>
       <CardActions

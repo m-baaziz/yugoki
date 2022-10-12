@@ -17,9 +17,9 @@ mongoClient
   // .then(seedUsers)
   // .then(seedSports)
   // .then(seedClubs)
-  // .then(seedClubSportLocation)
-  // .then(seedTrainers)
-  .then(seedEvents)
+  .then(seedClubSportLocation)
+  .then(seedTrainers)
+  // .then(seedEvents)
   .then(() => {
     mongoClient.close();
   })

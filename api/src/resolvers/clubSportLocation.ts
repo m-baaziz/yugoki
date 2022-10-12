@@ -50,7 +50,7 @@ export async function listClubSportLocations(
       endCursor,
     };
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -94,7 +94,7 @@ export async function listClubSportLocationsByClub(
       endCursor,
     };
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -161,7 +161,7 @@ export async function searchClubSportLocations(
       endCursor,
     };
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -182,7 +182,7 @@ export async function getClubSportLocation(
     );
     return dbClubSportLocationToClubSportLocation(csl, sport, club, trainers);
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -214,7 +214,7 @@ export async function createClubSportLocation(
     );
     return dbClubSportLocationToClubSportLocation(csl, sport, club, trainers);
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }
@@ -236,10 +236,10 @@ export async function deleteClubSportLocation(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const result = clubSportLocationAPI.deleteClubSportLocation(id);
+    const result = await clubSportLocationAPI.deleteClubSportLocation(id);
     return Promise.resolve(result);
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }

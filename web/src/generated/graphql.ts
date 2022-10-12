@@ -134,6 +134,8 @@ export type Mutation = {
   deleteClub: Scalars['Boolean'];
   deleteClubSportLocation: Scalars['Boolean'];
   deleteTrainer: Scalars['Boolean'];
+  disableSubscriptionOption: SubscriptionOption;
+  enableSubscriptionOption: SubscriptionOption;
   signIn: Scalars['String'];
   signUp: Scalars['String'];
 };
@@ -179,6 +181,16 @@ export type MutationDeleteClubSportLocationArgs = {
 
 
 export type MutationDeleteTrainerArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDisableSubscriptionOptionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEnableSubscriptionOptionArgs = {
   id: Scalars['ID'];
 };
 
@@ -390,6 +402,7 @@ export type TrainerInput = {
   displayname: Scalars['String'];
   firstname: Scalars['String'];
   lastname: Scalars['String'];
+  photo?: InputMaybe<Scalars['String']>;
 };
 
 export type TrainerPageInfo = {

@@ -103,4 +103,15 @@ export default class EventAPI extends DataSource {
       return Promise.reject(e);
     }
   }
+
+  async deleteEventssByClubSportLocation(cslId: string): Promise<number> {
+    try {
+      const result = await this.collection.deleteMany({
+        clubSportLocation: cslId,
+      });
+      return Promise.resolve(result.deletedCount);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
 }

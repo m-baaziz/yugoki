@@ -141,6 +141,8 @@ export type Mutation = {
   deleteClub: Scalars['Boolean'];
   deleteClubSportLocation: Scalars['Boolean'];
   deleteTrainer: Scalars['Boolean'];
+  disableSubscriptionOption: SubscriptionOption;
+  enableSubscriptionOption: SubscriptionOption;
   signIn: Scalars['String'];
   signUp: Scalars['String'];
 };
@@ -186,6 +188,16 @@ export type MutationDeleteClubSportLocationArgs = {
 
 
 export type MutationDeleteTrainerArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDisableSubscriptionOptionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEnableSubscriptionOptionArgs = {
   id: Scalars['ID'];
 };
 
@@ -397,6 +409,7 @@ export type TrainerInput = {
   displayname: Scalars['String'];
   firstname: Scalars['String'];
   lastname: Scalars['String'];
+  photo?: InputMaybe<Scalars['String']>;
 };
 
 export type TrainerPageInfo = {
@@ -684,6 +697,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteClub?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubArgs, 'id'>>;
   deleteClubSportLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubSportLocationArgs, 'id'>>;
   deleteTrainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainerArgs, 'id'>>;
+  disableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationDisableSubscriptionOptionArgs, 'id'>>;
+  enableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationEnableSubscriptionOptionArgs, 'id'>>;
   signIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
   signUp?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
 };

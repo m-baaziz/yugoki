@@ -1,7 +1,7 @@
 import { ContextWithDataSources } from '../datasources';
 import { SportPageInfo, QueryListSportsArgs } from '../generated/graphql';
 import { dbSportToSport } from '../utils/sport';
-// import { logger } from '../logger';
+import { logger } from '../logger';
 
 export async function listSports(
   _parent: unknown,
@@ -18,6 +18,7 @@ export async function listSports(
       endCursor,
     };
   } catch (e) {
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }

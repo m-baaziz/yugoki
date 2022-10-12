@@ -51,6 +51,8 @@ type Mutation {
     cslId: ID!
     input: SubscriptionOptionInput!
   ): SubscriptionOption!
+  enableSubscriptionOption(id: ID!): SubscriptionOption!
+  disableSubscriptionOption(id: ID!): SubscriptionOption!
   createSubscription(
     subcriptionOption: ID!
     details: SubscriberDetailsInput!
@@ -107,6 +109,7 @@ input TrainerInput {
   lastname: String!
   displayname: String!
   description: String!
+  photo: String
 }
 
 type Trainer @entity {

@@ -29,6 +29,7 @@ export async function signIn(
     }
     return userAPI.generateToken(dbUserToUser(user));
   } catch (e) {
+    logger.error(e.toString());
     return Promise.reject('Invalid credentials');
   }
 }
@@ -60,7 +61,7 @@ export async function signUp(
     logger.info(`New user successfully created (id = ${newUser._id})`);
     return userAPI.generateToken(dbUserToUser(newUser));
   } catch (e) {
-    logger.error(e);
+    logger.error(e.toString());
     return Promise.reject(e);
   }
 }

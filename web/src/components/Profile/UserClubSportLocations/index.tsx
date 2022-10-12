@@ -3,12 +3,12 @@ import { styled } from '@mui/material/styles';
 import { Box, BoxProps, Fab, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, gql, useMutation } from '@apollo/client';
-import appContext, { NotificationLevel } from '../../context';
+import appContext, { NotificationLevel } from '../../../context';
 import {
   ClubSportLocationPageInfo,
   MutationDeleteClubArgs,
   QueryListClubSportLocationsByClubArgs,
-} from '../../generated/graphql';
+} from '../../../generated/graphql';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserClubSportLocationCard from './UserClubSportLocationCard';
 
