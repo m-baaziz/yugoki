@@ -118,6 +118,13 @@ export type Event = {
   title: Scalars['String'];
 };
 
+export type EventInput = {
+  dateRFC3339: Scalars['String'];
+  description: Scalars['String'];
+  image?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
+};
+
 export type EventPageInfo = {
   __typename?: 'EventPageInfo';
   endCursor?: Maybe<Scalars['String']>;
@@ -135,11 +142,13 @@ export type Mutation = {
   __typename?: 'Mutation';
   createClub: Club;
   createClubSportLocation?: Maybe<ClubSportLocation>;
+  createEvent: Event;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
   createTrainer: Trainer;
   deleteClub: Scalars['Boolean'];
   deleteClubSportLocation: Scalars['Boolean'];
+  deleteEvent: Scalars['Boolean'];
   deleteTrainer: Scalars['Boolean'];
   disableSubscriptionOption: SubscriptionOption;
   enableSubscriptionOption: SubscriptionOption;
@@ -156,6 +165,12 @@ export type MutationCreateClubArgs = {
 export type MutationCreateClubSportLocationArgs = {
   clubId: Scalars['ID'];
   input: ClubSportLocationInput;
+};
+
+
+export type MutationCreateEventArgs = {
+  cslId: Scalars['ID'];
+  input: EventInput;
 };
 
 
@@ -183,6 +198,11 @@ export type MutationDeleteClubArgs = {
 
 
 export type MutationDeleteClubSportLocationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteEventArgs = {
   id: Scalars['ID'];
 };
 
@@ -540,6 +560,7 @@ export type ResolversTypes = {
   ClubSportLocationPageInfo: ResolverTypeWrapper<ClubSportLocationPageInfo>;
   ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
   Event: ResolverTypeWrapper<Event>;
+  EventInput: EventInput;
   EventPageInfo: ResolverTypeWrapper<EventPageInfo>;
   Gender: Gender;
   Mutation: ResolverTypeWrapper<{}>;
@@ -579,6 +600,7 @@ export type ResolversParentTypes = {
   ClubSportLocationPageInfo: ClubSportLocationPageInfo;
   ClubSportLocationSearchQueryInput: ClubSportLocationSearchQueryInput;
   Event: Event;
+  EventInput: EventInput;
   EventPageInfo: EventPageInfo;
   Mutation: {};
   Query: {};
@@ -720,11 +742,13 @@ export type EventPageInfoResolvers<ContextType = any, ParentType extends Resolve
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'name'>>;
   createClubSportLocation?: Resolver<Maybe<ResolversTypes['ClubSportLocation']>, ParentType, ContextType, RequireFields<MutationCreateClubSportLocationArgs, 'clubId' | 'input'>>;
+  createEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'cslId' | 'input'>>;
   createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'subscriptionOptionId'>>;
   createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'cslId' | 'input'>>;
   createTrainer?: Resolver<ResolversTypes['Trainer'], ParentType, ContextType, RequireFields<MutationCreateTrainerArgs, 'clubId' | 'input'>>;
   deleteClub?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubArgs, 'id'>>;
   deleteClubSportLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubSportLocationArgs, 'id'>>;
+  deleteEvent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'id'>>;
   deleteTrainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainerArgs, 'id'>>;
   disableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationDisableSubscriptionOptionArgs, 'id'>>;
   enableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationEnableSubscriptionOptionArgs, 'id'>>;

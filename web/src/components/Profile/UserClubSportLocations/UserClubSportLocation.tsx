@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SxProps, Theme } from '@mui/material';
 import PaidIcon from '@mui/icons-material/Paid';
-import EditIcon from '@mui/icons-material/Edit';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import NavigationPanel from '../../NavigationPanel';
 
 export type UserClubSportLocationProps = {
@@ -18,7 +18,7 @@ export default function UserClubSportLocation(
       sx={{ width: '100%', height: '100%', ...sx }}
       links={[
         { to: 'subscriptions', label: 'Subscriptions', icon: <PaidIcon /> },
-        { to: 'edit', label: 'Edit', icon: <EditIcon /> },
+        { to: 'events', label: 'Events', icon: <EmojiEventsIcon /> },
       ]}
     />
   );

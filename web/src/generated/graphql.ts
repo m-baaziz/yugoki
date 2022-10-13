@@ -111,6 +111,13 @@ export type Event = {
   title: Scalars['String'];
 };
 
+export type EventInput = {
+  dateRFC3339: Scalars['String'];
+  description: Scalars['String'];
+  image?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
+};
+
 export type EventPageInfo = {
   __typename?: 'EventPageInfo';
   endCursor?: Maybe<Scalars['String']>;
@@ -128,11 +135,13 @@ export type Mutation = {
   __typename?: 'Mutation';
   createClub: Club;
   createClubSportLocation?: Maybe<ClubSportLocation>;
+  createEvent: Event;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
   createTrainer: Trainer;
   deleteClub: Scalars['Boolean'];
   deleteClubSportLocation: Scalars['Boolean'];
+  deleteEvent: Scalars['Boolean'];
   deleteTrainer: Scalars['Boolean'];
   disableSubscriptionOption: SubscriptionOption;
   enableSubscriptionOption: SubscriptionOption;
@@ -149,6 +158,12 @@ export type MutationCreateClubArgs = {
 export type MutationCreateClubSportLocationArgs = {
   clubId: Scalars['ID'];
   input: ClubSportLocationInput;
+};
+
+
+export type MutationCreateEventArgs = {
+  cslId: Scalars['ID'];
+  input: EventInput;
 };
 
 
@@ -176,6 +191,11 @@ export type MutationDeleteClubArgs = {
 
 
 export type MutationDeleteClubSportLocationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteEventArgs = {
   id: Scalars['ID'];
 };
 

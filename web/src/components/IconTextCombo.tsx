@@ -17,7 +17,6 @@ export default function IconTextCombo(props: IconTextComboProps) {
         display: 'flex',
         flexDirection: 'row',
         lineHeight: `${size}px`,
-        mr: 2,
       }}
     >
       {icon ? (
@@ -25,23 +24,25 @@ export default function IconTextCombo(props: IconTextComboProps) {
           <img src={`/icons/80${icon}`} height={size} width={size} />
         </Box>
       ) : null}
-      {typeof text === 'string' ? (
-        <Typography
-          variant="body2"
-          component="div"
-          sx={{ alighContent: 'center' }}
-        >
-          {link ? (
-            <Link href={text} color="inherit" target="blank">
-              {text}
-            </Link>
-          ) : (
-            text
-          )}
-        </Typography>
-      ) : (
-        text
-      )}
+      <Box sx={{ flexGrow: 2 }}>
+        {typeof text === 'string' ? (
+          <Typography
+            variant="body2"
+            component="div"
+            sx={{ alighContent: 'center' }}
+          >
+            {link ? (
+              <Link href={text} color="inherit" target="blank">
+                {text}
+              </Link>
+            ) : (
+              text
+            )}
+          </Typography>
+        ) : (
+          text
+        )}
+      </Box>
     </Box>
   );
 }

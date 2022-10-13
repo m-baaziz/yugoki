@@ -3,7 +3,7 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource';
 import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
-import { EventDbObject } from '../generated/graphql';
+import { EventDbObject, EventInput } from '../generated/graphql';
 import { listByFilter } from './helpers';
 
 export default class EventAPI extends DataSource {
@@ -65,7 +65,36 @@ export default class EventAPI extends DataSource {
     );
   }
 
-  async deleteEventssByClubSportLocation(cslId: string): Promise<number> {
+  async createEvent(cslId: string, input: EventInput): Promise<EventDbObject> {
+    try {
+      const clubEvent: EventDbObject = {
+        clubSportLocation: cslId,
+        ...input,
+      };
+
+      const result = await this.collection.insertOne(clubEvent);
+
+      return {
+        ...clubEvent,
+        _id: result.insertedId,
+      };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteEvent(id: string): Promise<boolean> {
+    try {
+      const result = await this.collection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      return Promise.resolve(result.deletedCount === 1);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteEventsByClubSportLocation(cslId: string): Promise<number> {
     try {
       const result = await this.collection.deleteMany({
         clubSportLocation: cslId,

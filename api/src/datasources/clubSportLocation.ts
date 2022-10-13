@@ -149,7 +149,7 @@ export default class ClubSportLocationAPI extends DataSource {
           id,
         );
       const eventsDeleteCount =
-        await this.eventAPI.deleteEventssByClubSportLocation(id);
+        await this.eventAPI.deleteEventsByClubSportLocation(id);
 
       logger.info(
         `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
@@ -179,7 +179,7 @@ export default class ClubSportLocationAPI extends DataSource {
             cslId,
           );
         eventsDeleteCount +=
-          await this.eventAPI.deleteEventssByClubSportLocation(cslId);
+          await this.eventAPI.deleteEventsByClubSportLocation(cslId);
       }
       logger.info(
         `Deleted ${subscriptionOptionsDeleteCount} subscription options`,

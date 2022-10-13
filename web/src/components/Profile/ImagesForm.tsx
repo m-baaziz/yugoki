@@ -21,13 +21,14 @@ type FileWithUrl = {
 };
 
 export type ImagesFormProps = {
-  onChange: (urls: string[]) => void;
+  onChange?: (urls: string[]) => void;
   multiple?: boolean;
   sx?: SxProps<Theme>;
+  readOnly?: boolean;
 };
 
 export default function ImagesForm(props: ImagesFormProps) {
-  const { sx, onChange, multiple } = props;
+  const { sx, onChange, multiple, readOnly } = props;
   const [files, setFiles] = React.useState<FileWithUrl[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +46,7 @@ export default function ImagesForm(props: ImagesFormProps) {
   };
 
   React.useEffect(() => {
+    if (!onChange) return;
     onChange(files.map((f) => `/${f.file.name}`));
   }, [files]);
 
@@ -62,41 +64,45 @@ export default function ImagesForm(props: ImagesFormProps) {
         ...sx,
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-        <Button
-          variant="contained"
-          component="label"
-          startIcon={<FileUploadIcon />}
-        >
-          Upload Image
-          <input
-            hidden
-            type="file"
-            id="images"
-            name="images"
-            accept="images/png, images/jpeg"
-            multiple
-            onChange={handleFileChange}
-          />
-        </Button>
-      </Box>
+      {readOnly ? null : (
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<FileUploadIcon />}
+          >
+            Upload Image
+            <input
+              hidden
+              type="file"
+              id="images"
+              name="images"
+              accept="images/png, images/jpeg"
+              multiple
+              onChange={handleFileChange}
+            />
+          </Button>
+        </Box>
+      )}
       <ImageList sx={{ width: '100%' }} cols={PREVIEW_IMG_PER_ROW}>
         {files.map(({ file, url }, i) => (
           <ImageListItem key={i}>
             <img src={url} alt={file.name} loading="lazy" />
-            <ImageListItemBar
-              position="top"
-              sx={{ background: 'rgba(0, 0, 0, 0.5)' }}
-              actionIcon={
-                <IconButton
-                  sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
-                  aria-label={`delete ${file.name}`}
-                  onClick={handleCloseCick(i)}
-                >
-                  <CloseIcon />
-                </IconButton>
-              }
-            />
+            {readOnly ? null : (
+              <ImageListItemBar
+                position="top"
+                sx={{ background: 'rgba(0, 0, 0, 0.5)' }}
+                actionIcon={
+                  <IconButton
+                    sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
+                    aria-label={`delete ${file.name}`}
+                    onClick={handleCloseCick(i)}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                }
+              />
+            )}
           </ImageListItem>
         ))}
       </ImageList>

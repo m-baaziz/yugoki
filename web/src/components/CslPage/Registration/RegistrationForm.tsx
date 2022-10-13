@@ -109,10 +109,8 @@ export default function RegistrationForm(props: RegistrationFormProps) {
             inputFormat="MM/DD/YYYY"
             value={details.dateOfBirth}
             onChange={handleDobChange}
-            renderInput={(params) => (
-              <TextField {...params} InputProps={{ readOnly }} />
-            )}
             InputProps={{ readOnly }}
+            renderInput={(params) => <TextField {...params} />}
           />
         </LocalizationProvider>
       </Box>
@@ -121,7 +119,7 @@ export default function RegistrationForm(props: RegistrationFormProps) {
           id="firstname"
           label="first name"
           variant="standard"
-          required
+          required={!readOnly}
           fullWidth
           value={details.firstname}
           onChange={handleTextInputChange('firstname')}
@@ -131,7 +129,7 @@ export default function RegistrationForm(props: RegistrationFormProps) {
           id="lastname"
           label="last name"
           variant="standard"
-          required
+          required={!readOnly}
           fullWidth
           value={details.lastname}
           onChange={handleTextInputChange('lastname')}
@@ -143,7 +141,7 @@ export default function RegistrationForm(props: RegistrationFormProps) {
           id="phone"
           label="phone number"
           variant="standard"
-          required
+          required={!readOnly}
           fullWidth
           value={details.phone}
           onChange={handleTextInputChange('phone')}
@@ -160,7 +158,7 @@ export default function RegistrationForm(props: RegistrationFormProps) {
           id="email"
           label="email"
           variant="standard"
-          required
+          required={!readOnly}
           fullWidth
           value={details.email}
           onChange={handleTextInputChange('email')}
@@ -178,7 +176,7 @@ export default function RegistrationForm(props: RegistrationFormProps) {
         id="address"
         label="address"
         variant="standard"
-        required
+        required={!readOnly}
         fullWidth
         value={details.address}
         onChange={handleTextInputChange('address')}

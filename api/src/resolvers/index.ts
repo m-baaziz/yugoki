@@ -14,7 +14,12 @@ import {
   createClubSportLocation,
   deleteClubSportLocation,
 } from './clubSportLocation';
-import { getEvent, listClubSportLocationEvents } from './event';
+import {
+  getEvent,
+  listClubSportLocationEvents,
+  createEvent,
+  deleteEvent,
+} from './event';
 import { listSports } from './sport';
 import { signIn, signUp, me } from './user';
 import {
@@ -67,6 +72,8 @@ const resolvers: Resolvers = {
     enableSubscriptionOption,
     disableSubscriptionOption,
     createSubscription,
+    createEvent,
+    deleteEvent,
   },
 };
 

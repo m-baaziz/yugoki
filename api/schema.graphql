@@ -69,6 +69,8 @@ type Mutation {
     subscriptionOptionId: ID!
     details: SubscriberDetailsInput!
   ): Subscription!
+  createEvent(cslId: ID!, input: EventInput!): Event!
+  deleteEvent(id: ID!): Boolean!
 }
 
 input SearchArea {
@@ -138,6 +140,13 @@ type TrainerPageInfo {
   trainers: [Trainer!]!
   hasNextPage: Boolean!
   endCursor: String
+}
+
+input EventInput {
+  dateRFC3339: String!
+  title: String!
+  description: String!
+  image: String
 }
 
 type Event @entity {

@@ -4,9 +4,12 @@ import {
   EventPageInfo,
   QueryListClubSportLocationEventsArgs,
   QueryGetEventArgs,
+  MutationDeleteEventArgs,
+  MutationCreateEventArgs,
 } from '../generated/graphql';
 import { dbEventToEvent } from '../utils/event';
 import { logger } from '../logger';
+import { isUserAuthorized } from '../utils/club';
 
 export async function listClubSportLocationEvents(
   _parent: unknown,
@@ -40,6 +43,46 @@ export async function getEvent(
   try {
     const event = await eventAPI.findEventById(id);
     return Promise.resolve(dbEventToEvent(event));
+  } catch (e) {
+    logger.error(e.toString());
+    return Promise.reject(e);
+  }
+}
+
+export async function createEvent(
+  _parent: unknown,
+  { cslId, input }: MutationCreateEventArgs,
+  {
+    user,
+    dataSources: { clubSportLocationAPI, clubAPI, eventAPI },
+  }: ContextWithDataSources,
+): Promise<Event> {
+  try {
+    if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    const clubSportLocation =
+      await clubSportLocationAPI.findClubSportLocationById(cslId);
+    const club = await clubAPI.findClubById(clubSportLocation.club.toString());
+    if (!isUserAuthorized(club, user)) {
+      return Promise.reject('Unauthorized');
+    }
+    const clubEvent = await eventAPI.createEvent(cslId, input);
+    return dbEventToEvent(clubEvent);
+  } catch (e) {
+    logger.error(e.toString());
+    return Promise.reject(e);
+  }
+}
+
+export async function deleteEvent(
+  _parent: unknown,
+  { id }: MutationDeleteEventArgs,
+  { dataSources: { eventAPI } }: ContextWithDataSources,
+): Promise<boolean> {
+  try {
+    const result = await eventAPI.deleteEvent(id);
+    return Promise.resolve(result);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

@@ -28,6 +28,9 @@ import SubscriptionOptionForm from './components/Profile/UserClubSportLocations/
 import UserClubSportLocation from './components/Profile/UserClubSportLocations/UserClubSportLocation';
 import Registration from './components/CslPage/Registration';
 import SubscriptionPage from './components/Profile/UserClubSportLocations/Subscriptions/SubscriptionPage';
+import ClubSportLocationEvents from './components/Profile/UserClubSportLocations/ClubSportLocationEvents';
+import ClubSportLocationEvent from './components/Profile/UserClubSportLocations/ClubSportLocationEvents/ClubSportLocationEvent';
+import NewClubSportLocationEvent from './components/Profile/UserClubSportLocations/ClubSportLocationEvents/NewClubSportLocationEvent';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -173,6 +176,18 @@ function App() {
             <Route
               path="/profile/clubs/:clubId/locations/:cslId/subscriptions/options/new"
               element={withUser(<SubscriptionOptionForm />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/locations/:cslId/events"
+              element={withUser(<ClubSportLocationEvents />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/locations/:cslId/events/new"
+              element={withUser(<NewClubSportLocationEvent />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/locations/:cslId/events/:id"
+              element={withUser(<ClubSportLocationEvent />)}
             />
           </Routes>
         </Content>
