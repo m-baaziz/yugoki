@@ -5,10 +5,27 @@ import {
   SubscriptionOptionPageInfo,
   SubscriptionOption,
   MutationEnableSubscriptionOptionArgs,
+  QueryListEnabledSubscriptionOptionsByClubSportLocationArgs,
+  QueryGetSubscriptionOptionArgs,
 } from '../generated/graphql';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
 import { dbSubscriptionOptionToSubscriptionOption } from '../utils/subscriptionOption';
+
+export async function getSubscriptionOption(
+  _parent: unknown,
+  { id }: QueryGetSubscriptionOptionArgs,
+  { dataSources: { subscriptionOptionAPI } }: ContextWithDataSources,
+): Promise<SubscriptionOption> {
+  try {
+    const subscriptionOption =
+      await subscriptionOptionAPI.findSubscriptionOptionById(id);
+    return dbSubscriptionOptionToSubscriptionOption(subscriptionOption);
+  } catch (e) {
+    logger.error(e.toString());
+    return Promise.reject(e);
+  }
+}
 
 export async function listSubscriptionOptionsByClubSportLocation(
   _parent: unknown,
@@ -18,6 +35,39 @@ export async function listSubscriptionOptionsByClubSportLocation(
   try {
     const [subscriptionOptions, hasNextPage] =
       await subscriptionOptionAPI.listSubscriptionOptionsByClubSportLocation(
+        cslId,
+        first,
+        after,
+      );
+    const endCursor =
+      subscriptionOptions.length > 0
+        ? subscriptionOptions[subscriptionOptions.length - 1]._id.toString()
+        : undefined;
+    return {
+      subscriptionOptions: subscriptionOptions.map(
+        dbSubscriptionOptionToSubscriptionOption,
+      ),
+      hasNextPage,
+      endCursor,
+    };
+  } catch (e) {
+    logger.error(e.toString());
+    return Promise.reject(e);
+  }
+}
+
+export async function listEnabledSubscriptionOptionsByClubSportLocation(
+  _parent: unknown,
+  {
+    cslId,
+    first,
+    after,
+  }: QueryListEnabledSubscriptionOptionsByClubSportLocationArgs,
+  { dataSources: { subscriptionOptionAPI } }: ContextWithDataSources,
+): Promise<SubscriptionOptionPageInfo> {
+  try {
+    const [subscriptionOptions, hasNextPage] =
+      await subscriptionOptionAPI.listEnabledSubscriptionOptionsByClubSportLocation(
         cslId,
         first,
         after,

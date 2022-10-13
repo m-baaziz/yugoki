@@ -45,7 +45,7 @@ export default function SubscriptionOptionCard(
             <Typography variant="h5" component="div" sx={{ margin: 'auto' }}>
               {subscriptionOption.title}
             </Typography>
-            <List component="nav" aria-labelledby="list-subheader">
+            <List component="nav">
               {subscriptionOption.features.map((feature, i) => (
                 <ListItemText key={i} primary={`- ${feature}`} />
               ))}

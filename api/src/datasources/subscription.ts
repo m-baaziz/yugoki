@@ -7,16 +7,20 @@ import {
   SubscriptionDbObject,
   SubscriberDetailsInput,
 } from '../generated/graphql';
+import { listByFilter } from './helpers';
+import SubscriptionOptionAPI from './subscriptionOption';
 
 export default class SubscriptionAPI extends DataSource {
   collection: Collection<SubscriptionDbObject>;
   context: any;
+  subscriptionOptionAPI: SubscriptionOptionAPI;
 
-  constructor(db: Db) {
+  constructor(db: Db, subscriptionOptionAPI: SubscriptionOptionAPI) {
     super();
     this.collection = db.collection<SubscriptionDbObject>(
       _Collection.Subscription,
     );
+    this.subscriptionOptionAPI = subscriptionOptionAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -29,6 +33,7 @@ export default class SubscriptionAPI extends DataSource {
         { subscriptionOption: 1 },
         { unique: false },
       );
+      await this.collection.createIndex({ club: 1 }, { unique: false });
       return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
@@ -55,29 +60,7 @@ export default class SubscriptionAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionDbObject>[], boolean]> {
-    try {
-      const filter = {
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const subscriptions = await cursor.toArray();
-      const hasNext = subscriptions.length > first;
-      if (hasNext) {
-        subscriptions.pop();
-      }
-      return Promise.resolve([subscriptions, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, {}, first, after);
   }
 
   async listSubscriptionsBySubscriptionOption(
@@ -85,30 +68,25 @@ export default class SubscriptionAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionDbObject>[], boolean]> {
-    try {
-      const filter = {
-        subscriptionOption: new ObjectId(subscriptionOptionId),
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const subscriptions = await cursor.toArray();
-      const hasNext = subscriptions.length > first;
-      if (hasNext) {
-        subscriptions.pop();
-      }
-      return Promise.resolve([subscriptions, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(
+      this.collection,
+      { subscriptionOption: new ObjectId(subscriptionOptionId) },
+      first,
+      after,
+    );
+  }
+
+  async listSubscriptionsByClubSportLocation(
+    clubSportLocationId: string,
+    first: number,
+    after?: string,
+  ): Promise<[WithId<SubscriptionDbObject>[], boolean]> {
+    return listByFilter(
+      this.collection,
+      { clubSportLocation: clubSportLocationId },
+      first,
+      after,
+    );
   }
 
   async createSubscription(
@@ -117,16 +95,21 @@ export default class SubscriptionAPI extends DataSource {
   ): Promise<SubscriptionDbObject> {
     try {
       const now = new Date();
-      const subscriptionOption: SubscriptionDbObject = {
+      const subscriptionOption =
+        await this.subscriptionOptionAPI.findSubscriptionOptionById(
+          subscriptionOptionId,
+        );
+      const subscription: SubscriptionDbObject = {
         subscriptionOption: new ObjectId(subscriptionOptionId),
+        clubSportLocation: subscriptionOption.clubSportLocation,
         subscriberDetails,
         createdAtRFC3339: now.toISOString(),
       };
 
-      const result = await this.collection.insertOne(subscriptionOption);
+      const result = await this.collection.insertOne(subscription);
 
       return {
-        ...subscriptionOption,
+        ...subscription,
         _id: result.insertedId,
       };
     } catch (e) {

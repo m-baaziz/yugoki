@@ -13,6 +13,7 @@ import {
 } from '../../../../generated/graphql';
 import SubscriptionOptionCard from './SubscriptionOptionCard';
 import appContext, { NotificationLevel } from '../../../../context';
+import SubscriptionsTable from './SubscriptionsTable';
 
 const SUBSCRIPTION_OPTIONS_PAGE_SIZE = 100;
 
@@ -155,6 +156,15 @@ export default function Subscriptions() {
           ),
         )}
       </Grid>
+      <SubscriptionsTable
+        sx={{
+          gridArea: 'table',
+          placeSelf: 'center',
+          height: '100%',
+          width: '100%',
+        }}
+        cslId={cslId || ''}
+      />
     </Container>
   );
 }

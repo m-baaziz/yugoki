@@ -18,13 +18,17 @@ import { getEvent, listClubSportLocationEvents } from './event';
 import { listSports } from './sport';
 import { signIn, signUp, me } from './user';
 import {
+  getSubscriptionOption,
   listSubscriptionOptionsByClubSportLocation,
+  listEnabledSubscriptionOptionsByClubSportLocation,
   createSubscriptionOption,
   enableSubscriptionOption,
   disableSubscriptionOption,
 } from './subscriptionOption';
 import {
+  getSubscription,
   listSubscriptionsBySubscriptionOption,
+  listSubscriptionsByClubSportLocation,
   createSubscription,
 } from './subscription';
 import { listTrainersByClub, createTrainer, deleteTrainer } from './trainer';
@@ -42,8 +46,12 @@ const resolvers: Resolvers = {
     searchClubSportLocations,
     getEvent,
     listClubSportLocationEvents,
+    getSubscriptionOption,
     listSubscriptionOptionsByClubSportLocation,
+    listEnabledSubscriptionOptionsByClubSportLocation,
     listSubscriptionsBySubscriptionOption,
+    listSubscriptionsByClubSportLocation,
+    getSubscription,
     listTrainersByClub,
   },
   Mutation: {

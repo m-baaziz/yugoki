@@ -161,7 +161,7 @@ export type MutationCreateClubSportLocationArgs = {
 
 export type MutationCreateSubscriptionArgs = {
   details: SubscriberDetailsInput;
-  subcriptionOption: Scalars['ID'];
+  subscriptionOptionId: Scalars['ID'];
 };
 
 
@@ -218,12 +218,16 @@ export type Query = {
   getClub: Club;
   getClubSportLocation: ClubSportLocation;
   getEvent: Event;
+  getSubscription: Subscription;
+  getSubscriptionOption: SubscriptionOption;
   listClubSportLocationEvents: EventPageInfo;
   listClubSportLocations: ClubSportLocationPageInfo;
   listClubSportLocationsByClub: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
+  listEnabledSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
   listSports: SportPageInfo;
   listSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
+  listSubscriptionsByClubSportLocation: SubscriptionPageInfo;
   listSubscriptionsBySubscriptionOption: SubscriptionPageInfo;
   listTrainersByClub: TrainerPageInfo;
   listUserClubs: ClubPageInfo;
@@ -243,6 +247,16 @@ export type QueryGetClubSportLocationArgs = {
 
 
 export type QueryGetEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryGetSubscriptionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryGetSubscriptionOptionArgs = {
   id: Scalars['ID'];
 };
 
@@ -273,6 +287,13 @@ export type QueryListClubsArgs = {
 };
 
 
+export type QueryListEnabledSubscriptionOptionsByClubSportLocationArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  cslId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
 export type QueryListSportsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
@@ -280,6 +301,13 @@ export type QueryListSportsArgs = {
 
 
 export type QueryListSubscriptionOptionsByClubSportLocationArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  cslId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
+export type QueryListSubscriptionsByClubSportLocationArgs = {
   after?: InputMaybe<Scalars['String']>;
   cslId: Scalars['ID'];
   first: Scalars['Int'];
@@ -357,6 +385,7 @@ export type SubscriberDetailsInput = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  clubSportLocation: Scalars['String'];
   createdAtRFC3339: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
   subscriberDetails: SubscriberDetails;
@@ -691,7 +720,7 @@ export type EventPageInfoResolvers<ContextType = any, ParentType extends Resolve
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'name'>>;
   createClubSportLocation?: Resolver<Maybe<ResolversTypes['ClubSportLocation']>, ParentType, ContextType, RequireFields<MutationCreateClubSportLocationArgs, 'clubId' | 'input'>>;
-  createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'subcriptionOption'>>;
+  createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'subscriptionOptionId'>>;
   createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'cslId' | 'input'>>;
   createTrainer?: Resolver<ResolversTypes['Trainer'], ParentType, ContextType, RequireFields<MutationCreateTrainerArgs, 'clubId' | 'input'>>;
   deleteClub?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubArgs, 'id'>>;
@@ -707,12 +736,16 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<QueryGetClubArgs, 'id'>>;
   getClubSportLocation?: Resolver<ResolversTypes['ClubSportLocation'], ParentType, ContextType, RequireFields<QueryGetClubSportLocationArgs, 'id'>>;
   getEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<QueryGetEventArgs, 'id'>>;
+  getSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<QueryGetSubscriptionArgs, 'id'>>;
+  getSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<QueryGetSubscriptionOptionArgs, 'id'>>;
   listClubSportLocationEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationEventsArgs, 'cslId' | 'first'>>;
   listClubSportLocations?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsArgs, 'first'>>;
   listClubSportLocationsByClub?: Resolver<ResolversTypes['ClubSportLocationPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationsByClubArgs, 'clubId' | 'first'>>;
   listClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListClubsArgs, 'first'>>;
+  listEnabledSubscriptionOptionsByClubSportLocation?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListEnabledSubscriptionOptionsByClubSportLocationArgs, 'cslId' | 'first'>>;
   listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
   listSubscriptionOptionsByClubSportLocation?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionOptionsByClubSportLocationArgs, 'cslId' | 'first'>>;
+  listSubscriptionsByClubSportLocation?: Resolver<ResolversTypes['SubscriptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionsByClubSportLocationArgs, 'cslId' | 'first'>>;
   listSubscriptionsBySubscriptionOption?: Resolver<ResolversTypes['SubscriptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionsBySubscriptionOptionArgs, 'first' | 'subscriptionOptionId'>>;
   listTrainersByClub?: Resolver<ResolversTypes['TrainerPageInfo'], ParentType, ContextType, RequireFields<QueryListTrainersByClubArgs, 'clubId' | 'first'>>;
   listUserClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListUserClubsArgs, 'first'>>;
@@ -747,6 +780,7 @@ export type SubscriberDetailsResolvers<ContextType = any, ParentType extends Res
 };
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  clubSportLocation?: SubscriptionResolver<ResolversTypes['String'], "clubSportLocation", ParentType, ContextType>;
   createdAtRFC3339?: SubscriptionResolver<ResolversTypes['String'], "createdAtRFC3339", ParentType, ContextType>;
   id?: SubscriptionResolver<Maybe<ResolversTypes['ID']>, "id", ParentType, ContextType>;
   subscriberDetails?: SubscriptionResolver<ResolversTypes['SubscriberDetails'], "subscriberDetails", ParentType, ContextType>;
@@ -900,6 +934,7 @@ export type SubscriberDetailsDbObject = {
 };
 
 export type SubscriptionDbObject = {
+  clubSportLocation: string,
   createdAtRFC3339: string,
   _id?: Maybe<ObjectId>,
   subscriberDetails: SubscriberDetailsDbObject,

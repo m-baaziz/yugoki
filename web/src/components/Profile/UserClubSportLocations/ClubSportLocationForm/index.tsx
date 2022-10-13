@@ -1,5 +1,3 @@
-/* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
-
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import {
@@ -11,7 +9,7 @@ import {
   Stack,
   TextField,
 } from '@mui/material';
-import LocationIcon from '@mui/icons-material/LocationOn';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LanguageIcon from '@mui/icons-material/Language';
 import { useQuery, gql, useMutation } from '@apollo/client';
@@ -274,7 +272,7 @@ export default function ClubSportLocationForm() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <LocationIcon />
+                <LocationOnIcon />
               </InputAdornment>
             ),
           }}

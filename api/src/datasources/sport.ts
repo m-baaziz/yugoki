@@ -4,6 +4,7 @@ import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
 import { SportDbObject } from '../generated/graphql';
+import { listByFilter } from './helpers';
 
 export default class SportAPI extends DataSource {
   collection: Collection<SportDbObject>;
@@ -44,28 +45,6 @@ export default class SportAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<SportDbObject>[], boolean]> {
-    try {
-      const filter = {
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const sports = await cursor.toArray();
-      const hasNext = sports.length > first;
-      if (hasNext) {
-        sports.pop();
-      }
-      return Promise.resolve([sports, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, {}, first, after);
   }
 }

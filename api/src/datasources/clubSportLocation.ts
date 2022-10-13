@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db, Filter, ObjectId, WithId } from 'mongodb';
+import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
 import {
@@ -9,6 +9,7 @@ import {
 } from '../generated/graphql';
 import { logger } from '../logger';
 import EventAPI from './event';
+import { listByFilter } from './helpers';
 import SubscriptionOptionAPI from './subscriptionOption';
 
 export default class ClubSportLocationAPI extends DataSource {
@@ -65,7 +66,7 @@ export default class ClubSportLocationAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
-    return this._listClubSportLocationsByFilter({}, first, after);
+    return listByFilter(this.collection, {}, first, after);
   }
 
   listClubSportLocationsByClub(
@@ -73,7 +74,8 @@ export default class ClubSportLocationAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
-    return this._listClubSportLocationsByFilter(
+    return listByFilter(
+      this.collection,
       { club: new ObjectId(clubId) },
       first,
       after,
@@ -98,7 +100,7 @@ export default class ClubSportLocationAPI extends DataSource {
         { lon: { $lte: bottomRightLon } },
       ],
     };
-    return this._listClubSportLocationsByFilter(filter, first, after);
+    return listByFilter(this.collection, filter, first, after);
   }
 
   listClubSportLocationsBySportAndAddress(
@@ -111,38 +113,7 @@ export default class ClubSportLocationAPI extends DataSource {
       sport: new ObjectId(sport),
       address: { $regex: address },
     };
-    return this._listClubSportLocationsByFilter(filter, first, after);
-  }
-
-  async _listClubSportLocationsByFilter(
-    filter: Filter<ClubSportLocationDbObject>,
-    first: number,
-    after?: string,
-  ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
-    try {
-      const newFilter = {
-        ...filter,
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(newFilter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const clubs = await cursor.toArray();
-      const hasNext = clubs.length > first;
-      if (hasNext) {
-        clubs.pop();
-      }
-      return Promise.resolve([clubs, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, filter, first, after);
   }
 
   async createClubSportLocation(

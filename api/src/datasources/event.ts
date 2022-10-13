@@ -4,6 +4,7 @@ import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
 import { EventDbObject } from '../generated/graphql';
+import { listByFilter } from './helpers';
 
 export default class EventAPI extends DataSource {
   collection: Collection<EventDbObject>;
@@ -48,29 +49,7 @@ export default class EventAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<EventDbObject>[], boolean]> {
-    try {
-      const filter = {
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const events = await cursor.toArray();
-      const hasNext = events.length > first;
-      if (hasNext) {
-        events.pop();
-      }
-      return Promise.resolve([events, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, {}, first, after);
   }
 
   async listEventsByCslId(
@@ -78,30 +57,12 @@ export default class EventAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<EventDbObject>[], boolean]> {
-    try {
-      const filter = {
-        clubSportLocation: cslId,
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const events = await cursor.toArray();
-      const hasNext = events.length > first;
-      if (hasNext) {
-        events.pop();
-      }
-      return Promise.resolve([events, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(
+      this.collection,
+      { clubSportLocation: cslId },
+      first,
+      after,
+    );
   }
 
   async deleteEventssByClubSportLocation(cslId: string): Promise<number> {

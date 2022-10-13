@@ -5,6 +5,7 @@ import { Collection, Db, ObjectId, WithId } from 'mongodb';
 import { _Collection } from '.';
 import { TrainerDbObject, TrainerInput } from '../generated/graphql';
 import { logger } from '../logger';
+import { listByFilter } from './helpers';
 
 export const TRAINERS_LIST_LIMIT = 1000;
 
@@ -69,29 +70,7 @@ export default class TrainerAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<TrainerDbObject>[], boolean]> {
-    try {
-      const filter = {
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const trainers = await cursor.toArray();
-      const hasNext = trainers.length > first;
-      if (hasNext) {
-        trainers.pop();
-      }
-      return Promise.resolve([trainers, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, {}, first, after);
   }
 
   async listTrainersByClub(
@@ -99,30 +78,12 @@ export default class TrainerAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<TrainerDbObject>[], boolean]> {
-    try {
-      const filter = {
-        club: new ObjectId(clubId),
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const trainers = await cursor.toArray();
-      const hasNext = trainers.length > first;
-      if (hasNext) {
-        trainers.pop();
-      }
-      return Promise.resolve([trainers, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(
+      this.collection,
+      { club: new ObjectId(clubId) },
+      first,
+      after,
+    );
   }
 
   async createTrainer(

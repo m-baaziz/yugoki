@@ -154,7 +154,7 @@ export type MutationCreateClubSportLocationArgs = {
 
 export type MutationCreateSubscriptionArgs = {
   details: SubscriberDetailsInput;
-  subcriptionOption: Scalars['ID'];
+  subscriptionOptionId: Scalars['ID'];
 };
 
 
@@ -211,12 +211,16 @@ export type Query = {
   getClub: Club;
   getClubSportLocation: ClubSportLocation;
   getEvent: Event;
+  getSubscription: Subscription;
+  getSubscriptionOption: SubscriptionOption;
   listClubSportLocationEvents: EventPageInfo;
   listClubSportLocations: ClubSportLocationPageInfo;
   listClubSportLocationsByClub: ClubSportLocationPageInfo;
   listClubs: ClubPageInfo;
+  listEnabledSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
   listSports: SportPageInfo;
   listSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
+  listSubscriptionsByClubSportLocation: SubscriptionPageInfo;
   listSubscriptionsBySubscriptionOption: SubscriptionPageInfo;
   listTrainersByClub: TrainerPageInfo;
   listUserClubs: ClubPageInfo;
@@ -236,6 +240,16 @@ export type QueryGetClubSportLocationArgs = {
 
 
 export type QueryGetEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryGetSubscriptionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryGetSubscriptionOptionArgs = {
   id: Scalars['ID'];
 };
 
@@ -266,6 +280,13 @@ export type QueryListClubsArgs = {
 };
 
 
+export type QueryListEnabledSubscriptionOptionsByClubSportLocationArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  cslId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
 export type QueryListSportsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
@@ -273,6 +294,13 @@ export type QueryListSportsArgs = {
 
 
 export type QueryListSubscriptionOptionsByClubSportLocationArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  cslId: Scalars['ID'];
+  first: Scalars['Int'];
+};
+
+
+export type QueryListSubscriptionsByClubSportLocationArgs = {
   after?: InputMaybe<Scalars['String']>;
   cslId: Scalars['ID'];
   first: Scalars['Int'];
@@ -350,6 +378,7 @@ export type SubscriberDetailsInput = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  clubSportLocation: Scalars['String'];
   createdAtRFC3339: Scalars['String'];
   id?: Maybe<Scalars['ID']>;
   subscriberDetails: SubscriberDetails;

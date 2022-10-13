@@ -16,12 +16,14 @@ export function dbSubscriptionToSubscription(
   subscription: SubscriptionDbObject,
   subscriptionOption: SubscriptionOptionDbObject,
 ): Promise<Subscription> {
-  const { _id, subscriberDetails, createdAtRFC3339 } = subscription;
+  const { _id, clubSportLocation, subscriberDetails, createdAtRFC3339 } =
+    subscription;
   const gender = parseGender(subscriberDetails.gender);
   if (gender === null) return Promise.reject('Invalid gender');
   return Promise.resolve({
     id: _id.toString(),
     subscriptionOption,
+    clubSportLocation,
     subscriberDetails: { ...subscriberDetails, gender },
     createdAtRFC3339,
   });

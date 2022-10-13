@@ -26,6 +26,8 @@ import UserClub from './components/Profile/UserClubs/UserClub';
 import Subscriptions from './components/Profile/UserClubSportLocations/Subscriptions';
 import SubscriptionOptionForm from './components/Profile/UserClubSportLocations/Subscriptions/SubscriptionOptionForm';
 import UserClubSportLocation from './components/Profile/UserClubSportLocations/UserClubSportLocation';
+import Registration from './components/CslPage/Registration';
+import SubscriptionPage from './components/Profile/UserClubSportLocations/Subscriptions/SubscriptionPage';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -134,6 +136,10 @@ function App() {
             <Route path="/signup" element={<SignUp refetchMe={refetchMe} />} />
             <Route path="/clubs" element={<CslList />} />
             <Route path="/locations/:id" element={<CslPage />} />
+            <Route
+              path="/locations/:cslId/registration/:subscriptionOptionId"
+              element={<Registration />}
+            />
             <Route path="/profile/clubs" element={withUser(<UserClubs />)} />
             <Route path="/profile/clubs/:id" element={withUser(<UserClub />)} />
             <Route
@@ -159,6 +165,10 @@ function App() {
             <Route
               path="/profile/clubs/:clubId/locations/:cslId/subscriptions"
               element={withUser(<Subscriptions />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/locations/:cslId/subscriptions/:id"
+              element={withUser(<SubscriptionPage />)}
             />
             <Route
               path="/profile/clubs/:clubId/locations/:cslId/subscriptions/options/new"

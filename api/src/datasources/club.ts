@@ -6,6 +6,7 @@ import { _Collection } from '.';
 import { ClubDbObject } from '../generated/graphql';
 import { logger } from '../logger';
 import ClubSportLocationAPI from './clubSportLocation';
+import { listByFilter } from './helpers';
 import TrainerAPI from './trainer';
 
 export default class ClubAPI extends DataSource {
@@ -57,29 +58,7 @@ export default class ClubAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<ClubDbObject>[], boolean]> {
-    try {
-      const filter = {
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const clubs = await cursor.toArray();
-      const hasNext = clubs.length > first;
-      if (hasNext) {
-        clubs.pop();
-      }
-      return Promise.resolve([clubs, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, {}, first, after);
   }
 
   async listUserClubs(
@@ -87,30 +66,7 @@ export default class ClubAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<ClubDbObject>[], boolean]> {
-    try {
-      const filter = {
-        owner: userId,
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const clubs = await cursor.toArray();
-      const hasNext = clubs.length > first;
-      if (hasNext) {
-        clubs.pop();
-      }
-      return Promise.resolve([clubs, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, { owner: userId }, first, after);
   }
 
   async createClub(ownerId: string, name: string): Promise<ClubDbObject> {

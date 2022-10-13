@@ -7,6 +7,7 @@ import {
   SubscriptionOptionDbObject,
   SubscriptionOptionInput,
 } from '../generated/graphql';
+import { listByFilter } from './helpers';
 
 export default class SubscriptionOptionAPI extends DataSource {
   collection: Collection<SubscriptionOptionDbObject>;
@@ -55,29 +56,7 @@ export default class SubscriptionOptionAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
-    try {
-      const filter = {
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const subscriptionOptions = await cursor.toArray();
-      const hasNext = subscriptionOptions.length > first;
-      if (hasNext) {
-        subscriptionOptions.pop();
-      }
-      return Promise.resolve([subscriptionOptions, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(this.collection, {}, first, after);
   }
 
   async listSubscriptionOptionsByClubSportLocation(
@@ -85,30 +64,25 @@ export default class SubscriptionOptionAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
-    try {
-      const filter = {
-        clubSportLocation: cslId,
-        ...(after
-          ? {
-              _id: {
-                $gt: new ObjectId(after),
-              },
-            }
-          : {}),
-      };
-      const cursor = this.collection
-        .find(filter)
-        .limit(first + 1)
-        .sort({ _id: 1 });
-      const subscriptionOptions = await cursor.toArray();
-      const hasNext = subscriptionOptions.length > first;
-      if (hasNext) {
-        subscriptionOptions.pop();
-      }
-      return Promise.resolve([subscriptionOptions, hasNext]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    return listByFilter(
+      this.collection,
+      { clubSportLocation: cslId },
+      first,
+      after,
+    );
+  }
+
+  async listEnabledSubscriptionOptionsByClubSportLocation(
+    cslId: string,
+    first: number,
+    after?: string,
+  ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
+    return listByFilter(
+      this.collection,
+      { clubSportLocation: cslId, enabled: true },
+      first,
+      after,
+    );
   }
 
   async createSubscriptionOption(

@@ -27,11 +27,23 @@ type Query {
     first: Int!
     after: String
   ): SubscriptionOptionPageInfo!
+  getSubscriptionOption(id: ID!): SubscriptionOption!
+  listEnabledSubscriptionOptionsByClubSportLocation(
+    cslId: ID!
+    first: Int!
+    after: String
+  ): SubscriptionOptionPageInfo!
   listSubscriptionsBySubscriptionOption(
     subscriptionOptionId: ID!
     first: Int!
     after: String
   ): SubscriptionPageInfo!
+  listSubscriptionsByClubSportLocation(
+    cslId: ID!
+    first: Int!
+    after: String
+  ): SubscriptionPageInfo!
+  getSubscription(id: ID!): Subscription!
   listTrainersByClub(clubId: ID!, first: Int!, after: String): TrainerPageInfo!
 }
 
@@ -54,7 +66,7 @@ type Mutation {
   enableSubscriptionOption(id: ID!): SubscriptionOption!
   disableSubscriptionOption(id: ID!): SubscriptionOption!
   createSubscription(
-    subcriptionOption: ID!
+    subscriptionOptionId: ID!
     details: SubscriberDetailsInput!
   ): Subscription!
 }
@@ -257,6 +269,7 @@ type SubscriberDetails @entity(embedded: true) {
 type Subscription @entity {
   id: ID @id
   subscriptionOption: SubscriptionOption! @link #index
+  clubSportLocation: String! @column #index
   subscriberDetails: SubscriberDetails! @embedded
   createdAtRFC3339: String! @column
 }

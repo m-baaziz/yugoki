@@ -20,6 +20,7 @@ import IconTextCombo from '../IconTextCombo';
 import InfoTabs from './InfoTabs';
 import Images from './Images';
 import Schedule from './Schedule';
+import SubscriptionOptions from './SubscriptionOptions';
 
 const ICON_SIZE = 20;
 
@@ -76,6 +77,8 @@ const Container = styled(Box)<BoxProps>(() => ({
     '   .          info            .    '  auto  \
     '   .           .              .    '  2em   \
     '   .        schedule          .    '  1fr   \
+    '   .           .              .    '  2em   \
+    '   .      registration        .    '  auto   \
     '   .           .              .    '  1em   \
     /   5%         1fr             5%            \
   `,
@@ -178,6 +181,16 @@ export default function CslPage(props: CslPageProps) {
               calendarSpans={data.getClubSportLocation.schedule}
               sx={{ margin: 'auto' }}
             />
+          </Box>
+          <Box
+            sx={{
+              gridArea: 'registration',
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+            }}
+          >
+            <SubscriptionOptions sx={{ margin: 'auto' }} />
           </Box>
         </>
       ) : (
