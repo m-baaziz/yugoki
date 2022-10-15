@@ -10,10 +10,13 @@ import {
   MutationCreateClubSportLocationArgs,
   MutationDeleteClubSportLocationArgs,
   QueryListClubSportLocationsByClubArgs,
+  QueryGetClubSportLocationImagesArgs,
+  FileUploadResponse,
 } from '../generated/graphql';
 import { isUserAuthorized } from '../utils/club';
 import { dbClubSportLocationToClubSportLocation } from '../utils/clubSportLocation';
 import { logger } from '../logger';
+import { dbFileUploadToFileUpload } from '../utils/fileUpload';
 
 export async function listClubSportLocations(
   _parent: unknown,
@@ -31,17 +34,21 @@ export async function listClubSportLocations(
         : undefined;
     const fullClubSportLocations = await Promise.all(
       clubSportLocations.map(async (csl) => {
-        const sport = await sportAPI.findSportById(csl.sport.toString());
-        const club = await clubAPI.findClubById(csl.club.toString());
-        const trainers = await trainerAPI.findTrainersByIds(
-          csl.trainers.map((tid) => tid.toString()),
-        );
-        return dbClubSportLocationToClubSportLocation(
-          csl,
-          sport,
-          club,
-          trainers,
-        );
+        try {
+          const sport = await sportAPI.findSportById(csl.sport.toString());
+          const club = await clubAPI.findClubById(csl.club.toString());
+          const trainers = await trainerAPI.findTrainersByIds(
+            csl.trainers.map((tid) => tid.toString()),
+          );
+          return dbClubSportLocationToClubSportLocation(
+            csl,
+            sport,
+            club,
+            trainers,
+          );
+        } catch (e) {
+          return Promise.reject(e);
+        }
       }),
     );
     return {
@@ -75,17 +82,21 @@ export async function listClubSportLocationsByClub(
         : undefined;
     const fullClubSportLocations = await Promise.all(
       clubSportLocations.map(async (csl) => {
-        const sport = await sportAPI.findSportById(csl.sport.toString());
-        const club = await clubAPI.findClubById(csl.club.toString());
-        const trainers = await trainerAPI.findTrainersByIds(
-          csl.trainers.map((tid) => tid.toString()),
-        );
-        return dbClubSportLocationToClubSportLocation(
-          csl,
-          sport,
-          club,
-          trainers,
-        );
+        try {
+          const sport = await sportAPI.findSportById(csl.sport.toString());
+          const club = await clubAPI.findClubById(csl.club.toString());
+          const trainers = await trainerAPI.findTrainersByIds(
+            csl.trainers.map((tid) => tid.toString()),
+          );
+          return dbClubSportLocationToClubSportLocation(
+            csl,
+            sport,
+            club,
+            trainers,
+          );
+        } catch (e) {
+          return Promise.reject(e);
+        }
       }),
     );
     return {
@@ -142,17 +153,21 @@ export async function searchClubSportLocations(
         : undefined;
     const fullClubSportLocations = await Promise.all(
       clubSportLocations.map(async (csl) => {
-        const sport = await sportAPI.findSportById(csl.sport.toString());
-        const club = await clubAPI.findClubById(csl.club.toString());
-        const trainers = await trainerAPI.findTrainersByIds(
-          csl.trainers.map((tid) => tid.toString()),
-        );
-        return dbClubSportLocationToClubSportLocation(
-          csl,
-          sport,
-          club,
-          trainers,
-        );
+        try {
+          const sport = await sportAPI.findSportById(csl.sport.toString());
+          const club = await clubAPI.findClubById(csl.club.toString());
+          const trainers = await trainerAPI.findTrainersByIds(
+            csl.trainers.map((tid) => tid.toString()),
+          );
+          return dbClubSportLocationToClubSportLocation(
+            csl,
+            sport,
+            club,
+            trainers,
+          );
+        } catch (e) {
+          return Promise.reject(e);
+        }
       }),
     );
     return {
@@ -181,6 +196,36 @@ export async function getClubSportLocation(
       csl.trainers.map((tid) => tid.toString()),
     );
     return dbClubSportLocationToClubSportLocation(csl, sport, club, trainers);
+  } catch (e) {
+    logger.error(e.toString());
+    return Promise.reject(e);
+  }
+}
+
+export async function getClubSportLocationImages(
+  _parent: unknown,
+  { id }: QueryGetClubSportLocationImagesArgs,
+  {
+    dataSources: { clubSportLocationAPI, fileUploadAPI },
+  }: ContextWithDataSources,
+): Promise<FileUploadResponse[]> {
+  try {
+    const csl = await clubSportLocationAPI.findClubSportLocationById(id);
+    const fileUploadResponses = await Promise.all(
+      csl.images.map(async (imageId) => {
+        try {
+          const fileUpload = await fileUploadAPI.findFileUploadById(imageId);
+          const url = await fileUploadAPI.generateFileUrlGet(imageId);
+          return Promise.resolve({
+            file: dbFileUploadToFileUpload(fileUpload),
+            url,
+          });
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }),
+    );
+    return Promise.resolve(fileUploadResponses);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

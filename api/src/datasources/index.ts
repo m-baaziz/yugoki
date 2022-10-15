@@ -10,6 +10,7 @@ import TrainerAPI from './trainer';
 import EventAPI from './event';
 import SubscriptionAPI from './subscription';
 import SubscriptionOptionAPI from './subscriptionOption';
+import FileUploadAPI from './fileUpload';
 
 export enum _Database {
   Dev = 'dev',
@@ -26,6 +27,7 @@ export enum _Collection {
   Event = 'event',
   SubscriptionOption = 'subscription-option',
   Subscription = 'subscription',
+  FileUpload = 'file-upload',
 }
 
 export type DataSources = {
@@ -37,6 +39,7 @@ export type DataSources = {
   eventAPI: EventAPI;
   subscriptionOptionAPI: SubscriptionOptionAPI;
   subscriptionAPI: SubscriptionAPI;
+  fileUploadAPI: FileUploadAPI;
 };
 
 export type ContextWithDataSources = Context<AuthenticationContext> & {

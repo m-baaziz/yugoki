@@ -9,6 +9,7 @@ import {
 } from '../generated/graphql';
 import { logger } from '../logger';
 import EventAPI from './event';
+import FileUploadAPI from './fileUpload';
 import { listByFilter } from './helpers';
 import SubscriptionOptionAPI from './subscriptionOption';
 
@@ -17,11 +18,13 @@ export default class ClubSportLocationAPI extends DataSource {
   context: any;
   subscriptionOptionAPI: SubscriptionOptionAPI;
   eventAPI: EventAPI;
+  fileUploadAPI: FileUploadAPI;
 
   constructor(
     db: Db,
     subscriptionOptionAPI: SubscriptionOptionAPI,
     eventAPI: EventAPI,
+    fileUploadAPI: FileUploadAPI,
   ) {
     super();
     this.collection = db.collection<ClubSportLocationDbObject>(
@@ -29,6 +32,7 @@ export default class ClubSportLocationAPI extends DataSource {
     );
     this.subscriptionOptionAPI = subscriptionOptionAPI;
     this.eventAPI = eventAPI;
+    this.fileUploadAPI = fileUploadAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -142,6 +146,7 @@ export default class ClubSportLocationAPI extends DataSource {
 
   async deleteClubSportLocation(id: string): Promise<boolean> {
     try {
+      // make mongodb transaction
       const clubSportLocation = await this.findClubSportLocationById(id);
 
       const subscriptionOptionsDeleteCount =
@@ -159,6 +164,18 @@ export default class ClubSportLocationAPI extends DataSource {
       const result = await this.collection.deleteOne({
         _id: clubSportLocation._id,
       });
+      Promise.all(
+        clubSportLocation.images.map((imageId) =>
+          this.fileUploadAPI.deleteFileUpload(imageId),
+        ),
+      )
+        .then((successes) => {
+          const count = successes.filter((s) => s).length;
+          logger.info(`Successfully deleted ${count} images`);
+        })
+        .catch((errors) => {
+          logger.error(errors.map((e) => e.toString()));
+        });
       return Promise.resolve(result.deletedCount === 1);
     } catch (e) {
       return Promise.reject(e);
@@ -170,25 +187,14 @@ export default class ClubSportLocationAPI extends DataSource {
       const cursor = await this.collection.find({
         club: new ObjectId(clubId),
       });
-      let subscriptionOptionsDeleteCount = 0;
-      let eventsDeleteCount = 0;
+      let cslDeleteCount = 0;
       while (await cursor.hasNext()) {
         const cslId = (await cursor.next())._id.toString();
-        subscriptionOptionsDeleteCount +=
-          await this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
-            cslId,
-          );
-        eventsDeleteCount +=
-          await this.eventAPI.deleteEventsByClubSportLocation(cslId);
+        if (await this.deleteClubSportLocation(cslId)) {
+          cslDeleteCount += 1;
+        }
       }
-      logger.info(
-        `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
-      );
-      logger.info(`Deleted ${eventsDeleteCount} events`);
-      const result = await this.collection.deleteMany({
-        club: new ObjectId(clubId),
-      });
-      return Promise.resolve(result.deletedCount);
+      return Promise.resolve(cslDeleteCount);
     } catch (e) {
       return Promise.reject(e);
     }

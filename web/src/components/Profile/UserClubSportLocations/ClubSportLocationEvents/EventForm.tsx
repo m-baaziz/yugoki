@@ -5,17 +5,19 @@ import { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import ImagesForm from '../../ImagesForm';
+import ImagesForm, { FileInfo } from '../../../ImagesForm';
 
 export type EventFormProps = {
   details: EventInput;
+  images: FileInfo[];
   onChange?: (details: EventInput) => void;
+  onImagesChange?: (files: FileInfo[]) => void;
   readOnly?: boolean;
   sx?: SxProps<Theme>;
 };
 
 export default function EventForm(props: EventFormProps) {
-  const { sx, details, onChange, readOnly } = props;
+  const { sx, details, images, onChange, onImagesChange, readOnly } = props;
 
   const handleTextInputChange =
     (key: keyof EventInput) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,10 +33,6 @@ export default function EventForm(props: EventFormProps) {
       ...details,
       dateRFC3339: newValue?.toISOString() || '',
     });
-  };
-  const handleImagesChange = (urls: string[]) => {
-    if (!onChange) return;
-    onChange({ ...details, image: urls.length === 0 ? undefined : urls[0] });
   };
 
   return (
@@ -53,7 +51,7 @@ export default function EventForm(props: EventFormProps) {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateTimePicker
             label="Date"
-            inputFormat="DD/MM/YYYY HH:MM XM"
+            inputFormat="DD/MM/YYYY hh:mm:ss A"
             value={details.dateRFC3339}
             onChange={handleDateChange}
             disabled={readOnly}
@@ -74,7 +72,11 @@ export default function EventForm(props: EventFormProps) {
         />
       </Box>
       <Box>
-        <ImagesForm onChange={handleImagesChange} readOnly={readOnly} />
+        <ImagesForm
+          files={images}
+          onChange={onImagesChange}
+          readOnly={readOnly}
+        />
       </Box>
       <TextField
         id="description"

@@ -5,15 +5,17 @@ import { styled } from '@mui/material/styles';
 import { Box, BoxProps, Button, Stack, TextField } from '@mui/material';
 import { gql, useMutation } from '@apollo/client';
 import {
+  FileUploadKind,
   MutationCreateTrainerArgs,
   Trainer,
   TrainerInput,
 } from '../../../generated/graphql';
-import ImagesForm from '../ImagesForm';
+import ImagesForm, { FileInfo } from '../../ImagesForm';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams } from 'react-router-dom';
 import appContext, { NotificationLevel } from '../../../context';
+import { useUploadFile } from '../../../hooks/fileUpload';
 
 const DEFAULT_TRAINER: TrainerInput = {
   firstname: '',
@@ -50,25 +52,24 @@ const Container = styled(Box)<BoxProps>(() => ({
 
 export default function ClubTrainerForm() {
   const { notify } = React.useContext(appContext);
-  const [trainerInput, setTrainerInput] =
-    React.useState<TrainerInput>(DEFAULT_TRAINER);
   const { id: clubId } = useParams();
   const navigate = useNavigate();
+  const [trainerInput, setTrainerInput] =
+    React.useState<TrainerInput>(DEFAULT_TRAINER);
+  const [trainerImages, setTrainerImages] = React.useState<FileInfo[]>([]);
 
   const [createTrainer] = useMutation<
     { createTrainer: Trainer },
     MutationCreateTrainerArgs
   >(CREATE_TRAINER);
+  const { uploadFile } = useUploadFile();
 
   const handleTextInputChange =
     (key: keyof TrainerInput) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setTrainerInput({ ...trainerInput, [key]: e.target.value });
     };
-  const handleImagesChange = (urls: string[]) => {
-    setTrainerInput({
-      ...trainerInput,
-      photo: urls.length === 0 ? undefined : urls[0],
-    });
+  const handleImagesChange = (files: FileInfo[]) => {
+    setTrainerImages(files);
   };
 
   const handleBackClick = () => {
@@ -78,10 +79,25 @@ export default function ClubTrainerForm() {
   const handleSubmitClick = async () => {
     try {
       if (!clubId) return;
+      const newTrainerInput = { ...trainerInput };
+      const newTrainerImages = trainerImages.filter((t) => t.isNew && t.file);
+      if (newTrainerImages.length > 0) {
+        const imageFile = trainerImages[0];
+        notify({
+          level: NotificationLevel.INFO,
+          message: `uploading ${imageFile.file?.name} ...`,
+        });
+        const fileUpload = await uploadFile(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          imageFile.file!,
+          FileUploadKind.TrainerPhoto,
+        );
+        newTrainerInput.photo = fileUpload.id;
+      }
       const result = await createTrainer({
         variables: {
           clubId,
-          input: trainerInput,
+          input: newTrainerInput,
         },
       });
       notify({
@@ -145,7 +161,7 @@ export default function ClubTrainerForm() {
           multiline
         />
         <Box>
-          <ImagesForm onChange={handleImagesChange} />
+          <ImagesForm files={trainerImages} onChange={handleImagesChange} />
         </Box>
       </Stack>
       <Button

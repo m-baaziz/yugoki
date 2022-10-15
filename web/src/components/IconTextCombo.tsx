@@ -21,7 +21,7 @@ export default function IconTextCombo(props: IconTextComboProps) {
     >
       {icon ? (
         <Box sx={{ margin: 'auto', mr: 0.5 }}>
-          <img src={`/icons/80${icon}`} height={size} width={size} />
+          <img src={icon} height={size} width={size} />
         </Box>
       ) : null}
       <Box sx={{ flexGrow: 2 }}>

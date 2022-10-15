@@ -19,19 +19,28 @@ export default function ContactInfos(props: ContactInfosProps) {
       sx={{
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         flexWrap: 'wrap',
+        gap: '20px',
         width: '100%',
         height: '100%',
         ...sx,
       }}
     >
-      <IconTextCombo icon="/address.png" size={ICON_SIZE} text={address} />
-      <IconTextCombo icon="/phone.png" size={ICON_SIZE} text={phone} />
+      <IconTextCombo
+        icon="/icons/80/address.png"
+        size={ICON_SIZE}
+        text={address}
+      />
+      <IconTextCombo icon="/icons/80/phone.png" size={ICON_SIZE} text={phone} />
       {web ? (
-        <IconTextCombo icon="/web.png" size={ICON_SIZE} text={web} link />
+        <IconTextCombo
+          icon="/icons/80/web.png"
+          size={ICON_SIZE}
+          text={web}
+          link
+        />
       ) : null}
-      <Box sx={{ flexGrow: 2 }} />
     </Box>
   );
 }

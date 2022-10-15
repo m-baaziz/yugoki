@@ -26,7 +26,7 @@ export default function Activities(props: ActivitiesProps) {
         <IconTextCombo
           key={i}
           size={60}
-          icon={icon || undefined}
+          icon={`/icons/80/${icon}` || undefined}
           text={
             <Box sx={{ maxWidth: 300 }}>
               <Typography variant="h5">{name}</Typography>

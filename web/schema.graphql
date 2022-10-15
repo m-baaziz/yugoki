@@ -5,6 +5,7 @@ type Query {
   listUserClubs(first: Int!, after: String): ClubPageInfo!
   getClub(id: ID!): Club!
   getClubSportLocation(id: ID!): ClubSportLocation!
+  getClubSportLocationImages(id: ID!): [FileUploadResponse!]!
   listClubSportLocations(first: Int!, after: String): ClubSportLocationPageInfo!
   listClubSportLocationsByClub(
     clubId: ID!
@@ -45,6 +46,7 @@ type Query {
   ): SubscriptionPageInfo!
   getSubscription(id: ID!): Subscription!
   listTrainersByClub(clubId: ID!, first: Int!, after: String): TrainerPageInfo!
+  getFileUpload(id: ID!): FileUploadResponse!
 }
 
 type Mutation {
@@ -71,6 +73,7 @@ type Mutation {
   ): Subscription!
   createEvent(cslId: ID!, input: EventInput!): Event!
   deleteEvent(id: ID!): Boolean!
+  createFileUpload(input: FileUploadInput!): FileUploadResponse!
 }
 
 input SearchArea {
@@ -287,4 +290,31 @@ type SubscriptionPageInfo {
   subscriptions: [Subscription!]!
   hasNextPage: Boolean!
   endCursor: String
+}
+
+enum FileUploadKind {
+  ClubSportLocationImage
+  EventImage
+  TrainerPhoto
+  ClubLogo
+}
+
+# unique key (index) is generated randomly
+input FileUploadInput {
+  size: Int!
+  ext: String!
+  kind: FileUploadKind!
+}
+
+# TODO: need periodic job to clean all files that are not linked to any object (use kind)
+type FileUpload @entity(additionalFields: [{ path: "key", type: "string" }]) {
+  id: ID @id
+  size: Int! @column
+  ext: String! @column
+  kind: FileUploadKind! @column
+}
+
+type FileUploadResponse {
+  file: FileUpload!
+  url: String # s3 pre-signed url (GET or PUT)
 }

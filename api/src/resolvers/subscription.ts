@@ -92,12 +92,9 @@ export async function listSubscriptionsBySubscriptionOption(
         : undefined;
 
     const fullSubscriptions = await Promise.all(
-      subscriptions.map(async (subscription) => {
-        return await dbSubscriptionToSubscription(
-          subscription,
-          subscriptionOption,
-        );
-      }),
+      subscriptions.map((subscription) =>
+        dbSubscriptionToSubscription(subscription, subscriptionOption),
+      ),
     );
     return {
       subscriptions: fullSubscriptions,
@@ -145,14 +142,18 @@ export async function listSubscriptionsByClubSportLocation(
 
     const fullSubscriptions = await Promise.all(
       subscriptions.map(async (subscription) => {
-        const subscriptionOption =
-          await subscriptionOptionAPI.findSubscriptionOptionById(
-            subscription.subscriptionOption.toString(),
+        try {
+          const subscriptionOption =
+            await subscriptionOptionAPI.findSubscriptionOptionById(
+              subscription.subscriptionOption.toString(),
+            );
+          return await dbSubscriptionToSubscription(
+            subscription,
+            subscriptionOption,
           );
-        return await dbSubscriptionToSubscription(
-          subscription,
-          subscriptionOption,
-        );
+        } catch (e) {
+          return Promise.reject(e);
+        }
       }),
     );
     return {

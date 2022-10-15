@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import { Event, QueryGetSubscriptionArgs } from '../../../../generated/graphql';
 import EventForm from './EventForm';
+import { useGetFile } from '../../../../hooks/fileUpload';
+import { FileInfo } from '../../../ImagesForm';
 
 const GET_EVENT = gql`
   query getEvent($id: ID!) {
@@ -43,12 +45,24 @@ export default function ClubSportLocationEvent() {
     },
     fetchPolicy: 'no-cache',
   });
+  const { data: eventImageData } = useGetFile(
+    eventData?.getEvent.image || undefined,
+  );
+
+  const images = React.useMemo<FileInfo[]>(
+    () =>
+      eventImageData && eventImageData.getFileUpload.url
+        ? [{ url: eventImageData.getFileUpload.url, isNew: false }]
+        : [],
+    [eventImageData],
+  );
 
   return (
     <Container>
       {eventData?.getEvent ? (
         <EventForm
           details={eventData?.getEvent}
+          images={images}
           readOnly
           sx={{
             gridArea: 'info',

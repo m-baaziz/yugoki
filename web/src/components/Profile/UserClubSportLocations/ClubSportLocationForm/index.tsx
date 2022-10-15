@@ -18,6 +18,7 @@ import {
   ActivityInput,
   ClubSportLocation,
   ClubSportLocationInput,
+  FileUploadKind,
   MutationCreateClubSportLocationArgs,
   QueryListSportsArgs,
   QueryListTrainersByClubArgs,
@@ -30,7 +31,7 @@ import ScheduleForm, {
   CalendarEntry,
   calendarEntryToSpan,
 } from './ScheduleForm';
-import ImagesForm from '../../ImagesForm';
+import ImagesForm, { FileInfo } from '../../../ImagesForm';
 import Schedule from '../../../CslPage/Schedule';
 import PositionForm from './PositionForm';
 import { Position } from '../../../CslList/CslMap';
@@ -38,6 +39,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams } from 'react-router-dom';
 import appContext, { NotificationLevel } from '../../../../context';
+import { useUploadFile } from '../../../../hooks/fileUpload';
 
 const SPORTS_PAGE_SIZE = 100;
 const TRAINERS_PAGE_SIZE = 100;
@@ -131,10 +133,11 @@ const Container = styled(Box)<BoxProps>(() => ({
 
 export default function ClubSportLocationForm() {
   const { notify } = React.useContext(appContext);
-  const [cslInput, setCslInput] =
-    React.useState<ClubSportLocationInput>(DEFAULT_CSL_INPUT);
   const { id: clubId } = useParams();
   const navigate = useNavigate();
+  const [cslInput, setCslInput] =
+    React.useState<ClubSportLocationInput>(DEFAULT_CSL_INPUT);
+  const [cslImages, setCslImages] = React.useState<FileInfo[]>([]);
 
   const { data: sportsData } = useQuery<
     { listSports: SportPageInfo },
@@ -162,6 +165,7 @@ export default function ClubSportLocationForm() {
     { createClubSportLocation: ClubSportLocation },
     MutationCreateClubSportLocationArgs
   >(CREATE_CLUB_SPORT_LOCATION);
+  const { uploadFile } = useUploadFile();
 
   const handleTextInputChange =
     (key: keyof ClubSportLocationInput) =>
@@ -178,8 +182,8 @@ export default function ClubSportLocationForm() {
   const handlePositionChange = (position: Position) => {
     setCslInput({ ...cslInput, lat: position.lat, lon: position.lon });
   };
-  const handleImagesChange = (urls: string[]) => {
-    setCslInput({ ...cslInput, images: urls });
+  const handleImagesChange = (files: FileInfo[]) => {
+    setCslImages(files);
   };
   const handleActivitiesChange = (
     _event: React.SyntheticEvent<Element, Event>,
@@ -208,10 +212,29 @@ export default function ClubSportLocationForm() {
   const handleSubmitClick = async () => {
     try {
       if (!clubId) return;
+      const newCslInput = { ...cslInput };
+      const newCslImages = cslImages.filter((t) => t.isNew && t.file);
+      if (newCslImages.length > 0) {
+        notify({
+          level: NotificationLevel.INFO,
+          message: `uploading ${newCslImages.length} images ...`,
+        });
+        await Promise.all(
+          newCslImages.map((imageFileInfo) =>
+            uploadFile(
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              imageFileInfo.file!,
+              FileUploadKind.ClubSportLocationImage,
+            ).then((fileUpload) => {
+              newCslInput.images.push(fileUpload.id || '');
+            }),
+          ),
+        );
+      }
       const result = await createClubSportLocation({
         variables: {
           clubId,
-          input: cslInput,
+          input: newCslInput,
         },
       });
       notify({
@@ -322,7 +345,11 @@ export default function ClubSportLocationForm() {
           />
         </Box>
         <Box>
-          <ImagesForm multiple onChange={handleImagesChange} />
+          <ImagesForm
+            multiple
+            files={cslImages}
+            onChange={handleImagesChange}
+          />
         </Box>
         <TextField
           id="description"

@@ -8,6 +8,7 @@ import {
 } from './club';
 import {
   getClubSportLocation,
+  getClubSportLocationImages,
   listClubSportLocations,
   listClubSportLocationsByClub,
   searchClubSportLocations,
@@ -37,6 +38,7 @@ import {
   createSubscription,
 } from './subscription';
 import { listTrainersByClub, createTrainer, deleteTrainer } from './trainer';
+import { getFileUpload, createFileUpload } from './fileUpload';
 
 const resolvers: Resolvers = {
   Query: {
@@ -46,6 +48,7 @@ const resolvers: Resolvers = {
     listClubs,
     listUserClubs,
     getClubSportLocation,
+    getClubSportLocationImages,
     listClubSportLocations,
     listClubSportLocationsByClub,
     searchClubSportLocations,
@@ -58,6 +61,7 @@ const resolvers: Resolvers = {
     listSubscriptionsByClubSportLocation,
     getSubscription,
     listTrainersByClub,
+    getFileUpload,
   },
   Mutation: {
     signIn,
@@ -74,6 +78,7 @@ const resolvers: Resolvers = {
     createSubscription,
     createEvent,
     deleteEvent,
+    createFileUpload,
   },
 };
 

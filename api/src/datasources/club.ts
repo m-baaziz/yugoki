@@ -6,6 +6,7 @@ import { _Collection } from '.';
 import { ClubDbObject } from '../generated/graphql';
 import { logger } from '../logger';
 import ClubSportLocationAPI from './clubSportLocation';
+import FileUploadAPI from './fileUpload';
 import { listByFilter } from './helpers';
 import TrainerAPI from './trainer';
 
@@ -14,16 +15,19 @@ export default class ClubAPI extends DataSource {
   context: any;
   trainerAPI: TrainerAPI;
   clubSportLocationAPI: ClubSportLocationAPI;
+  fileUploadAPI: FileUploadAPI;
 
   constructor(
     db: Db,
     trainerAPI: TrainerAPI,
     clubSportLocationAPI: ClubSportLocationAPI,
+    fileUploadAPI: FileUploadAPI,
   ) {
     super();
     this.collection = db.collection<ClubDbObject>(_Collection.Club);
     this.trainerAPI = trainerAPI;
     this.clubSportLocationAPI = clubSportLocationAPI;
+    this.fileUploadAPI = fileUploadAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -89,6 +93,7 @@ export default class ClubAPI extends DataSource {
 
   async deleteClub(id: string): Promise<boolean> {
     try {
+      // make transaction
       const club = await this.findClubById(id);
       const trainersDeleteCount = await this.trainerAPI.deleteTrainersByClub(
         id,
@@ -100,6 +105,18 @@ export default class ClubAPI extends DataSource {
 
       const result = await this.collection.deleteOne({ _id: club._id });
       logger.info(`Deleted ${result.deletedCount} club`);
+      if (club.logo) {
+        this.fileUploadAPI
+          .deleteFileUpload(club.logo)
+          .then((success) => {
+            if (success)
+              logger.info(`Successfully deleted club logo ${club.logo}`);
+            else logger.error(`Could not delete club logo ${club.logo}`);
+          })
+          .catch((e) => {
+            logger.error(e.toString());
+          });
+      }
       return Promise.resolve(result.deletedCount === 1);
     } catch (e) {
       return Promise.reject(e);

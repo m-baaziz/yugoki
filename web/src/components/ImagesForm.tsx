@@ -15,45 +15,44 @@ import pullAt from 'lodash/pullAt';
 
 const PREVIEW_IMG_PER_ROW = 10;
 
-type FileWithUrl = {
-  file: File;
+export type FileInfo = {
   url: string;
+  file?: File;
+  isNew?: boolean;
 };
 
 export type ImagesFormProps = {
-  onChange?: (urls: string[]) => void;
+  files: FileInfo[];
+  onChange?: (files: FileInfo[]) => void;
   multiple?: boolean;
   sx?: SxProps<Theme>;
   readOnly?: boolean;
 };
 
 export default function ImagesForm(props: ImagesFormProps) {
-  const { sx, onChange, multiple, readOnly } = props;
-  const [files, setFiles] = React.useState<FileWithUrl[]>([]);
+  const { sx, files, onChange, multiple, readOnly } = props;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newFiles: FileWithUrl[] = Array.from(
+    if (!onChange) return;
+    const newFiles: FileInfo[] = Array.from(
       event.target.files || new FileList(),
     ).map((file) => ({
       file,
       url: URL.createObjectURL(file),
+      isNew: true,
     }));
     if (!multiple) {
-      setFiles([...newFiles]);
+      onChange([...newFiles]);
       return;
     }
-    setFiles([...files, ...newFiles]);
+    onChange([...files, ...newFiles]);
   };
 
-  React.useEffect(() => {
-    if (!onChange) return;
-    onChange(files.map((f) => `/${f.file.name}`));
-  }, [files]);
-
   const handleCloseCick = (index: number) => () => {
+    if (!onChange) return;
     const newFiles = [...files];
     pullAt(newFiles, index);
-    setFiles(newFiles);
+    onChange(newFiles);
   };
 
   return (
@@ -87,7 +86,7 @@ export default function ImagesForm(props: ImagesFormProps) {
       <ImageList sx={{ width: '100%' }} cols={PREVIEW_IMG_PER_ROW}>
         {files.map(({ file, url }, i) => (
           <ImageListItem key={i}>
-            <img src={url} alt={file.name} loading="lazy" />
+            <img src={url} alt={file?.name || url} loading="lazy" />
             {readOnly ? null : (
               <ImageListItemBar
                 position="top"
@@ -95,7 +94,7 @@ export default function ImagesForm(props: ImagesFormProps) {
                 actionIcon={
                   <IconButton
                     sx={{ color: 'rgba(255, 255, 255, 0.54)' }}
-                    aria-label={`delete ${file.name}`}
+                    aria-label={`delete ${file?.name || url}`}
                     onClick={handleCloseCick(i)}
                   >
                     <CloseIcon />

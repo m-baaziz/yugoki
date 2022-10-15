@@ -13,6 +13,8 @@ import { useQuery, gql } from '@apollo/client';
 import {
   QueryGetClubSportLocationArgs,
   ClubSportLocation,
+  FileUploadResponse,
+  QueryGetClubSportLocationImagesArgs,
 } from '../../generated/graphql';
 
 import ContactInfos from './ContactInfos';
@@ -60,6 +62,20 @@ const GET_CLUB_SPORT_LOCATION = gql`
   }
 `;
 
+const GET_CLUB_SPORT_LOCATION_IMAGES = gql`
+  query getClubSportLocationImages($id: ID!) {
+    getClubSportLocationImages(id: $id) {
+      file {
+        id
+        size
+        ext
+        kind
+      }
+      url
+    }
+  }
+`;
+
 const Container = styled(Box)<BoxProps>(() => ({
   display: 'grid',
   width: '100%',
@@ -102,6 +118,24 @@ export default function CslPage(props: CslPageProps) {
     },
     fetchPolicy: 'no-cache',
   });
+  const { data: imagesData } = useQuery<
+    { getClubSportLocationImages: FileUploadResponse[] },
+    QueryGetClubSportLocationImagesArgs
+  >(GET_CLUB_SPORT_LOCATION_IMAGES, {
+    skip: !cslId,
+    variables: {
+      id: cslId || '',
+    },
+    fetchPolicy: 'no-cache',
+  });
+
+  const images: string[] = React.useMemo(
+    () =>
+      imagesData?.getClubSportLocationImages
+        .filter((f) => typeof f.url === 'string' && f.url.length > 0)
+        .map((f) => f.url as string) || [],
+    [imagesData],
+  );
 
   return (
     <Container sx={{ ...sx }}>
@@ -149,7 +183,7 @@ export default function CslPage(props: CslPageProps) {
             />
           </Box>
           <Images
-            images={data.getClubSportLocation.images}
+            images={images}
             sx={{ gridArea: 'images', height: '100%', width: '100%' }}
           />
           <Box

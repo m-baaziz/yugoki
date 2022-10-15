@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Box, SxProps, Theme, Typography } from '@mui/material';
 import { Trainer } from '../../../generated/graphql';
+import { useGetFile } from '../../../hooks/fileUpload';
 
 const IMG_SIZE = 80;
 
@@ -15,10 +16,20 @@ export default function TrainerCard(props: TrainerCardProps) {
     sx,
   } = props;
 
+  const { data: trainerPhotoData } = useGetFile(photo || undefined);
+
+  const photoUrl = React.useMemo<string>(
+    () =>
+      trainerPhotoData && trainerPhotoData.getFileUpload.url
+        ? trainerPhotoData.getFileUpload.url
+        : '',
+    [trainerPhotoData],
+  );
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', ...sx }}>
       <Box sx={{ margin: 'auto' }}>
-        <img src={`/icons/80${photo}`} height={IMG_SIZE} width={IMG_SIZE} />
+        <img src={photoUrl} height={IMG_SIZE} width={IMG_SIZE} />
       </Box>
       <Typography variant="h5" sx={{ margin: 'auto' }}>
         {displayname}

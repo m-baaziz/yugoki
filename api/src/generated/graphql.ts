@@ -132,6 +132,33 @@ export type EventPageInfo = {
   hasNextPage: Scalars['Boolean'];
 };
 
+export type FileUpload = {
+  __typename?: 'FileUpload';
+  ext: Scalars['String'];
+  id?: Maybe<Scalars['ID']>;
+  kind: FileUploadKind;
+  size: Scalars['Int'];
+};
+
+export type FileUploadInput = {
+  ext: Scalars['String'];
+  kind: FileUploadKind;
+  size: Scalars['Int'];
+};
+
+export enum FileUploadKind {
+  ClubLogo = 'ClubLogo',
+  ClubSportLocationImage = 'ClubSportLocationImage',
+  EventImage = 'EventImage',
+  TrainerPhoto = 'TrainerPhoto'
+}
+
+export type FileUploadResponse = {
+  __typename?: 'FileUploadResponse';
+  file: FileUpload;
+  url?: Maybe<Scalars['String']>;
+};
+
 export enum Gender {
   Female = 'Female',
   Male = 'Male',
@@ -143,6 +170,7 @@ export type Mutation = {
   createClub: Club;
   createClubSportLocation?: Maybe<ClubSportLocation>;
   createEvent: Event;
+  createFileUpload: FileUploadResponse;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
   createTrainer: Trainer;
@@ -171,6 +199,11 @@ export type MutationCreateClubSportLocationArgs = {
 export type MutationCreateEventArgs = {
   cslId: Scalars['ID'];
   input: EventInput;
+};
+
+
+export type MutationCreateFileUploadArgs = {
+  input: FileUploadInput;
 };
 
 
@@ -237,7 +270,9 @@ export type Query = {
   __typename?: 'Query';
   getClub: Club;
   getClubSportLocation: ClubSportLocation;
+  getClubSportLocationImages: Array<FileUploadResponse>;
   getEvent: Event;
+  getFileUpload: FileUploadResponse;
   getSubscription: Subscription;
   getSubscriptionOption: SubscriptionOption;
   listClubSportLocationEvents: EventPageInfo;
@@ -266,7 +301,17 @@ export type QueryGetClubSportLocationArgs = {
 };
 
 
+export type QueryGetClubSportLocationImagesArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type QueryGetEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryGetFileUploadArgs = {
   id: Scalars['ID'];
 };
 
@@ -562,6 +607,10 @@ export type ResolversTypes = {
   Event: ResolverTypeWrapper<Event>;
   EventInput: EventInput;
   EventPageInfo: ResolverTypeWrapper<EventPageInfo>;
+  FileUpload: ResolverTypeWrapper<FileUpload>;
+  FileUploadInput: FileUploadInput;
+  FileUploadKind: FileUploadKind;
+  FileUploadResponse: ResolverTypeWrapper<FileUploadResponse>;
   Gender: Gender;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
@@ -602,6 +651,9 @@ export type ResolversParentTypes = {
   Event: Event;
   EventInput: EventInput;
   EventPageInfo: EventPageInfo;
+  FileUpload: FileUpload;
+  FileUploadInput: FileUploadInput;
+  FileUploadResponse: FileUploadResponse;
   Mutation: {};
   Query: {};
   SearchArea: SearchArea;
@@ -739,10 +791,25 @@ export type EventPageInfoResolvers<ContextType = any, ParentType extends Resolve
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FileUploadResolvers<ContextType = any, ParentType extends ResolversParentTypes['FileUpload'] = ResolversParentTypes['FileUpload']> = {
+  ext?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['FileUploadKind'], ParentType, ContextType>;
+  size?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FileUploadResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FileUploadResponse'] = ResolversParentTypes['FileUploadResponse']> = {
+  file?: Resolver<ResolversTypes['FileUpload'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'name'>>;
   createClubSportLocation?: Resolver<Maybe<ResolversTypes['ClubSportLocation']>, ParentType, ContextType, RequireFields<MutationCreateClubSportLocationArgs, 'clubId' | 'input'>>;
   createEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'cslId' | 'input'>>;
+  createFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<MutationCreateFileUploadArgs, 'input'>>;
   createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'subscriptionOptionId'>>;
   createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'cslId' | 'input'>>;
   createTrainer?: Resolver<ResolversTypes['Trainer'], ParentType, ContextType, RequireFields<MutationCreateTrainerArgs, 'clubId' | 'input'>>;
@@ -759,7 +826,9 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   getClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<QueryGetClubArgs, 'id'>>;
   getClubSportLocation?: Resolver<ResolversTypes['ClubSportLocation'], ParentType, ContextType, RequireFields<QueryGetClubSportLocationArgs, 'id'>>;
+  getClubSportLocationImages?: Resolver<Array<ResolversTypes['FileUploadResponse']>, ParentType, ContextType, RequireFields<QueryGetClubSportLocationImagesArgs, 'id'>>;
   getEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<QueryGetEventArgs, 'id'>>;
+  getFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<QueryGetFileUploadArgs, 'id'>>;
   getSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<QueryGetSubscriptionArgs, 'id'>>;
   getSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<QueryGetSubscriptionOptionArgs, 'id'>>;
   listClubSportLocationEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListClubSportLocationEventsArgs, 'cslId' | 'first'>>;
@@ -868,6 +937,8 @@ export type Resolvers<ContextType = any> = {
   ClubSportLocationPageInfo?: ClubSportLocationPageInfoResolvers<ContextType>;
   Event?: EventResolvers<ContextType>;
   EventPageInfo?: EventPageInfoResolvers<ContextType>;
+  FileUpload?: FileUploadResolvers<ContextType>;
+  FileUploadResponse?: FileUploadResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Sport?: SportResolvers<ContextType>;
@@ -938,6 +1009,14 @@ export type EventDbObject = {
   _id?: Maybe<ObjectId>,
   image?: Maybe<string>,
   title: string,
+};
+
+export type FileUploadDbObject = {
+  ext: string,
+  _id?: Maybe<ObjectId>,
+  kind: string,
+  size: number,
+  key: string,
 };
 
 export type SportDbObject = {

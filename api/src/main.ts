@@ -4,6 +4,7 @@ import { readFileSync } from 'fs';
 import { DIRECTIVES } from '@graphql-codegen/typescript-mongodb';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server';
+import { S3Client } from '@aws-sdk/client-s3';
 
 import resolvers from './resolvers';
 import { logger } from './logger';
@@ -17,6 +18,7 @@ import TrainerAPI from './datasources/trainer';
 import EventAPI from './datasources/event';
 import SubscriptionAPI from './datasources/subscription';
 import SubscriptionOptionAPI from './datasources/subscriptionOption';
+import FileUploadAPI, { S3Config } from './datasources/fileUpload';
 
 const isDev = process.env.NODE_ENV !== 'production';
 const SCHEMA_PATH = path.join(__dirname, '../schema.graphql');
@@ -32,26 +34,43 @@ async function main() {
 
   const dbClient = await mongoClient(MONGO_HOST, MONGO_PORT);
   const db = mongoDb(dbClient, isDev ? _Database.Dev : _Database.Prod);
+  const s3Config: S3Config = {
+    bucket: process.env.FILES_BUCKET,
+    presignedUrlsValidityPeriod: {
+      get: parseInt(process.env.FILES_PRESIGNED_URLS_VALIDITY_PERIOD_GET, 10),
+      put: parseInt(process.env.FILES_PRESIGNED_URLS_VALIDITY_PERIOD_PUT, 10),
+    },
+  };
+  const s3Client = new S3Client({
+    region: process.env.S3_REGION,
+  });
 
   const schema = makeExecutableSchema({
     typeDefs: [DIRECTIVES, typeDefs],
     resolvers,
   });
 
+  const fileUploadAPI = new FileUploadAPI(db, s3Client, s3Config);
   const userAPI = new UserAPI(db, {
     jwtSecret: JWT_SECRET,
     jwtValiditySec: JWT_VALIDITY_SEC,
   });
   const subscriptionOptionAPI = new SubscriptionOptionAPI(db);
   const subscriptionAPI = new SubscriptionAPI(db, subscriptionOptionAPI);
-  const eventAPI = new EventAPI(db);
-  const trainerAPI = new TrainerAPI(db);
+  const eventAPI = new EventAPI(db, fileUploadAPI);
+  const trainerAPI = new TrainerAPI(db, fileUploadAPI);
   const clubSportLocationAPI = new ClubSportLocationAPI(
     db,
     subscriptionOptionAPI,
     eventAPI,
+    fileUploadAPI,
   );
-  const clubAPI = new ClubAPI(db, trainerAPI, clubSportLocationAPI);
+  const clubAPI = new ClubAPI(
+    db,
+    trainerAPI,
+    clubSportLocationAPI,
+    fileUploadAPI,
+  );
   const sportAPI = new SportAPI(db);
 
   await userAPI.createIndexes();
@@ -62,6 +81,7 @@ async function main() {
   await trainerAPI.createIndexes();
   await clubAPI.createIndexes();
   await clubSportLocationAPI.createIndexes();
+  await fileUploadAPI.createIndexes();
 
   const server = new ApolloServer({
     schema,
@@ -74,6 +94,7 @@ async function main() {
       eventAPI,
       subscriptionOptionAPI,
       subscriptionAPI,
+      fileUploadAPI,
     }),
     context: authenticationMiddleware(userAPI),
     logger,

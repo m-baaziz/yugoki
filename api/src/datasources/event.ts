@@ -4,15 +4,19 @@ import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
 import { EventDbObject, EventInput } from '../generated/graphql';
+import { logger } from '../logger';
+import FileUploadAPI from './fileUpload';
 import { listByFilter } from './helpers';
 
 export default class EventAPI extends DataSource {
   collection: Collection<EventDbObject>;
   context: any;
+  fileUploadAPI: FileUploadAPI;
 
-  constructor(db: Db) {
+  constructor(db: Db, fileUploadAPI: FileUploadAPI) {
     super();
     this.collection = db.collection<EventDbObject>(_Collection.Event);
+    this.fileUploadAPI = fileUploadAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -84,10 +88,24 @@ export default class EventAPI extends DataSource {
   }
 
   async deleteEvent(id: string): Promise<boolean> {
+    // make transaction
     try {
+      const event = await this.findEventById(id);
       const result = await this.collection.deleteOne({
         _id: new ObjectId(id),
       });
+      if (event.image) {
+        this.fileUploadAPI
+          .deleteFileUpload(event.image)
+          .then((success) => {
+            if (success)
+              logger.info(`Successfully deleted event image ${event.image}`);
+            else logger.error(`Could not delete event image ${event.image}`);
+          })
+          .catch((e) => {
+            logger.error(e.toString());
+          });
+      }
       return Promise.resolve(result.deletedCount === 1);
     } catch (e) {
       return Promise.reject(e);
@@ -96,10 +114,17 @@ export default class EventAPI extends DataSource {
 
   async deleteEventsByClubSportLocation(cslId: string): Promise<number> {
     try {
-      const result = await this.collection.deleteMany({
+      const cursor = await this.collection.find({
         clubSportLocation: cslId,
       });
-      return Promise.resolve(result.deletedCount);
+      let deleteCount = 0;
+      while (await cursor.hasNext()) {
+        const id = (await cursor.next())._id.toString();
+        if (await this.deleteEvent(id)) {
+          deleteCount += 1;
+        }
+      }
+      return Promise.resolve(deleteCount);
     } catch (e) {
       return Promise.reject(e);
     }

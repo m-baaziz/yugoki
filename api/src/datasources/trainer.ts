@@ -5,6 +5,7 @@ import { Collection, Db, ObjectId, WithId } from 'mongodb';
 import { _Collection } from '.';
 import { TrainerDbObject, TrainerInput } from '../generated/graphql';
 import { logger } from '../logger';
+import FileUploadAPI from './fileUpload';
 import { listByFilter } from './helpers';
 
 export const TRAINERS_LIST_LIMIT = 1000;
@@ -12,10 +13,12 @@ export const TRAINERS_LIST_LIMIT = 1000;
 export default class TrainerAPI extends DataSource {
   collection: Collection<TrainerDbObject>;
   context: any;
+  fileUploadAPI: FileUploadAPI;
 
-  constructor(db: Db) {
+  constructor(db: Db, fileUploadAPI: FileUploadAPI) {
     super();
     this.collection = db.collection<TrainerDbObject>(_Collection.Trainer);
+    this.fileUploadAPI = fileUploadAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -108,9 +111,24 @@ export default class TrainerAPI extends DataSource {
   }
 
   async deleteTrainer(id: string): Promise<boolean> {
+    // make transaction
     try {
       const trainer = await this.findTrainerById(id);
-
+      if (trainer.photo) {
+        this.fileUploadAPI
+          .deleteFileUpload(trainer.photo)
+          .then((success) => {
+            if (success)
+              logger.info(
+                `Successfully deleted trainer photo ${trainer.photo}`,
+              );
+            else
+              logger.error(`Could not delete trainer photo ${trainer.photo}`);
+          })
+          .catch((e) => {
+            logger.error(e.toString());
+          });
+      }
       const result = await this.collection.deleteOne({ _id: trainer._id });
       return Promise.resolve(result.deletedCount === 1);
     } catch (e) {
@@ -120,10 +138,17 @@ export default class TrainerAPI extends DataSource {
 
   async deleteTrainersByClub(clubId: string): Promise<number> {
     try {
-      const result = await this.collection.deleteMany({
+      const cursor = await this.collection.find({
         club: new ObjectId(clubId),
       });
-      return Promise.resolve(result.deletedCount);
+      let deleteCount = 0;
+      while (await cursor.hasNext()) {
+        const id = (await cursor.next())._id.toString();
+        if (await this.deleteTrainer(id)) {
+          deleteCount += 1;
+        }
+      }
+      return Promise.resolve(deleteCount);
     } catch (e) {
       return Promise.reject(e);
     }

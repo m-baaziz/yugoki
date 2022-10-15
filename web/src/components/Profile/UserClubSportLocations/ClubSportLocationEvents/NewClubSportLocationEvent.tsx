@@ -6,12 +6,15 @@ import {
   EventInput,
   Event as ClubEvent,
   MutationCreateEventArgs,
+  FileUploadKind,
 } from '../../../../generated/graphql';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams } from 'react-router-dom';
 import appContext, { NotificationLevel } from '../../../../context';
 import EventForm from './EventForm';
+import { FileInfo } from '../../../ImagesForm';
+import { useUploadFile } from '../../../../hooks/fileUpload';
 
 const DEFAULT_EVENT_INFO: EventInput = {
   dateRFC3339: '',
@@ -47,18 +50,23 @@ const Container = styled(Box)<BoxProps>(() => ({
 
 export default function NewClubSportLocationEvent() {
   const { notify } = React.useContext(appContext);
-  const [eventInput, setEventInput] =
-    React.useState<EventInput>(DEFAULT_EVENT_INFO);
   const { clubId, cslId } = useParams();
   const navigate = useNavigate();
+  const [eventInput, setEventInput] =
+    React.useState<EventInput>(DEFAULT_EVENT_INFO);
+  const [eventImages, setEventImages] = React.useState<FileInfo[]>([]);
 
   const [createEvent] = useMutation<
     { createEvent: ClubEvent },
     MutationCreateEventArgs
   >(CREATE_EVENT);
+  const { uploadFile } = useUploadFile();
 
   const handleDetailsChange = (input: EventInput) => {
     setEventInput({ ...input });
+  };
+  const handleImagesChange = (files: FileInfo[]) => {
+    setEventImages(files);
   };
 
   const handleBackClick = () => {
@@ -67,10 +75,25 @@ export default function NewClubSportLocationEvent() {
   const handleSubmitClick = async () => {
     try {
       if (!cslId) return;
+      const newEventInput = { ...eventInput };
+      const newEventImages = eventImages.filter((t) => t.isNew && t.file);
+      if (newEventImages.length > 0) {
+        const imageFile = newEventImages[0];
+        notify({
+          level: NotificationLevel.INFO,
+          message: `uploading ${imageFile.file?.name} ...`,
+        });
+        const fileUpload = await uploadFile(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          imageFile.file!,
+          FileUploadKind.EventImage,
+        );
+        newEventInput.image = fileUpload.id;
+      }
       const newEvent = await createEvent({
         variables: {
           cslId,
-          input: eventInput,
+          input: newEventInput,
         },
       });
       notify({
@@ -88,7 +111,9 @@ export default function NewClubSportLocationEvent() {
       <EventForm
         sx={{ gridArea: 'form' }}
         details={eventInput}
+        images={eventImages}
         onChange={handleDetailsChange}
+        onImagesChange={handleImagesChange}
       />
       <Button
         sx={{ gridArea: 'cancel' }}

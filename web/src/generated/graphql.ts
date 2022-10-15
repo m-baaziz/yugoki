@@ -125,6 +125,33 @@ export type EventPageInfo = {
   hasNextPage: Scalars['Boolean'];
 };
 
+export type FileUpload = {
+  __typename?: 'FileUpload';
+  ext: Scalars['String'];
+  id?: Maybe<Scalars['ID']>;
+  kind: FileUploadKind;
+  size: Scalars['Int'];
+};
+
+export type FileUploadInput = {
+  ext: Scalars['String'];
+  kind: FileUploadKind;
+  size: Scalars['Int'];
+};
+
+export enum FileUploadKind {
+  ClubLogo = 'ClubLogo',
+  ClubSportLocationImage = 'ClubSportLocationImage',
+  EventImage = 'EventImage',
+  TrainerPhoto = 'TrainerPhoto'
+}
+
+export type FileUploadResponse = {
+  __typename?: 'FileUploadResponse';
+  file: FileUpload;
+  url?: Maybe<Scalars['String']>;
+};
+
 export enum Gender {
   Female = 'Female',
   Male = 'Male',
@@ -136,6 +163,7 @@ export type Mutation = {
   createClub: Club;
   createClubSportLocation?: Maybe<ClubSportLocation>;
   createEvent: Event;
+  createFileUpload: FileUploadResponse;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
   createTrainer: Trainer;
@@ -164,6 +192,11 @@ export type MutationCreateClubSportLocationArgs = {
 export type MutationCreateEventArgs = {
   cslId: Scalars['ID'];
   input: EventInput;
+};
+
+
+export type MutationCreateFileUploadArgs = {
+  input: FileUploadInput;
 };
 
 
@@ -230,7 +263,9 @@ export type Query = {
   __typename?: 'Query';
   getClub: Club;
   getClubSportLocation: ClubSportLocation;
+  getClubSportLocationImages: Array<FileUploadResponse>;
   getEvent: Event;
+  getFileUpload: FileUploadResponse;
   getSubscription: Subscription;
   getSubscriptionOption: SubscriptionOption;
   listClubSportLocationEvents: EventPageInfo;
@@ -259,7 +294,17 @@ export type QueryGetClubSportLocationArgs = {
 };
 
 
+export type QueryGetClubSportLocationImagesArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type QueryGetEventArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryGetFileUploadArgs = {
   id: Scalars['ID'];
 };
 
