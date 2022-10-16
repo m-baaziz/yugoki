@@ -7,7 +7,7 @@ export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export const dayIndex = (arrayIndex: number) => arrayIndex + 1;
 
-const MIN_MINUTE = 6 * 60;
+const MIN_MINUTE = 0 * 60;
 const MAX_MINUTE = 24 * 60;
 const STEP_MINUTE = 2 * 60;
 const COLUMN_WIDTH = 130;

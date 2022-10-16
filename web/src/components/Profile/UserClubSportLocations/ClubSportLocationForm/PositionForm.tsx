@@ -33,7 +33,10 @@ const Container = styled(Box)<BoxProps>(() => ({
 
 export default function PositionForm(props: PositionFormProps) {
   const { address, position, onChange, sx } = props;
-  const [mapQuery, setMapQuery] = React.useState<MapQuery>({});
+  const [mapQuery, setMapQuery] = React.useState<MapQuery>({
+    address: '',
+    area: undefined,
+  });
   const timeoutWrapper = useTimeout();
 
   React.useEffect(() => {
@@ -62,7 +65,7 @@ export default function PositionForm(props: PositionFormProps) {
   };
   const handleClickMap = (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
-    setMapQuery({});
+    setMapQuery({ address: '', area: undefined });
     onChange({ lat: e.latLng.lat(), lon: e.latLng.lng() });
   };
   const handleAddressQuery = (position: Position) => {

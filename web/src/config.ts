@@ -1,3 +1,3 @@
 export default {
-  grapqlEndpoint: 'http://localhost:4000',
+  grapqlEndpoint: `http://${window.location.hostname}:4000`,
 };

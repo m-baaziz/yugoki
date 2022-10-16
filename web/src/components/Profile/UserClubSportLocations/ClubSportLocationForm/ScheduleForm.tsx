@@ -119,7 +119,12 @@ export default function ScheduleForm(props: ScheduleFormProps) {
           {calendarEntries.map((entry, i) => (
             <Box
               key={i}
-              sx={{ display: 'flex', flexDirection: 'row', gap: '10px' }}
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: '10px',
+                flexWrap: 'wrap',
+              }}
             >
               <FormControl>
                 <InputLabel id="day-label">day</InputLabel>

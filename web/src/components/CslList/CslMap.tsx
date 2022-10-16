@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
+import ReactDOM from 'react-dom';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { createCustomEqual } from 'fast-equals';
 import { isLatLngLiteral } from '@googlemaps/typescript-guards';
@@ -30,8 +31,28 @@ export type Position = {
 };
 
 export type MapQuery = {
-  address?: string;
+  address: string;
   area?: SearchArea;
+};
+
+export enum ControlPosition {
+  BOTTOM_CENTER = 10.0,
+  BOTTOM_LEFT = 12.0,
+  BOTTOM_RIGHT = 11.0,
+  LEFT_BOTTOM = 6.0,
+  LEFT_CENTER = 4.0,
+  LEFT_TOP = 5.0,
+  RIGHT_BOTTOM = 9.0,
+  RIGHT_CENTER = 8.0,
+  RIGHT_TOP = 7.0,
+  TOP_CENTER = 1.0,
+  TOP_LEFT = 2.0,
+  TOP_RIGHT = 3.0,
+}
+
+export type MapControl = {
+  element: React.ReactElement;
+  position: ControlPosition;
 };
 
 const positionToGoogleLatLng = (pos: Position): google.maps.LatLng => {
@@ -49,6 +70,8 @@ export type CslMapProps = {
   query?: MapQuery;
   onClick?: (e: google.maps.MapMouseEvent) => void;
   onQueryResult?: (position: Position) => void;
+  centerPosition?: Position;
+  controls?: MapControl[];
   sx?: SxProps<Theme>;
 };
 
@@ -59,7 +82,16 @@ const Container = styled(Box)<BoxProps>(() => ({
 }));
 
 export default function CslMap(props: CslMapProps) {
-  const { positions, query, sx, onChange, onClick, onQueryResult } = props;
+  const {
+    positions,
+    centerPosition,
+    query,
+    sx,
+    controls,
+    onChange,
+    onClick,
+    onQueryResult,
+  } = props;
 
   const onIdle = (m: google.maps.Map) => {
     if (!onChange) return;
@@ -81,11 +113,14 @@ export default function CslMap(props: CslMapProps) {
           onIdle={onIdle}
           onClick={onClick}
           onQueryResult={onQueryResult}
-          // center={INITIAL_CENTER}
+          center={
+            centerPosition ? positionToGoogleLatLng(centerPosition) : null
+          }
           zoom={INITIAL_ZOOM}
           style={{ flexGrow: '1', height: '100%' }}
           query={query}
           streetViewControl={false}
+          controls={controls}
         >
           {window.google
             ? positions.map((position, i) => (
@@ -103,6 +138,7 @@ export interface MapProps extends google.maps.MapOptions {
   onIdle?: (map: google.maps.Map) => void;
   onQueryResult?: (position: Position) => void;
   query?: MapQuery;
+  controls?: MapControl[];
   children?: React.ReactNode;
 }
 
@@ -113,6 +149,7 @@ export const Map: React.FC<MapProps> = ({
   children,
   style,
   query,
+  controls,
   ...options
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -121,7 +158,13 @@ export const Map: React.FC<MapProps> = ({
 
   React.useEffect(() => {
     if (ref.current && !map) {
-      setMap(new window.google.maps.Map(ref.current, {}));
+      const newMap = new window.google.maps.Map(ref.current, {});
+      controls?.forEach((control) => {
+        const controlDiv = document.createElement('div');
+        ReactDOM.render(control.element, controlDiv);
+        newMap.controls[control.position].push(controlDiv);
+      });
+      setMap(newMap);
     }
   }, [ref, map]);
 
@@ -145,6 +188,7 @@ export const Map: React.FC<MapProps> = ({
       }
       return;
     }
+    if (!query.address) return;
     const req: google.maps.GeocoderRequest = {
       address: query.address,
     };

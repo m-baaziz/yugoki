@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, BoxProps, TextField } from '@mui/material';
+import { Box, BoxProps, Button, TextField } from '@mui/material';
 import { useQuery, gql } from '@apollo/client';
 import {
   QuerySearchClubSportLocationsArgs,
@@ -18,7 +18,8 @@ import {
   encodeQuery,
 } from '../../utils/searchQuery';
 import CslCard from './CslCard';
-import CslMap, { MapQuery, Position } from './CslMap';
+import CslMap, { ControlPosition, MapQuery, Position } from './CslMap';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 
 const CSL_PAGE_SIZE = 100;
 
@@ -54,34 +55,13 @@ const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
   gridTemplate:
     "  \
-    '   .        .      .      .     .    '  1em  \
-    '   .      search search search  .    '  auto  \
-    '   .        .      .      .     .    '  1em  \
-    '   .      lines    .     map    .    '  1fr  \
-    '   .        .      .      .     .    '  1em  \
-    /  10%      1fr    4em   auto   10%           \
+    '   .        .        .    '  1em  \
+    '   .      search     .    '  auto  \
+    '   .        .        .    '  2em  \
+    '   .      results    .    '  1fr  \
+    '   .        .        .    '  1em  \
+    /  10%      1fr      10%           \
   ",
-}));
-
-const SearchContainer = styled(Box)<BoxProps>(() => ({
-  gridArea: 'search',
-  display: 'flex',
-  width: '100%',
-  height: '100%',
-}));
-
-const ListContainer = styled(Box)<BoxProps>(() => ({
-  gridArea: 'lines',
-  display: 'flex',
-  width: '100%',
-  height: '100%',
-}));
-
-const MapContainer = styled(Box)<BoxProps>(() => ({
-  gridArea: 'map',
-  display: 'flex',
-  width: '100%',
-  height: '100%',
 }));
 
 export default function CslList() {
@@ -90,8 +70,13 @@ export default function CslList() {
   const [searchArea, setSearchArea] = React.useState<SearchArea | undefined>(
     undefined,
   );
-  const [searchInput, setSearchInput] = React.useState('');
+  const [searchInput, setSearchInput] = React.useState<string | undefined>(
+    undefined,
+  );
   const [mapQuery, setMapQuery] = React.useState<MapQuery>();
+  const [mapCenter, setMapCenter] = React.useState<Position | undefined>(
+    undefined,
+  );
 
   const query = React.useMemo(() => {
     const params = new window.URLSearchParams(search);
@@ -129,16 +114,16 @@ export default function CslList() {
   }, [searchArea]);
 
   React.useEffect(() => {
-    if (!searchInput && query.address) {
+    if (searchInput === undefined && query.address) {
       setSearchInput(query.address || '');
     }
-  }, [query]);
+  }, [searchInput, setSearchInput, query]);
 
   React.useEffect(() => {
     if (!query) return;
     if (!mapQuery || mapQuery.address !== query.address) {
       setMapQuery({
-        address: query.address || undefined,
+        address: query.address || '',
         area: query.area || undefined,
       });
     }
@@ -173,46 +158,89 @@ export default function CslList() {
     navigate(`/locations/${cslId}`);
   };
 
+  const handleMyLocationClick = () => {
+    try {
+      window.navigator.geolocation.getCurrentPosition((pos) => {
+        changeQuery({
+          ...query,
+          address: '', // bug when empty address
+          area: undefined,
+        });
+        setMapCenter({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+        });
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <Container>
-      <SearchContainer>
+      <Box sx={{ gridArea: 'search' }}>
         <form onSubmit={handleSearchInputSubmit} style={{ width: '100%' }}>
           <TextField
             label="search"
             variant="outlined"
-            value={searchInput}
+            value={searchInput || ''}
             onChange={handleSearchInputChange}
             autoComplete="off"
             fullWidth
           />
         </form>
-      </SearchContainer>
-      <ListContainer>
-        {data?.searchClubSportLocations.clubSportLocations
-          .filter((csl) => csl.id)
-          .map((csl) => (
-            <CslCard
-              key={csl.id!}
-              id={csl.id!}
-              name={csl.club.name}
-              address={csl.address}
-              onClick={handleCslClick}
-              sx={{ cursor: 'pointer' }}
-            />
-          ))}
-      </ListContainer>
-      <MapContainer>
-        <CslMap
-          positions={
-            data?.searchClubSportLocations.clubSportLocations.map(
-              cslToLatLng,
-            ) || []
-          }
-          onChange={onMapChange}
-          query={mapQuery}
-        />
-        map
-      </MapContainer>
+      </Box>
+      <Box
+        sx={{
+          gridArea: 'results',
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap-reverse',
+          justifyContent: 'space-between',
+          gap: '20px',
+        }}
+      >
+        <Box>
+          {data?.searchClubSportLocations.clubSportLocations
+            .filter((csl) => csl.id)
+            .map((csl) => (
+              <CslCard
+                key={csl.id!}
+                id={csl.id!}
+                name={csl.club.name}
+                address={csl.address}
+                onClick={handleCslClick}
+                sx={{ cursor: 'pointer' }}
+              />
+            ))}
+        </Box>
+        <Box>
+          <CslMap
+            positions={
+              data?.searchClubSportLocations.clubSportLocations.map(
+                cslToLatLng,
+              ) || []
+            }
+            onChange={onMapChange}
+            query={mapQuery}
+            centerPosition={mapCenter}
+            controls={[
+              {
+                element: (
+                  <Button
+                    variant="contained"
+                    aria-label="center"
+                    onClick={handleMyLocationClick}
+                  >
+                    <MyLocationIcon />
+                  </Button>
+                ),
+                position: ControlPosition.RIGHT_BOTTOM,
+              },
+            ]}
+          />
+        </Box>
+      </Box>
     </Container>
   );
 }

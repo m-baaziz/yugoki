@@ -20,6 +20,6 @@ resource "aws_s3_bucket_cors_configuration" "files" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "PUT", "HEAD", "POST", "DELETE"]
-    allowed_origins = ["http://localhost:3000"]
+    allowed_origins = ["*"]
   }
 }

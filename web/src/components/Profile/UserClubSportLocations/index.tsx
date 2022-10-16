@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, BoxProps, Fab, Grid } from '@mui/material';
+import { Box, BoxProps, Fab, Grid, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, gql, useMutation } from '@apollo/client';
 import appContext, { NotificationLevel } from '../../../context';
@@ -11,6 +11,7 @@ import {
 } from '../../../generated/graphql';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserClubSportLocationCard from './UserClubSportLocationCard';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 const CSL_PAGE_SIZE = 100;
 
@@ -52,12 +53,12 @@ const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
   gridTemplate:
     "  \
-    '   .        .       .     .    '  1em   \
-    '   .       csl     csl    .    '  auto  \
-    '   .        .       .     .    '  1fr   \
-    '   .        .      add    .    '  auto  \
-    '   .        .       .     .    '  2em   \
-    /  10%      1fr     auto   10%           \
+    '   .     .      .       .     .    '  1em   \
+    '   .    csl    csl     csl    .    '  auto  \
+    '   .     .      .       .     .    '  1fr   \
+    '   .   back     .      add    .    '  auto  \
+    '   .     .      .       .     .    '  2em   \
+    /  10%  auto    1fr     auto   10%           \
   ",
 }));
 
@@ -96,6 +97,9 @@ export default function UserClubSportLocations() {
     }
   };
 
+  const handleBackClick = () => {
+    navigate(`/profile/clubs/${clubId}`);
+  };
   const handleAddClick = () => {
     navigate('new');
   };
@@ -120,6 +124,15 @@ export default function UserClubSportLocations() {
           </Grid>
         ))}
       </Grid>
+      <Button
+        sx={{ gridArea: 'back' }}
+        variant="outlined"
+        color="inherit"
+        startIcon={<ChevronLeftIcon />}
+        onClick={handleBackClick}
+      >
+        Back
+      </Button>
       <Fab
         color="primary"
         aria-label="add"

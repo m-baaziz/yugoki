@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import { Box, BoxProps, Fab, Grid } from '@mui/material';
+import { Box, BoxProps, Fab, Grid, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, gql, useMutation } from '@apollo/client';
 import appContext, { NotificationLevel } from '../../../context';
@@ -11,6 +11,7 @@ import {
 } from '../../../generated/graphql';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserClubTrainerCard from './UserClubTrainerCard';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 const TRAINERS_PAGE_SIZE = 100;
 
@@ -43,13 +44,13 @@ const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
   gridTemplate:
     "  \
-    '   .        .       .       .    '  1em   \
-    '   .    trainers  trainers  .    '  auto  \
-    '   .        .       .       .    '  1fr   \
-    '   .        .       .       .    '  2em   \
-    '   .        .      add      .    '  auto  \
-    '   .        .       .       .    '  2em   \
-    /  10%      1fr     auto     10%           \
+    '   .        .         .       .       .    '  1em   \
+    '   .    trainers  trainers  trainers  .    '  auto  \
+    '   .        .         .       .       .    '  1fr   \
+    '   .        .         .       .       .    '  2em   \
+    '   .      back        .      add      .    '  auto  \
+    '   .        .         .       .       .    '  2em   \
+    /  10%     auto       1fr     auto     10%           \
   ",
 }));
 
@@ -88,6 +89,9 @@ export default function UserClubTrainers() {
     }
   };
 
+  const handleBackClick = () => {
+    navigate(`/profile/clubs/${clubId}`);
+  };
   const handleAddClick = () => {
     navigate('new');
   };
@@ -109,6 +113,15 @@ export default function UserClubTrainers() {
           </Grid>
         ))}
       </Grid>
+      <Button
+        sx={{ gridArea: 'back' }}
+        variant="outlined"
+        color="inherit"
+        startIcon={<ChevronLeftIcon />}
+        onClick={handleBackClick}
+      >
+        Back
+      </Button>
       <Fab
         color="primary"
         aria-label="add"
