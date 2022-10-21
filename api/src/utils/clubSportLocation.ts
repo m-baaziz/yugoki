@@ -1,7 +1,9 @@
+import { encode } from 'ngeohash';
 import {
   ClubDbObject,
   ClubSportLocation,
   ClubSportLocationDbObject,
+  SearchArea,
   SportDbObject,
   TrainerDbObject,
 } from '../generated/graphql';
@@ -44,4 +46,25 @@ export function dbClubSportLocationToClubSportLocation(
     activities,
     schedule,
   };
+}
+
+export function commonRadical(left: string, right: string): string {
+  const minLength = Math.min(left.length, right.length);
+  let radical = '';
+  for (let i = 0; i < minLength; i++) {
+    if (left[i] !== right[i]) return radical;
+    else radical += left[i];
+  }
+  return radical;
+}
+
+export function computeAreaGeohash(area: SearchArea): string {
+  const encodedTopLeft = encode(area.topLeftLat, area.topLeftLon, 9);
+  const encodedBottomRight = encode(
+    area.bottomRightLat,
+    area.bottomRightLon,
+    9,
+  );
+  console.log(encodedTopLeft, encodedBottomRight);
+  return commonRadical(encodedTopLeft, encodedBottomRight);
 }
