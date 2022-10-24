@@ -78,7 +78,7 @@ export default class ClubAPI extends DataSource {
       new ScanCommand({
         TableName: CLUB_TABLE_NAME,
         Limit: first,
-        ExclusiveStartKey: { Id: { S: after } },
+        ExclusiveStartKey: after ? { Id: { S: after } } : undefined,
       }),
     );
     console.log('Results  ', result);
@@ -94,12 +94,17 @@ export default class ClubAPI extends DataSource {
       new QueryCommand({
         TableName: CLUB_TABLE_NAME,
         IndexName: CLUB_OWNER_INDEX_NAME,
-        KeyConditionExpression: 'Owner = :userId',
+        KeyConditionExpression: '#owner = :userId',
+        ExpressionAttributeNames: {
+          '#owner': 'Owner',
+        },
         ExpressionAttributeValues: {
           ':userId': { S: userId },
         },
         Limit: first,
-        ExclusiveStartKey: { Id: { S: after } },
+        ExclusiveStartKey: after
+          ? { Id: { S: after }, Owner: { S: userId } }
+          : undefined,
       }),
     );
     console.log('Results  ', result);
