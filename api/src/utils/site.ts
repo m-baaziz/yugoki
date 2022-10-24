@@ -1,8 +1,8 @@
 import { encode } from 'ngeohash';
 import {
   ClubDbObject,
-  ClubSportLocation,
-  ClubSportLocationDbObject,
+  Site,
+  SiteDbObject,
   SearchArea,
   SportDbObject,
   TrainerDbObject,
@@ -11,12 +11,12 @@ import { dbClubToClub } from './club';
 import { dbSportToSport } from './sport';
 import { dbTrainerToTrainer } from './trainer';
 
-export function dbClubSportLocationToClubSportLocation(
-  clubSportLocation: ClubSportLocationDbObject,
+export function dbSiteToSite(
+  site: SiteDbObject,
   sport: SportDbObject,
   club: ClubDbObject,
   trainers: TrainerDbObject[],
-): ClubSportLocation {
+): Site {
   const {
     _id,
     name,
@@ -29,7 +29,7 @@ export function dbClubSportLocationToClubSportLocation(
     description,
     activities,
     schedule,
-  } = clubSportLocation;
+  } = site;
   return {
     id: _id.toString(),
     name,

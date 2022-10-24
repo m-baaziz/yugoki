@@ -1,11 +1,11 @@
 import { ContextWithDataSources } from '../datasources';
 import {
   MutationCreateSubscriptionOptionArgs,
-  QueryListSubscriptionOptionsByClubSportLocationArgs,
+  QueryListSubscriptionOptionsBySiteArgs,
   SubscriptionOptionPageInfo,
   SubscriptionOption,
   MutationEnableSubscriptionOptionArgs,
-  QueryListEnabledSubscriptionOptionsByClubSportLocationArgs,
+  QueryListEnabledSubscriptionOptionsBySiteArgs,
   QueryGetSubscriptionOptionArgs,
 } from '../generated/graphql';
 import { logger } from '../logger';
@@ -27,14 +27,14 @@ export async function getSubscriptionOption(
   }
 }
 
-export async function listSubscriptionOptionsByClubSportLocation(
+export async function listSubscriptionOptionsBySite(
   _parent: unknown,
-  { cslId, first, after }: QueryListSubscriptionOptionsByClubSportLocationArgs,
+  { cslId, first, after }: QueryListSubscriptionOptionsBySiteArgs,
   { dataSources: { subscriptionOptionAPI } }: ContextWithDataSources,
 ): Promise<SubscriptionOptionPageInfo> {
   try {
     const [subscriptionOptions, hasNextPage] =
-      await subscriptionOptionAPI.listSubscriptionOptionsByClubSportLocation(
+      await subscriptionOptionAPI.listSubscriptionOptionsBySite(
         cslId,
         first,
         after,
@@ -56,18 +56,14 @@ export async function listSubscriptionOptionsByClubSportLocation(
   }
 }
 
-export async function listEnabledSubscriptionOptionsByClubSportLocation(
+export async function listEnabledSubscriptionOptionsBySite(
   _parent: unknown,
-  {
-    cslId,
-    first,
-    after,
-  }: QueryListEnabledSubscriptionOptionsByClubSportLocationArgs,
+  { cslId, first, after }: QueryListEnabledSubscriptionOptionsBySiteArgs,
   { dataSources: { subscriptionOptionAPI } }: ContextWithDataSources,
 ): Promise<SubscriptionOptionPageInfo> {
   try {
     const [subscriptionOptions, hasNextPage] =
-      await subscriptionOptionAPI.listEnabledSubscriptionOptionsByClubSportLocation(
+      await subscriptionOptionAPI.listEnabledSubscriptionOptionsBySite(
         cslId,
         first,
         after,
@@ -94,14 +90,14 @@ export async function createSubscriptionOption(
   { cslId, input }: MutationCreateSubscriptionOptionArgs,
   {
     user,
-    dataSources: { subscriptionOptionAPI, clubSportLocationAPI, clubAPI },
+    dataSources: { subscriptionOptionAPI, siteAPI, clubAPI },
   }: ContextWithDataSources,
 ): Promise<SubscriptionOption> {
   try {
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const csl = await clubSportLocationAPI.findClubSportLocationById(cslId);
+    const csl = await siteAPI.findSiteById(cslId);
     const club = await clubAPI.findClubById(csl.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
@@ -120,7 +116,7 @@ export async function enableSubscriptionOption(
   { id }: MutationEnableSubscriptionOptionArgs,
   {
     user,
-    dataSources: { subscriptionOptionAPI, clubSportLocationAPI, clubAPI },
+    dataSources: { subscriptionOptionAPI, siteAPI, clubAPI },
   }: ContextWithDataSources,
 ): Promise<SubscriptionOption> {
   try {
@@ -129,9 +125,7 @@ export async function enableSubscriptionOption(
     }
     const subscriptionOption =
       await subscriptionOptionAPI.findSubscriptionOptionById(id);
-    const csl = await clubSportLocationAPI.findClubSportLocationById(
-      subscriptionOption.clubSportLocation,
-    );
+    const csl = await siteAPI.findSiteById(subscriptionOption.site);
     const club = await clubAPI.findClubById(csl.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
@@ -150,7 +144,7 @@ export async function disableSubscriptionOption(
   { id }: MutationEnableSubscriptionOptionArgs,
   {
     user,
-    dataSources: { subscriptionOptionAPI, clubSportLocationAPI, clubAPI },
+    dataSources: { subscriptionOptionAPI, siteAPI, clubAPI },
   }: ContextWithDataSources,
 ): Promise<SubscriptionOption> {
   try {
@@ -159,9 +153,7 @@ export async function disableSubscriptionOption(
     }
     const subscriptionOption =
       await subscriptionOptionAPI.findSubscriptionOptionById(id);
-    const csl = await clubSportLocationAPI.findClubSportLocationById(
-      subscriptionOption.clubSportLocation,
-    );
+    const csl = await siteAPI.findSiteById(subscriptionOption.site);
     const club = await clubAPI.findClubById(csl.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');

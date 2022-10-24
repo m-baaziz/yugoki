@@ -1,5 +1,5 @@
 import { SearchArea } from '../src/generated/graphql';
-import { computeAreaGeohash } from '../src/utils/clubSportLocation';
+import { computeAreaGeohash } from '../src/utils/site';
 
 describe('geohash', () => {
   it('area hash from corners', () => {

@@ -6,11 +6,10 @@ import {
 export function dbSubscriptionOptionToSubscriptionOption(
   subscriptionOption: SubscriptionOptionDbObject,
 ): SubscriptionOption {
-  const { _id, clubSportLocation, title, features, price, enabled } =
-    subscriptionOption;
+  const { _id, site, title, features, price, enabled } = subscriptionOption;
   return {
     id: _id.toString(),
-    clubSportLocation,
+    site,
     title,
     features,
     price,

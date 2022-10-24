@@ -3,18 +3,15 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource';
 import { Collection, Db, ObjectId, WithId } from 'mongodb';
 
 import { _Collection } from '.';
-import {
-  ClubSportLocationDbObject,
-  ClubSportLocationInput,
-} from '../generated/graphql';
+import { SiteDbObject, SiteInput } from '../generated/graphql';
 import { logger } from '../logger';
 import EventAPI from './event';
 import FileUploadAPI from './fileUpload';
 import { listByFilter } from './helpers';
 import SubscriptionOptionAPI from './subscriptionOption';
 
-export default class ClubSportLocationAPI extends DataSource {
-  collection: Collection<ClubSportLocationDbObject>;
+export default class SiteAPI extends DataSource {
+  collection: Collection<SiteDbObject>;
   context: any;
   subscriptionOptionAPI: SubscriptionOptionAPI;
   eventAPI: EventAPI;
@@ -27,9 +24,7 @@ export default class ClubSportLocationAPI extends DataSource {
     fileUploadAPI: FileUploadAPI,
   ) {
     super();
-    this.collection = db.collection<ClubSportLocationDbObject>(
-      _Collection.ClubSportLocation,
-    );
+    this.collection = db.collection<SiteDbObject>(_Collection.Site);
     this.subscriptionOptionAPI = subscriptionOptionAPI;
     this.eventAPI = eventAPI;
     this.fileUploadAPI = fileUploadAPI;
@@ -50,15 +45,13 @@ export default class ClubSportLocationAPI extends DataSource {
     }
   }
 
-  async findClubSportLocationById(
-    id: string,
-  ): Promise<WithId<ClubSportLocationDbObject>> {
+  async findSiteById(id: string): Promise<WithId<SiteDbObject>> {
     try {
       const club = await this.collection.findOne({
         _id: new ObjectId(id),
       });
       if (!club) {
-        return Promise.reject(`Club sport location with id ${id} not found`);
+        return Promise.reject(`Site with id ${id} not found`);
       }
       return Promise.resolve(club);
     } catch (e) {
@@ -66,18 +59,18 @@ export default class ClubSportLocationAPI extends DataSource {
     }
   }
 
-  listClubSportLocations(
+  listSites(
     first: number,
     after?: string,
-  ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
+  ): Promise<[WithId<SiteDbObject>[], boolean]> {
     return listByFilter(this.collection, {}, first, after);
   }
 
-  listClubSportLocationsByClub(
+  listSitesByClub(
     clubId: string,
     first: number,
     after?: string,
-  ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
+  ): Promise<[WithId<SiteDbObject>[], boolean]> {
     return listByFilter(
       this.collection,
       { club: new ObjectId(clubId) },
@@ -86,7 +79,7 @@ export default class ClubSportLocationAPI extends DataSource {
     );
   }
 
-  listClubSportLocationsBySportAndArea(
+  listSitesBySportAndArea(
     sport: string,
     topLeftLat: number,
     topLeftLon: number,
@@ -94,7 +87,7 @@ export default class ClubSportLocationAPI extends DataSource {
     bottomRightLon: number,
     first: number,
     after?: string,
-  ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
+  ): Promise<[WithId<SiteDbObject>[], boolean]> {
     const filter = {
       sport: new ObjectId(sport),
       $and: [
@@ -107,12 +100,12 @@ export default class ClubSportLocationAPI extends DataSource {
     return listByFilter(this.collection, filter, first, after);
   }
 
-  listClubSportLocationsBySportAndAddress(
+  listSitesBySportAndAddress(
     sport: string,
     address: string,
     first: number,
     after?: string,
-  ): Promise<[WithId<ClubSportLocationDbObject>[], boolean]> {
+  ): Promise<[WithId<SiteDbObject>[], boolean]> {
     const filter = {
       sport: new ObjectId(sport),
       address: { $regex: address },
@@ -120,23 +113,23 @@ export default class ClubSportLocationAPI extends DataSource {
     return listByFilter(this.collection, filter, first, after);
   }
 
-  async createClubSportLocation(
+  async createSite(
     clubId: string,
     sportId: string,
-    input: ClubSportLocationInput,
-  ): Promise<ClubSportLocationDbObject> {
+    input: SiteInput,
+  ): Promise<SiteDbObject> {
     try {
-      const clubSportLocation: ClubSportLocationDbObject = {
+      const site: SiteDbObject = {
         club: new ObjectId(clubId),
         sport: new ObjectId(sportId),
         ...input,
         trainers: input.trainerIds.map((id) => new ObjectId(id)),
       };
 
-      const result = await this.collection.insertOne(clubSportLocation);
+      const result = await this.collection.insertOne(site);
 
       return {
-        ...clubSportLocation,
+        ...site,
         _id: result.insertedId,
       };
     } catch (e) {
@@ -144,17 +137,14 @@ export default class ClubSportLocationAPI extends DataSource {
     }
   }
 
-  async deleteClubSportLocation(id: string): Promise<boolean> {
+  async deleteSite(id: string): Promise<boolean> {
     try {
       // make mongodb transaction
-      const clubSportLocation = await this.findClubSportLocationById(id);
+      const site = await this.findSiteById(id);
 
       const subscriptionOptionsDeleteCount =
-        await this.subscriptionOptionAPI.disableSubscriptionOptionsByClubSportLocation(
-          id,
-        );
-      const eventsDeleteCount =
-        await this.eventAPI.deleteEventsByClubSportLocation(id);
+        await this.subscriptionOptionAPI.disableSubscriptionOptionsBySite(id);
+      const eventsDeleteCount = await this.eventAPI.deleteEventsBySite(id);
 
       logger.info(
         `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
@@ -162,10 +152,10 @@ export default class ClubSportLocationAPI extends DataSource {
       logger.info(`Deleted ${eventsDeleteCount} events`);
 
       const result = await this.collection.deleteOne({
-        _id: clubSportLocation._id,
+        _id: site._id,
       });
       Promise.all(
-        clubSportLocation.images.map((imageId) =>
+        site.images.map((imageId) =>
           this.fileUploadAPI.deleteFileUpload(imageId),
         ),
       )
@@ -182,7 +172,7 @@ export default class ClubSportLocationAPI extends DataSource {
     }
   }
 
-  async deleteClubSportLocationsByClub(clubId: string): Promise<number> {
+  async deleteSitesByClub(clubId: string): Promise<number> {
     try {
       const cursor = await this.collection.find({
         club: new ObjectId(clubId),
@@ -190,7 +180,7 @@ export default class ClubSportLocationAPI extends DataSource {
       let cslDeleteCount = 0;
       while (await cursor.hasNext()) {
         const cslId = (await cursor.next())._id.toString();
-        if (await this.deleteClubSportLocation(cslId)) {
+        if (await this.deleteSite(cslId)) {
           cslDeleteCount += 1;
         }
       }

@@ -2,7 +2,7 @@ import { ContextWithDataSources } from '../datasources';
 import {
   Event,
   EventPageInfo,
-  QueryListClubSportLocationEventsArgs,
+  QueryListSiteEventsArgs,
   QueryGetEventArgs,
   MutationDeleteEventArgs,
   MutationCreateEventArgs,
@@ -11,9 +11,9 @@ import { dbEventToEvent } from '../utils/event';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
 
-export async function listClubSportLocationEvents(
+export async function listSiteEvents(
   _parent: unknown,
-  { cslId, first, after }: QueryListClubSportLocationEventsArgs,
+  { cslId, first, after }: QueryListSiteEventsArgs,
   { dataSources: { eventAPI } }: ContextWithDataSources,
 ): Promise<EventPageInfo> {
   try {
@@ -52,18 +52,14 @@ export async function getEvent(
 export async function createEvent(
   _parent: unknown,
   { cslId, input }: MutationCreateEventArgs,
-  {
-    user,
-    dataSources: { clubSportLocationAPI, clubAPI, eventAPI },
-  }: ContextWithDataSources,
+  { user, dataSources: { siteAPI, clubAPI, eventAPI } }: ContextWithDataSources,
 ): Promise<Event> {
   try {
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const clubSportLocation =
-      await clubSportLocationAPI.findClubSportLocationById(cslId);
-    const club = await clubAPI.findClubById(clubSportLocation.club.toString());
+    const site = await siteAPI.findSiteById(cslId);
+    const club = await clubAPI.findClubById(site.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }

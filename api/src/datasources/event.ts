@@ -25,10 +25,7 @@ export default class EventAPI extends DataSource {
 
   async createIndexes(): Promise<void> {
     try {
-      await this.collection.createIndex(
-        { clubSportLocation: 1 },
-        { unique: false },
-      );
+      await this.collection.createIndex({ site: 1 }, { unique: false });
       return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
@@ -61,18 +58,13 @@ export default class EventAPI extends DataSource {
     first: number,
     after?: string,
   ): Promise<[WithId<EventDbObject>[], boolean]> {
-    return listByFilter(
-      this.collection,
-      { clubSportLocation: cslId },
-      first,
-      after,
-    );
+    return listByFilter(this.collection, { site: cslId }, first, after);
   }
 
   async createEvent(cslId: string, input: EventInput): Promise<EventDbObject> {
     try {
       const clubEvent: EventDbObject = {
-        clubSportLocation: cslId,
+        site: cslId,
         ...input,
       };
 
@@ -112,10 +104,10 @@ export default class EventAPI extends DataSource {
     }
   }
 
-  async deleteEventsByClubSportLocation(cslId: string): Promise<number> {
+  async deleteEventsBySite(cslId: string): Promise<number> {
     try {
       const cursor = await this.collection.find({
-        clubSportLocation: cslId,
+        site: cslId,
       });
       let deleteCount = 0;
       while (await cursor.hasNext()) {

@@ -5,8 +5,7 @@ import {
 } from '../generated/graphql';
 
 export function parseFileUploadKind(kind: string): FileUploadKind | null {
-  if (kind === 'ClubSportLocationImage')
-    return FileUploadKind.ClubSportLocationImage;
+  if (kind === 'SiteImage') return FileUploadKind.SiteImage;
   if (kind === 'EventImage') return FileUploadKind.EventImage;
   if (kind === 'TrainerPhoto') return FileUploadKind.TrainerPhoto;
   if (kind === 'ClubLogo') return FileUploadKind.ClubLogo;

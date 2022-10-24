@@ -1,0 +1,26 @@
+[
+  {
+    "firstname": "Ichigo",
+    "lastname": "Kurosaki",
+    "displayname": "Ichigo K.",
+    "description": "Muay Thai professional trainer",
+    "club": "63470f364b57d5f21d35d900",
+    "photo": "/man.png"
+  },
+  {
+    "firstname": "John",
+    "lastname": "Freez",
+    "displayname": "Mister Freez",
+    "description": "Muay Thai professional trainer",
+    "club": "63470f364b57d5f21d35d900",
+    "photo": "/businessman.png"
+  },
+  {
+    "firstname": "Elena",
+    "lastname": "Smith",
+    "displayname": "Mrs. Smith",
+    "description": "Basketball professional trainer",
+    "club": "63470f364b57d5f21d35d901",
+    "photo": "/woman.png"
+  }
+]

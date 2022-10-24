@@ -76,17 +76,12 @@ export default class SubscriptionAPI extends DataSource {
     );
   }
 
-  async listSubscriptionsByClubSportLocation(
-    clubSportLocationId: string,
+  async listSubscriptionsBySite(
+    siteId: string,
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionDbObject>[], boolean]> {
-    return listByFilter(
-      this.collection,
-      { clubSportLocation: clubSportLocationId },
-      first,
-      after,
-    );
+    return listByFilter(this.collection, { site: siteId }, first, after);
   }
 
   async createSubscription(
@@ -101,7 +96,7 @@ export default class SubscriptionAPI extends DataSource {
         );
       const subscription: SubscriptionDbObject = {
         subscriptionOption: new ObjectId(subscriptionOptionId),
-        clubSportLocation: subscriptionOption.clubSportLocation,
+        site: subscriptionOption.site,
         subscriberDetails,
         createdAtRFC3339: now.toISOString(),
       };

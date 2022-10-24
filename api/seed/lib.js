@@ -43,11 +43,11 @@ async function seedClubs(db) {
     .then(() => db);
 }
 
-async function seedClubSportLocation(db) {
-  const data = require('./data/club-sport-locations.json');
+async function seedSites(db) {
+  const data = require('./data/sites.json');
   console.log(`Inserting ${data.length} items ...`);
   return db
-    .collection('club-sport-location')
+    .collection('site')
     .insertMany(
       data.map((item) => ({
         ...item,
@@ -90,7 +90,7 @@ module.exports = {
   seedUsers,
   seedSports,
   seedClubs,
-  seedClubSportLocation,
+  seedSites,
   seedTrainers,
   seedEvents,
 };

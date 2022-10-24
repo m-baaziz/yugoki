@@ -3,7 +3,7 @@ const {
   seedUsers,
   seedSports,
   seedClubs,
-  seedClubSportLocation,
+  seedSites,
   seedTrainers,
   seedEvents,
 } = require('./lib');
@@ -17,9 +17,9 @@ mongoClient
   // .then(seedUsers)
   // .then(seedSports)
   // .then(seedClubs)
-  .then(seedClubSportLocation)
-  .then(seedTrainers)
-  // .then(seedEvents)
+  // .then(seedSites)
+  // .then(seedTrainers)
+  .then(seedEvents)
   .then(() => {
     mongoClient.close();
   })

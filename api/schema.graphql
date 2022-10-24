@@ -4,32 +4,24 @@ type Query {
   listClubs(first: Int!, after: String): ClubPageInfo!
   listUserClubs(first: Int!, after: String): ClubPageInfo!
   getClub(id: ID!): Club!
-  getClubSportLocation(id: ID!): ClubSportLocation!
-  getClubSportLocationImages(id: ID!): [FileUploadResponse!]!
-  listClubSportLocations(first: Int!, after: String): ClubSportLocationPageInfo!
-  listClubSportLocationsByClub(
-    clubId: ID!
+  getSite(id: ID!): Site!
+  getSiteImages(id: ID!): [FileUploadResponse!]!
+  listSites(first: Int!, after: String): SitePageInfo!
+  listSitesByClub(clubId: ID!, first: Int!, after: String): SitePageInfo!
+  searchSites(
+    query: SiteSearchQueryInput!
     first: Int!
     after: String
-  ): ClubSportLocationPageInfo!
-  searchClubSportLocations(
-    query: ClubSportLocationSearchQueryInput!
-    first: Int!
-    after: String
-  ): ClubSportLocationPageInfo!
+  ): SitePageInfo!
   getEvent(id: ID!): Event!
-  listClubSportLocationEvents(
-    cslId: ID!
-    first: Int!
-    after: String
-  ): EventPageInfo!
-  listSubscriptionOptionsByClubSportLocation(
+  listSiteEvents(cslId: ID!, first: Int!, after: String): EventPageInfo!
+  listSubscriptionOptionsBySite(
     cslId: ID!
     first: Int!
     after: String
   ): SubscriptionOptionPageInfo!
   getSubscriptionOption(id: ID!): SubscriptionOption!
-  listEnabledSubscriptionOptionsByClubSportLocation(
+  listEnabledSubscriptionOptionsBySite(
     cslId: ID!
     first: Int!
     after: String
@@ -39,7 +31,7 @@ type Query {
     first: Int!
     after: String
   ): SubscriptionPageInfo!
-  listSubscriptionsByClubSportLocation(
+  listSubscriptionsBySite(
     cslId: ID!
     first: Int!
     after: String
@@ -56,11 +48,8 @@ type Mutation {
   deleteClub(id: ID!): Boolean!
   createTrainer(clubId: ID!, input: TrainerInput!): Trainer!
   deleteTrainer(id: ID!): Boolean!
-  createClubSportLocation(
-    clubId: ID!
-    input: ClubSportLocationInput!
-  ): ClubSportLocation
-  deleteClubSportLocation(id: ID!): Boolean!
+  createSite(clubId: ID!, input: SiteInput!): Site
+  deleteSite(id: ID!): Boolean!
   createSubscriptionOption(
     cslId: ID!
     input: SubscriptionOptionInput!
@@ -83,7 +72,7 @@ input SearchArea {
   bottomRightLon: Float!
 }
 
-input ClubSportLocationSearchQueryInput {
+input SiteSearchQueryInput {
   sport: ID!
   address: String
   area: SearchArea
@@ -154,7 +143,7 @@ input EventInput {
 
 type Event @entity {
   id: ID @id
-  clubSportLocation: String! @column # index
+  site: String! @column # index
   dateRFC3339: String! @column
   title: String! @column
   description: String! @column
@@ -193,7 +182,7 @@ type CalendarSpan @entity(embedded: true) {
   toMinute: Int! @column
 }
 
-input ClubSportLocationInput {
+input SiteInput {
   name: String!
   sportId: ID!
   address: String!
@@ -208,7 +197,7 @@ input ClubSportLocationInput {
   schedule: [CalendarSpanInput!]!
 }
 
-type ClubSportLocation @entity {
+type Site @entity {
   id: ID @id
   name: String! @column #index
   club: Club! @link # index
@@ -225,8 +214,8 @@ type ClubSportLocation @entity {
   schedule: [CalendarSpan!]! @embedded
 }
 
-type ClubSportLocationPageInfo {
-  clubSportLocations: [ClubSportLocation!]!
+type SitePageInfo {
+  sites: [Site!]!
   hasNextPage: Boolean!
   endCursor: String
 }
@@ -239,7 +228,7 @@ input SubscriptionOptionInput {
 
 type SubscriptionOption @entity {
   id: ID @id
-  clubSportLocation: String! @column # index
+  site: String! @column # index
   title: String! @column
   features: [String!]! @column
   price: Float! @column
@@ -281,7 +270,7 @@ type SubscriberDetails @entity(embedded: true) {
 type Subscription @entity {
   id: ID @id
   subscriptionOption: SubscriptionOption! @link #index
-  clubSportLocation: String! @column #index
+  site: String! @column #index
   subscriberDetails: SubscriberDetails! @embedded
   createdAtRFC3339: String! @column
 }
@@ -293,7 +282,7 @@ type SubscriptionPageInfo {
 }
 
 enum FileUploadKind {
-  ClubSportLocationImage
+  SiteImage
   EventImage
   TrainerPhoto
   ClubLogo

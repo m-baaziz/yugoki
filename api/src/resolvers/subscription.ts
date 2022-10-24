@@ -4,7 +4,7 @@ import {
   SubscriptionPageInfo,
   MutationCreateSubscriptionArgs,
   Subscription,
-  QueryListSubscriptionsByClubSportLocationArgs,
+  QueryListSubscriptionsBySiteArgs,
   QueryGetSubscriptionArgs,
 } from '../generated/graphql';
 import { logger } from '../logger';
@@ -16,12 +16,7 @@ export async function getSubscription(
   { id }: QueryGetSubscriptionArgs,
   {
     user,
-    dataSources: {
-      subscriptionAPI,
-      subscriptionOptionAPI,
-      clubSportLocationAPI,
-      clubAPI,
-    },
+    dataSources: { subscriptionAPI, subscriptionOptionAPI, siteAPI, clubAPI },
   }: ContextWithDataSources,
 ): Promise<Subscription> {
   try {
@@ -33,9 +28,7 @@ export async function getSubscription(
       await subscriptionOptionAPI.findSubscriptionOptionById(
         subscription.subscriptionOption.toString(),
       );
-    const csl = await clubSportLocationAPI.findClubSportLocationById(
-      subscriptionOption.clubSportLocation,
-    );
+    const csl = await siteAPI.findSiteById(subscriptionOption.site);
     const club = await clubAPI.findClubById(csl.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
@@ -57,12 +50,7 @@ export async function listSubscriptionsBySubscriptionOption(
   }: QueryListSubscriptionsBySubscriptionOptionArgs,
   {
     user,
-    dataSources: {
-      subscriptionAPI,
-      subscriptionOptionAPI,
-      clubSportLocationAPI,
-      clubAPI,
-    },
+    dataSources: { subscriptionAPI, subscriptionOptionAPI, siteAPI, clubAPI },
   }: ContextWithDataSources,
 ): Promise<SubscriptionPageInfo> {
   try {
@@ -73,9 +61,7 @@ export async function listSubscriptionsBySubscriptionOption(
       await subscriptionOptionAPI.findSubscriptionOptionById(
         subscriptionOptionId,
       );
-    const csl = await clubSportLocationAPI.findClubSportLocationById(
-      subscriptionOption.clubSportLocation,
-    );
+    const csl = await siteAPI.findSiteById(subscriptionOption.site);
     const club = await clubAPI.findClubById(csl.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
@@ -107,34 +93,25 @@ export async function listSubscriptionsBySubscriptionOption(
   }
 }
 
-export async function listSubscriptionsByClubSportLocation(
+export async function listSubscriptionsBySite(
   _parent: unknown,
-  { cslId, first, after }: QueryListSubscriptionsByClubSportLocationArgs,
+  { cslId, first, after }: QueryListSubscriptionsBySiteArgs,
   {
     user,
-    dataSources: {
-      subscriptionAPI,
-      subscriptionOptionAPI,
-      clubSportLocationAPI,
-      clubAPI,
-    },
+    dataSources: { subscriptionAPI, subscriptionOptionAPI, siteAPI, clubAPI },
   }: ContextWithDataSources,
 ): Promise<SubscriptionPageInfo> {
   try {
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const csl = await clubSportLocationAPI.findClubSportLocationById(cslId);
+    const csl = await siteAPI.findSiteById(cslId);
     const club = await clubAPI.findClubById(csl.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
     const [subscriptions, hasNextPage] =
-      await subscriptionAPI.listSubscriptionsByClubSportLocation(
-        cslId,
-        first,
-        after,
-      );
+      await subscriptionAPI.listSubscriptionsBySite(cslId, first, after);
     const endCursor =
       subscriptions.length > 0
         ? subscriptions[subscriptions.length - 1]._id.toString()
@@ -174,7 +151,7 @@ export async function createSubscription(
     dataSources: {
       subscriptionAPI,
       subscriptionOptionAPI,
-      clubSportLocationAPI,
+      siteAPI,
       clubAPI,
       userAPI,
     },
@@ -194,11 +171,8 @@ export async function createSubscription(
       subscriptionOptionId,
       details,
     );
-    const clubSportLocation =
-      await clubSportLocationAPI.findClubSportLocationById(
-        subscriptionOption.clubSportLocation,
-      );
-    const club = await clubAPI.findClubById(clubSportLocation.club.toString());
+    const site = await siteAPI.findSiteById(subscriptionOption.site);
+    const club = await clubAPI.findClubById(site.club.toString());
     const owner = await userAPI.findUserById(club.owner);
     logger.info(
       `Sending email to club owner ${owner.email} and customer ${details.email}`,

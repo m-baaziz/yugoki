@@ -7,26 +7,21 @@ import {
   deleteClub,
 } from './club';
 import {
-  getClubSportLocation,
-  getClubSportLocationImages,
-  listClubSportLocations,
-  listClubSportLocationsByClub,
-  searchClubSportLocations,
-  createClubSportLocation,
-  deleteClubSportLocation,
-} from './clubSportLocation';
-import {
-  getEvent,
-  listClubSportLocationEvents,
-  createEvent,
-  deleteEvent,
-} from './event';
+  getSite,
+  getSiteImages,
+  listSites,
+  listSitesByClub,
+  searchSites,
+  createSite,
+  deleteSite,
+} from './site';
+import { getEvent, listSiteEvents, createEvent, deleteEvent } from './event';
 import { listSports } from './sport';
 import { signIn, signUp, me } from './user';
 import {
   getSubscriptionOption,
-  listSubscriptionOptionsByClubSportLocation,
-  listEnabledSubscriptionOptionsByClubSportLocation,
+  listSubscriptionOptionsBySite,
+  listEnabledSubscriptionOptionsBySite,
   createSubscriptionOption,
   enableSubscriptionOption,
   disableSubscriptionOption,
@@ -34,7 +29,7 @@ import {
 import {
   getSubscription,
   listSubscriptionsBySubscriptionOption,
-  listSubscriptionsByClubSportLocation,
+  listSubscriptionsBySite,
   createSubscription,
 } from './subscription';
 import { listTrainersByClub, createTrainer, deleteTrainer } from './trainer';
@@ -47,18 +42,18 @@ const resolvers: Resolvers = {
     getClub,
     listClubs,
     listUserClubs,
-    getClubSportLocation,
-    getClubSportLocationImages,
-    listClubSportLocations,
-    listClubSportLocationsByClub,
-    searchClubSportLocations,
+    getSite,
+    getSiteImages,
+    listSites,
+    listSitesByClub,
+    searchSites,
     getEvent,
-    listClubSportLocationEvents,
+    listSiteEvents,
     getSubscriptionOption,
-    listSubscriptionOptionsByClubSportLocation,
-    listEnabledSubscriptionOptionsByClubSportLocation,
+    listSubscriptionOptionsBySite,
+    listEnabledSubscriptionOptionsBySite,
     listSubscriptionsBySubscriptionOption,
-    listSubscriptionsByClubSportLocation,
+    listSubscriptionsBySite,
     getSubscription,
     listTrainersByClub,
     getFileUpload,
@@ -70,8 +65,8 @@ const resolvers: Resolvers = {
     deleteClub,
     createTrainer,
     deleteTrainer,
-    createClubSportLocation,
-    deleteClubSportLocation,
+    createSite,
+    deleteSite,
     createSubscriptionOption,
     enableSubscriptionOption,
     disableSubscriptionOption,

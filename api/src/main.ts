@@ -5,6 +5,7 @@ import { DIRECTIVES } from '@graphql-codegen/typescript-mongodb';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server';
 import { S3Client } from '@aws-sdk/client-s3';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 import resolvers from './resolvers';
 import { logger } from './logger';
@@ -13,7 +14,7 @@ import { _Database, mongoDb, mongoClient, DataSources } from './datasources';
 import authenticationMiddleware from './middlewares/context';
 import ClubAPI from './datasources/club';
 import SportAPI from './datasources/sport';
-import ClubSportLocationAPI from './datasources/clubSportLocation';
+import SiteAPI from './datasources/site';
 import TrainerAPI from './datasources/trainer';
 import EventAPI from './datasources/event';
 import SubscriptionAPI from './datasources/subscription';
@@ -41,9 +42,13 @@ async function main() {
       put: parseInt(process.env.FILES_PRESIGNED_URLS_VALIDITY_PERIOD_PUT, 10),
     },
   };
-  const s3Client = new S3Client({
+  const awsConfig = {
     region: process.env.S3_REGION,
+  };
+  const s3Client = new S3Client({
+    ...awsConfig,
   });
+  const dynamodbClient = new DynamoDBClient({ ...awsConfig });
 
   const schema = makeExecutableSchema({
     typeDefs: [DIRECTIVES, typeDefs],
@@ -59,7 +64,7 @@ async function main() {
   const subscriptionAPI = new SubscriptionAPI(db, subscriptionOptionAPI);
   const eventAPI = new EventAPI(db, fileUploadAPI);
   const trainerAPI = new TrainerAPI(db, fileUploadAPI);
-  const clubSportLocationAPI = new ClubSportLocationAPI(
+  const siteAPI = new SiteAPI(
     db,
     subscriptionOptionAPI,
     eventAPI,
@@ -67,8 +72,9 @@ async function main() {
   );
   const clubAPI = new ClubAPI(
     db,
+    dynamodbClient,
     trainerAPI,
-    clubSportLocationAPI,
+    siteAPI,
     fileUploadAPI,
   );
   const sportAPI = new SportAPI(db);
@@ -79,8 +85,7 @@ async function main() {
   await subscriptionAPI.createIndexes();
   await eventAPI.createIndexes();
   await trainerAPI.createIndexes();
-  await clubAPI.createIndexes();
-  await clubSportLocationAPI.createIndexes();
+  await siteAPI.createIndexes();
   await fileUploadAPI.createIndexes();
 
   const server = new ApolloServer({
@@ -89,7 +94,7 @@ async function main() {
       userAPI,
       clubAPI,
       sportAPI,
-      clubSportLocationAPI,
+      siteAPI,
       trainerAPI,
       eventAPI,
       subscriptionOptionAPI,

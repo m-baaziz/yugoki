@@ -5,7 +5,7 @@ import { AuthenticationContext } from '../middlewares/context';
 import SportAPI from './sport';
 import ClubAPI from './club';
 import UserAPI from './user';
-import ClubSportLocationAPI from './clubSportLocation';
+import SiteAPI from './site';
 import TrainerAPI from './trainer';
 import EventAPI from './event';
 import SubscriptionAPI from './subscription';
@@ -22,7 +22,7 @@ export enum _Collection {
   User = 'user',
   Sport = 'sport',
   Club = 'club',
-  ClubSportLocation = 'club-sport-location',
+  Site = 'site',
   Trainer = 'trainer',
   Event = 'event',
   SubscriptionOption = 'subscription-option',
@@ -34,7 +34,7 @@ export type DataSources = {
   userAPI: UserAPI;
   sportAPI: SportAPI;
   clubAPI: ClubAPI;
-  clubSportLocationAPI: ClubSportLocationAPI;
+  siteAPI: SiteAPI;
   trainerAPI: TrainerAPI;
   eventAPI: EventAPI;
   subscriptionOptionAPI: SubscriptionOptionAPI;

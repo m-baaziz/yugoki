@@ -26,10 +26,7 @@ export default class SubscriptionOptionAPI extends DataSource {
 
   async createIndexes(): Promise<void> {
     try {
-      await this.collection.createIndex(
-        { clubSportLocation: 1 },
-        { unique: false },
-      );
+      await this.collection.createIndex({ site: 1 }, { unique: false });
       return Promise.resolve();
     } catch (e) {
       return Promise.reject(e);
@@ -59,27 +56,22 @@ export default class SubscriptionOptionAPI extends DataSource {
     return listByFilter(this.collection, {}, first, after);
   }
 
-  async listSubscriptionOptionsByClubSportLocation(
+  async listSubscriptionOptionsBySite(
     cslId: string,
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
-    return listByFilter(
-      this.collection,
-      { clubSportLocation: cslId },
-      first,
-      after,
-    );
+    return listByFilter(this.collection, { site: cslId }, first, after);
   }
 
-  async listEnabledSubscriptionOptionsByClubSportLocation(
+  async listEnabledSubscriptionOptionsBySite(
     cslId: string,
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
     return listByFilter(
       this.collection,
-      { clubSportLocation: cslId, enabled: true },
+      { site: cslId, enabled: true },
       first,
       after,
     );
@@ -91,7 +83,7 @@ export default class SubscriptionOptionAPI extends DataSource {
   ): Promise<SubscriptionOptionDbObject> {
     try {
       const subscriptionOption: SubscriptionOptionDbObject = {
-        clubSportLocation: cslId,
+        site: cslId,
         ...input,
         enabled: true,
       };
@@ -143,13 +135,11 @@ export default class SubscriptionOptionAPI extends DataSource {
     }
   }
 
-  async disableSubscriptionOptionsByClubSportLocation(
-    cslId: string,
-  ): Promise<number> {
+  async disableSubscriptionOptionsBySite(cslId: string): Promise<number> {
     try {
       const result = await this.collection.updateMany(
         {
-          clubSportLocation: cslId,
+          site: cslId,
         },
         { $set: { enabled: false } },
         { upsert: false },
