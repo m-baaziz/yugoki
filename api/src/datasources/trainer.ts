@@ -69,13 +69,6 @@ export default class TrainerAPI extends DataSource {
     }
   }
 
-  async listTrainers(
-    first: number,
-    after?: string,
-  ): Promise<[WithId<TrainerDbObject>[], boolean]> {
-    return listByFilter(this.collection, {}, first, after);
-  }
-
   async listTrainersByClub(
     clubId: string,
     first: number,

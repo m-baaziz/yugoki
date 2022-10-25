@@ -14,15 +14,15 @@ type Query {
     after: String
   ): SitePageInfo!
   getEvent(id: ID!): Event!
-  listSiteEvents(cslId: ID!, first: Int!, after: String): EventPageInfo!
+  listSiteEvents(siteId: ID!, first: Int!, after: String): EventPageInfo!
   listSubscriptionOptionsBySite(
-    cslId: ID!
+    siteId: ID!
     first: Int!
     after: String
   ): SubscriptionOptionPageInfo!
   getSubscriptionOption(id: ID!): SubscriptionOption!
   listEnabledSubscriptionOptionsBySite(
-    cslId: ID!
+    siteId: ID!
     first: Int!
     after: String
   ): SubscriptionOptionPageInfo!
@@ -32,7 +32,7 @@ type Query {
     after: String
   ): SubscriptionPageInfo!
   listSubscriptionsBySite(
-    cslId: ID!
+    siteId: ID!
     first: Int!
     after: String
   ): SubscriptionPageInfo!
@@ -51,7 +51,7 @@ type Mutation {
   createSite(clubId: ID!, input: SiteInput!): Site
   deleteSite(id: ID!): Boolean!
   createSubscriptionOption(
-    cslId: ID!
+    siteId: ID!
     input: SubscriptionOptionInput!
   ): SubscriptionOption!
   enableSubscriptionOption(id: ID!): SubscriptionOption!
@@ -60,7 +60,7 @@ type Mutation {
     subscriptionOptionId: ID!
     details: SubscriberDetailsInput!
   ): Subscription!
-  createEvent(cslId: ID!, input: EventInput!): Event!
+  createEvent(siteId: ID!, input: EventInput!): Event!
   deleteEvent(id: ID!): Boolean!
   createFileUpload(input: FileUploadInput!): FileUploadResponse!
 }

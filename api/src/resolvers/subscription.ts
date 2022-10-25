@@ -28,8 +28,8 @@ export async function getSubscription(
       await subscriptionOptionAPI.findSubscriptionOptionById(
         subscription.subscriptionOption.toString(),
       );
-    const csl = await siteAPI.findSiteById(subscriptionOption.site);
-    const club = await clubAPI.findClubById(csl.club.toString());
+    const site = await siteAPI.findSiteById(subscriptionOption.site);
+    const club = await clubAPI.findClubById(site.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
@@ -61,8 +61,8 @@ export async function listSubscriptionsBySubscriptionOption(
       await subscriptionOptionAPI.findSubscriptionOptionById(
         subscriptionOptionId,
       );
-    const csl = await siteAPI.findSiteById(subscriptionOption.site);
-    const club = await clubAPI.findClubById(csl.club.toString());
+    const site = await siteAPI.findSiteById(subscriptionOption.site);
+    const club = await clubAPI.findClubById(site.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
@@ -95,7 +95,7 @@ export async function listSubscriptionsBySubscriptionOption(
 
 export async function listSubscriptionsBySite(
   _parent: unknown,
-  { cslId, first, after }: QueryListSubscriptionsBySiteArgs,
+  { siteId, first, after }: QueryListSubscriptionsBySiteArgs,
   {
     user,
     dataSources: { subscriptionAPI, subscriptionOptionAPI, siteAPI, clubAPI },
@@ -105,13 +105,13 @@ export async function listSubscriptionsBySite(
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const csl = await siteAPI.findSiteById(cslId);
-    const club = await clubAPI.findClubById(csl.club.toString());
+    const site = await siteAPI.findSiteById(siteId);
+    const club = await clubAPI.findClubById(site.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
     const [subscriptions, hasNextPage] =
-      await subscriptionAPI.listSubscriptionsBySite(cslId, first, after);
+      await subscriptionAPI.listSubscriptionsBySite(siteId, first, after);
     const endCursor =
       subscriptions.length > 0
         ? subscriptions[subscriptions.length - 1]._id.toString()

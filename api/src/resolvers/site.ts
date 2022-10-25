@@ -28,14 +28,14 @@ export async function listSites(
     const endCursor =
       sites.length > 0 ? sites[sites.length - 1]._id.toString() : undefined;
     const fullSites = await Promise.all(
-      sites.map(async (csl) => {
+      sites.map(async (site) => {
         try {
-          const sport = await sportAPI.findSportById(csl.sport.toString());
-          const club = await clubAPI.findClubById(csl.club.toString());
+          const sport = await sportAPI.findSportById(site.sport.toString());
+          const club = await clubAPI.findClubById(site.club.toString());
           const trainers = await trainerAPI.findTrainersByIds(
-            csl.trainers.map((tid) => tid.toString()),
+            site.trainers.map((tid) => tid.toString()),
           );
-          return dbSiteToSite(csl, sport, club, trainers);
+          return dbSiteToSite(site, sport, club, trainers);
         } catch (e) {
           return Promise.reject(e);
         }
@@ -68,14 +68,14 @@ export async function listSitesByClub(
     const endCursor =
       sites.length > 0 ? sites[sites.length - 1]._id.toString() : undefined;
     const fullSites = await Promise.all(
-      sites.map(async (csl) => {
+      sites.map(async (site) => {
         try {
-          const sport = await sportAPI.findSportById(csl.sport.toString());
-          const club = await clubAPI.findClubById(csl.club.toString());
+          const sport = await sportAPI.findSportById(site.sport.toString());
+          const club = await clubAPI.findClubById(site.club.toString());
           const trainers = await trainerAPI.findTrainersByIds(
-            csl.trainers.map((tid) => tid.toString()),
+            site.trainers.map((tid) => tid.toString()),
           );
-          return dbSiteToSite(csl, sport, club, trainers);
+          return dbSiteToSite(site, sport, club, trainers);
         } catch (e) {
           return Promise.reject(e);
         }
@@ -123,14 +123,14 @@ export async function searchSites(
     const endCursor =
       sites.length > 0 ? sites[sites.length - 1]._id.toString() : undefined;
     const fullSites = await Promise.all(
-      sites.map(async (csl) => {
+      sites.map(async (site) => {
         try {
-          const sport = await sportAPI.findSportById(csl.sport.toString());
-          const club = await clubAPI.findClubById(csl.club.toString());
+          const sport = await sportAPI.findSportById(site.sport.toString());
+          const club = await clubAPI.findClubById(site.club.toString());
           const trainers = await trainerAPI.findTrainersByIds(
-            csl.trainers.map((tid) => tid.toString()),
+            site.trainers.map((tid) => tid.toString()),
           );
-          return dbSiteToSite(csl, sport, club, trainers);
+          return dbSiteToSite(site, sport, club, trainers);
         } catch (e) {
           return Promise.reject(e);
         }
@@ -155,13 +155,13 @@ export async function getSite(
   }: ContextWithDataSources,
 ): Promise<Site> {
   try {
-    const csl = await siteAPI.findSiteById(id);
-    const sport = await sportAPI.findSportById(csl.sport.toString());
-    const club = await clubAPI.findClubById(csl.club.toString());
+    const site = await siteAPI.findSiteById(id);
+    const sport = await sportAPI.findSportById(site.sport.toString());
+    const club = await clubAPI.findClubById(site.club.toString());
     const trainers = await trainerAPI.findTrainersByIds(
-      csl.trainers.map((tid) => tid.toString()),
+      site.trainers.map((tid) => tid.toString()),
     );
-    return dbSiteToSite(csl, sport, club, trainers);
+    return dbSiteToSite(site, sport, club, trainers);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -174,9 +174,9 @@ export async function getSiteImages(
   { dataSources: { siteAPI, fileUploadAPI } }: ContextWithDataSources,
 ): Promise<FileUploadResponse[]> {
   try {
-    const csl = await siteAPI.findSiteById(id);
+    const site = await siteAPI.findSiteById(id);
     const fileUploadResponses = await Promise.all(
-      csl.images.map(async (imageId) => {
+      site.images.map(async (imageId) => {
         try {
           const fileUpload = await fileUploadAPI.findFileUploadById(imageId);
           const url = await fileUploadAPI.generateFileUrlGet(imageId);
@@ -213,11 +213,11 @@ export async function createSite(
       return Promise.reject('Unauthorized');
     }
     const sport = await sportAPI.findSportById(input.sportId);
-    const csl = await siteAPI.createSite(clubId, input.sportId, input);
+    const site = await siteAPI.createSite(clubId, input.sportId, input);
     const trainers = await trainerAPI.findTrainersByIds(
-      csl.trainers.map((tid) => tid.toString()),
+      site.trainers.map((tid) => tid.toString()),
     );
-    return dbSiteToSite(csl, sport, club, trainers);
+    return dbSiteToSite(site, sport, club, trainers);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -233,8 +233,8 @@ export async function deleteSite(
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const csl = await siteAPI.findSiteById(id);
-    const club = await clubAPI.findClubById(csl.club.toString());
+    const site = await siteAPI.findSiteById(id);
+    const club = await clubAPI.findClubById(site.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }

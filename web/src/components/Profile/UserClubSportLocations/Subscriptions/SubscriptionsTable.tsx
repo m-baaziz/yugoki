@@ -141,11 +141,7 @@ export default function SubscriptionsTable(props: SubscriptionsTableProps) {
                     {subscription.createdAtRFC3339}
                   </StyledTableCell>
                   <StyledTableCell align="left">
-                    <Link
-                      to={`${subscription.subscriptionOption.id}/${subscription.id}`}
-                    >
-                      view
-                    </Link>
+                    <Link to={`${subscription.id}`}>view</Link>
                   </StyledTableCell>
                 </StyledTableRow>
               ),

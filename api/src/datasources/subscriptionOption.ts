@@ -57,33 +57,33 @@ export default class SubscriptionOptionAPI extends DataSource {
   }
 
   async listSubscriptionOptionsBySite(
-    cslId: string,
+    siteId: string,
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
-    return listByFilter(this.collection, { site: cslId }, first, after);
+    return listByFilter(this.collection, { site: siteId }, first, after);
   }
 
   async listEnabledSubscriptionOptionsBySite(
-    cslId: string,
+    siteId: string,
     first: number,
     after?: string,
   ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
     return listByFilter(
       this.collection,
-      { site: cslId, enabled: true },
+      { site: siteId, enabled: true },
       first,
       after,
     );
   }
 
   async createSubscriptionOption(
-    cslId: string,
+    siteId: string,
     input: SubscriptionOptionInput,
   ): Promise<SubscriptionOptionDbObject> {
     try {
       const subscriptionOption: SubscriptionOptionDbObject = {
-        site: cslId,
+        site: siteId,
         ...input,
         enabled: true,
       };
@@ -130,21 +130,6 @@ export default class SubscriptionOptionAPI extends DataSource {
       );
       const subscriptionOption = await this.findSubscriptionOptionById(id);
       return Promise.resolve(subscriptionOption);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async disableSubscriptionOptionsBySite(cslId: string): Promise<number> {
-    try {
-      const result = await this.collection.updateMany(
-        {
-          site: cslId,
-        },
-        { $set: { enabled: false } },
-        { upsert: false },
-      );
-      return Promise.resolve(result.modifiedCount);
     } catch (e) {
       return Promise.reject(e);
     }

@@ -7,7 +7,7 @@ import {
   MutationCreateClubArgs,
   MutationDeleteClubArgs,
 } from '../generated/graphql';
-import { dbClubToClub, isUserAuthorized } from '../utils/club';
+import { isUserAuthorized } from '../utils/club';
 import { logger } from '../logger';
 
 export async function listClubs(
@@ -16,14 +16,7 @@ export async function listClubs(
   { dataSources: { clubAPI } }: ContextWithDataSources,
 ): Promise<ClubPageInfo> {
   try {
-    const [clubs, hasNextPage] = await clubAPI.listClubs(first, after);
-    const endCursor =
-      clubs.length > 0 ? clubs[clubs.length - 1]._id.toString() : undefined;
-    return {
-      clubs: clubs.map(dbClubToClub),
-      hasNextPage,
-      endCursor,
-    };
+    return await clubAPI.listClubs(first, after);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -43,18 +36,7 @@ export async function listUserClubs(
       logger.error('Unexpected empty user id');
       return Promise.reject('Internal Server Error');
     }
-    const [clubs, hasNextPage] = await clubAPI.listUserClubs(
-      user.id,
-      first,
-      after,
-    );
-    const endCursor =
-      clubs.length > 0 ? clubs[clubs.length - 1]._id.toString() : undefined;
-    return {
-      clubs: clubs.map(dbClubToClub),
-      hasNextPage,
-      endCursor,
-    };
+    return await clubAPI.listUserClubs(user.id, first, after);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -67,8 +49,7 @@ export async function getClub(
   { dataSources: { clubAPI } }: ContextWithDataSources,
 ): Promise<Club> {
   try {
-    const club = await clubAPI.findClubById(id);
-    return Promise.resolve(dbClubToClub(club));
+    return await clubAPI.findClubById(id);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -88,8 +69,7 @@ export async function createClub(
       logger.error('Unexpected empty user id');
       return Promise.reject('Internal Server Error');
     }
-    const club = await clubAPI.createClub(user.id, name);
-    return Promise.resolve(dbClubToClub(club));
+    return await clubAPI.createClub(user.id, name);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

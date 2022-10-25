@@ -71,7 +71,6 @@ async function main() {
     fileUploadAPI,
   );
   const clubAPI = new ClubAPI(
-    db,
     dynamodbClient,
     trainerAPI,
     siteAPI,

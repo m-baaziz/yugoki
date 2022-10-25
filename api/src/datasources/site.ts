@@ -140,16 +140,9 @@ export default class SiteAPI extends DataSource {
   async deleteSite(id: string): Promise<boolean> {
     try {
       // make mongodb transaction
+      // Query SiteId = id and delete all items (use BatchWriteItem)
+      // maybe not expose deleteSite, but allow to just disable
       const site = await this.findSiteById(id);
-
-      const subscriptionOptionsDeleteCount =
-        await this.subscriptionOptionAPI.disableSubscriptionOptionsBySite(id);
-      const eventsDeleteCount = await this.eventAPI.deleteEventsBySite(id);
-
-      logger.info(
-        `Deleted ${subscriptionOptionsDeleteCount} subscription options`,
-      );
-      logger.info(`Deleted ${eventsDeleteCount} events`);
 
       const result = await this.collection.deleteOne({
         _id: site._id,
@@ -177,14 +170,14 @@ export default class SiteAPI extends DataSource {
       const cursor = await this.collection.find({
         club: new ObjectId(clubId),
       });
-      let cslDeleteCount = 0;
+      let siteDeleteCount = 0;
       while (await cursor.hasNext()) {
-        const cslId = (await cursor.next())._id.toString();
-        if (await this.deleteSite(cslId)) {
-          cslDeleteCount += 1;
+        const siteId = (await cursor.next())._id.toString();
+        if (await this.deleteSite(siteId)) {
+          siteDeleteCount += 1;
         }
       }
-      return Promise.resolve(cslDeleteCount);
+      return Promise.resolve(siteDeleteCount);
     } catch (e) {
       return Promise.reject(e);
     }

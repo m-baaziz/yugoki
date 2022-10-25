@@ -130,3 +130,54 @@ resource "aws_dynamodb_table" "site" {
     Environment = "dev"
   }
 }
+
+resource "aws_dynamodb_table" "file" {
+  name           = "File"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "Id"
+
+  attribute {
+    name = "Id"
+    type = "S"
+  }
+
+  tags = {
+    AppName     = "klubzz"
+    Environment = "dev"
+  }
+}
+
+resource "aws_dynamodb_table" "subscription" {
+  name           = "Subscription"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "SiteId"
+  range_key      = "SubscriptionId"
+
+  attribute {
+    name = "SiteId"
+    type = "S"
+  }
+  attribute {
+    name = "SubscriptionId"
+    type = "S"
+  }
+  attribute {
+    name = "Date"
+    type = "S"
+  }
+
+  local_secondary_index {
+    name            = "DateIndex"
+    range_key       = "Date"
+    projection_type = "ALL"
+  }
+
+  tags = {
+    AppName     = "klubzz"
+    Environment = "dev"
+  }
+}

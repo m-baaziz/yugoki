@@ -1,10 +1,18 @@
 import { GraphQLResolveInfo } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & {
+  [P in K]-?: NonNullable<T[P]>;
+};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -104,7 +112,7 @@ export enum FileUploadKind {
   ClubLogo = 'ClubLogo',
   EventImage = 'EventImage',
   SiteImage = 'SiteImage',
-  TrainerPhoto = 'TrainerPhoto'
+  TrainerPhoto = 'TrainerPhoto',
 }
 
 export type FileUploadResponse = {
@@ -116,7 +124,7 @@ export type FileUploadResponse = {
 export enum Gender {
   Female = 'Female',
   Male = 'Male',
-  Other = 'Other'
+  Other = 'Other',
 }
 
 export type Mutation = {
@@ -138,82 +146,67 @@ export type Mutation = {
   signUp: Scalars['String'];
 };
 
-
 export type MutationCreateClubArgs = {
   name: Scalars['String'];
 };
 
-
 export type MutationCreateEventArgs = {
-  cslId: Scalars['ID'];
+  siteId: Scalars['ID'];
   input: EventInput;
 };
-
 
 export type MutationCreateFileUploadArgs = {
   input: FileUploadInput;
 };
-
 
 export type MutationCreateSiteArgs = {
   clubId: Scalars['ID'];
   input: SiteInput;
 };
 
-
 export type MutationCreateSubscriptionArgs = {
   details: SubscriberDetailsInput;
   subscriptionOptionId: Scalars['ID'];
 };
 
-
 export type MutationCreateSubscriptionOptionArgs = {
-  cslId: Scalars['ID'];
+  siteId: Scalars['ID'];
   input: SubscriptionOptionInput;
 };
-
 
 export type MutationCreateTrainerArgs = {
   clubId: Scalars['ID'];
   input: TrainerInput;
 };
 
-
 export type MutationDeleteClubArgs = {
   id: Scalars['ID'];
 };
-
 
 export type MutationDeleteEventArgs = {
   id: Scalars['ID'];
 };
 
-
 export type MutationDeleteSiteArgs = {
   id: Scalars['ID'];
 };
-
 
 export type MutationDeleteTrainerArgs = {
   id: Scalars['ID'];
 };
 
-
 export type MutationDisableSubscriptionOptionArgs = {
   id: Scalars['ID'];
 };
-
 
 export type MutationEnableSubscriptionOptionArgs = {
   id: Scalars['ID'];
 };
 
-
 export type MutationSignInArgs = {
   email: Scalars['String'];
   password: Scalars['String'];
 };
-
 
 export type MutationSignUpArgs = {
   email: Scalars['String'];
@@ -244,67 +237,55 @@ export type Query = {
   searchSites: SitePageInfo;
 };
 
-
 export type QueryGetClubArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryGetEventArgs = {
   id: Scalars['ID'];
 };
 
-
 export type QueryGetFileUploadArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryGetSiteArgs = {
   id: Scalars['ID'];
 };
 
-
 export type QueryGetSiteImagesArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryGetSubscriptionArgs = {
   id: Scalars['ID'];
 };
 
-
 export type QueryGetSubscriptionOptionArgs = {
   id: Scalars['ID'];
 };
-
 
 export type QueryListClubsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
 };
 
-
 export type QueryListEnabledSubscriptionOptionsBySiteArgs = {
   after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
+  siteId: Scalars['ID'];
   first: Scalars['Int'];
 };
-
 
 export type QueryListSiteEventsArgs = {
   after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
+  siteId: Scalars['ID'];
   first: Scalars['Int'];
 };
-
 
 export type QueryListSitesArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
 };
-
 
 export type QueryListSitesByClubArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -312,26 +293,22 @@ export type QueryListSitesByClubArgs = {
   first: Scalars['Int'];
 };
 
-
 export type QueryListSportsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
 };
 
-
 export type QueryListSubscriptionOptionsBySiteArgs = {
   after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
+  siteId: Scalars['ID'];
   first: Scalars['Int'];
 };
-
 
 export type QueryListSubscriptionsBySiteArgs = {
   after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
+  siteId: Scalars['ID'];
   first: Scalars['Int'];
 };
-
 
 export type QueryListSubscriptionsBySubscriptionOptionArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -339,19 +316,16 @@ export type QueryListSubscriptionsBySubscriptionOptionArgs = {
   subscriptionOptionId: Scalars['ID'];
 };
 
-
 export type QueryListTrainersByClubArgs = {
   after?: InputMaybe<Scalars['String']>;
   clubId: Scalars['ID'];
   first: Scalars['Int'];
 };
 
-
 export type QueryListUserClubsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
 };
-
 
 export type QuerySearchSitesArgs = {
   after?: InputMaybe<Scalars['String']>;
@@ -519,40 +493,55 @@ export type User = {
   id?: Maybe<Scalars['ID']>;
 };
 
-
-
 export type ResolverTypeWrapper<T> = Promise<T> | T;
-
 
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> =
+  | ResolverFn<TResult, TParent, TContext, TArgs>
+  | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo
+  info: GraphQLResolveInfo,
 ) => Promise<TResult> | TResult;
 
 export type SubscriptionSubscribeFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo
+  info: GraphQLResolveInfo,
 ) => AsyncIterable<TResult> | Promise<AsyncIterable<TResult>>;
 
 export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo
+  info: GraphQLResolveInfo,
 ) => TResult | Promise<TResult>;
 
-export interface SubscriptionSubscriberObject<TResult, TKey extends string, TParent, TContext, TArgs> {
-  subscribe: SubscriptionSubscribeFn<{ [key in TKey]: TResult }, TParent, TContext, TArgs>;
-  resolve?: SubscriptionResolveFn<TResult, { [key in TKey]: TResult }, TContext, TArgs>;
+export interface SubscriptionSubscriberObject<
+  TResult,
+  TKey extends string,
+  TParent,
+  TContext,
+  TArgs,
+> {
+  subscribe: SubscriptionSubscribeFn<
+    { [key in TKey]: TResult },
+    TParent,
+    TContext,
+    TArgs
+  >;
+  resolve?: SubscriptionResolveFn<
+    TResult,
+    { [key in TKey]: TResult },
+    TContext,
+    TArgs
+  >;
 }
 
 export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
@@ -560,30 +549,53 @@ export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
   resolve: SubscriptionResolveFn<TResult, any, TContext, TArgs>;
 }
 
-export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, TArgs> =
+export type SubscriptionObject<
+  TResult,
+  TKey extends string,
+  TParent,
+  TContext,
+  TArgs,
+> =
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
-  | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
+export type SubscriptionResolver<
+  TResult,
+  TKey extends string,
+  TParent = {},
+  TContext = {},
+  TArgs = {},
+> =
+  | ((
+      ...args: any[]
+    ) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
 export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
   parent: TParent,
   context: TContext,
-  info: GraphQLResolveInfo
+  info: GraphQLResolveInfo,
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = {}, TContext = {}> = (
+  obj: T,
+  context: TContext,
+  info: GraphQLResolveInfo,
+) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (
+export type DirectiveResolverFn<
+  TResult = {},
+  TParent = {},
+  TContext = {},
+  TArgs = {},
+> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
   context: TContext,
-  info: GraphQLResolveInfo
+  info: GraphQLResolveInfo,
 ) => TResult | Promise<TResult>;
 
 /** Mapping between all available schema types and the resolvers types */
@@ -677,56 +689,102 @@ export type UnionDirectiveArgs = {
   additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>;
 };
 
-export type UnionDirectiveResolver<Result, Parent, ContextType = any, Args = UnionDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type UnionDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = UnionDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AbstractEntityDirectiveArgs = {
   discriminatorField: Scalars['String'];
   additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>;
 };
 
-export type AbstractEntityDirectiveResolver<Result, Parent, ContextType = any, Args = AbstractEntityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type AbstractEntityDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = AbstractEntityDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type EntityDirectiveArgs = {
   embedded?: Maybe<Scalars['Boolean']>;
   additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>;
 };
 
-export type EntityDirectiveResolver<Result, Parent, ContextType = any, Args = EntityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type EntityDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = EntityDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type ColumnDirectiveArgs = {
   overrideType?: Maybe<Scalars['String']>;
 };
 
-export type ColumnDirectiveResolver<Result, Parent, ContextType = any, Args = ColumnDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type ColumnDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = ColumnDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type IdDirectiveArgs = { };
+export type IdDirectiveArgs = {};
 
-export type IdDirectiveResolver<Result, Parent, ContextType = any, Args = IdDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type IdDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = IdDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type LinkDirectiveArgs = {
   overrideType?: Maybe<Scalars['String']>;
 };
 
-export type LinkDirectiveResolver<Result, Parent, ContextType = any, Args = LinkDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type LinkDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = LinkDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type EmbeddedDirectiveArgs = { };
+export type EmbeddedDirectiveArgs = {};
 
-export type EmbeddedDirectiveResolver<Result, Parent, ContextType = any, Args = EmbeddedDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type EmbeddedDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = EmbeddedDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type MapDirectiveArgs = {
   path: Scalars['String'];
 };
 
-export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type MapDirectiveResolver<
+  Result,
+  Parent,
+  ContextType = any,
+  Args = MapDirectiveArgs,
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type ActivityResolvers<ContextType = any, ParentType extends ResolversParentTypes['Activity'] = ResolversParentTypes['Activity']> = {
+export type ActivityResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Activity'] = ResolversParentTypes['Activity'],
+> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   icon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type CalendarSpanResolvers<ContextType = any, ParentType extends ResolversParentTypes['CalendarSpan'] = ResolversParentTypes['CalendarSpan']> = {
+export type CalendarSpanResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['CalendarSpan'] = ResolversParentTypes['CalendarSpan'],
+> = {
   day?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   fromMinute?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -734,7 +792,10 @@ export type CalendarSpanResolvers<ContextType = any, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type ClubResolvers<ContextType = any, ParentType extends ResolversParentTypes['Club'] = ResolversParentTypes['Club']> = {
+export type ClubResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Club'] = ResolversParentTypes['Club'],
+> = {
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -742,14 +803,24 @@ export type ClubResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type ClubPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['ClubPageInfo'] = ResolversParentTypes['ClubPageInfo']> = {
+export type ClubPageInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['ClubPageInfo'] = ResolversParentTypes['ClubPageInfo'],
+> = {
   clubs?: Resolver<Array<ResolversTypes['Club']>, ParentType, ContextType>;
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  endCursor?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = {
+export type EventResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event'],
+> = {
   dateRFC3339?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
@@ -759,14 +830,24 @@ export type EventResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type EventPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['EventPageInfo'] = ResolversParentTypes['EventPageInfo']> = {
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type EventPageInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['EventPageInfo'] = ResolversParentTypes['EventPageInfo'],
+> = {
+  endCursor?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
   events?: Resolver<Array<ResolversTypes['Event']>, ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type FileUploadResolvers<ContextType = any, ParentType extends ResolversParentTypes['FileUpload'] = ResolversParentTypes['FileUpload']> = {
+export type FileUploadResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['FileUpload'] = ResolversParentTypes['FileUpload'],
+> = {
   ext?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['FileUploadKind'], ParentType, ContextType>;
@@ -774,55 +855,250 @@ export type FileUploadResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type FileUploadResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FileUploadResponse'] = ResolversParentTypes['FileUploadResponse']> = {
+export type FileUploadResponseResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['FileUploadResponse'] = ResolversParentTypes['FileUploadResponse'],
+> = {
   file?: Resolver<ResolversTypes['FileUpload'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'name'>>;
-  createEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'cslId' | 'input'>>;
-  createFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<MutationCreateFileUploadArgs, 'input'>>;
-  createSite?: Resolver<Maybe<ResolversTypes['Site']>, ParentType, ContextType, RequireFields<MutationCreateSiteArgs, 'clubId' | 'input'>>;
-  createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'subscriptionOptionId'>>;
-  createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'cslId' | 'input'>>;
-  createTrainer?: Resolver<ResolversTypes['Trainer'], ParentType, ContextType, RequireFields<MutationCreateTrainerArgs, 'clubId' | 'input'>>;
-  deleteClub?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubArgs, 'id'>>;
-  deleteEvent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'id'>>;
-  deleteSite?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSiteArgs, 'id'>>;
-  deleteTrainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainerArgs, 'id'>>;
-  disableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationDisableSubscriptionOptionArgs, 'id'>>;
-  enableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationEnableSubscriptionOptionArgs, 'id'>>;
-  signIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
-  signUp?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+export type MutationResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
+> = {
+  createClub?: Resolver<
+    ResolversTypes['Club'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateClubArgs, 'name'>
+  >;
+  createEvent?: Resolver<
+    ResolversTypes['Event'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateEventArgs, 'siteId' | 'input'>
+  >;
+  createFileUpload?: Resolver<
+    ResolversTypes['FileUploadResponse'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateFileUploadArgs, 'input'>
+  >;
+  createSite?: Resolver<
+    Maybe<ResolversTypes['Site']>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateSiteArgs, 'clubId' | 'input'>
+  >;
+  createSubscription?: Resolver<
+    ResolversTypes['Subscription'],
+    ParentType,
+    ContextType,
+    RequireFields<
+      MutationCreateSubscriptionArgs,
+      'details' | 'subscriptionOptionId'
+    >
+  >;
+  createSubscriptionOption?: Resolver<
+    ResolversTypes['SubscriptionOption'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateSubscriptionOptionArgs, 'siteId' | 'input'>
+  >;
+  createTrainer?: Resolver<
+    ResolversTypes['Trainer'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateTrainerArgs, 'clubId' | 'input'>
+  >;
+  deleteClub?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeleteClubArgs, 'id'>
+  >;
+  deleteEvent?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeleteEventArgs, 'id'>
+  >;
+  deleteSite?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeleteSiteArgs, 'id'>
+  >;
+  deleteTrainer?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeleteTrainerArgs, 'id'>
+  >;
+  disableSubscriptionOption?: Resolver<
+    ResolversTypes['SubscriptionOption'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDisableSubscriptionOptionArgs, 'id'>
+  >;
+  enableSubscriptionOption?: Resolver<
+    ResolversTypes['SubscriptionOption'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationEnableSubscriptionOptionArgs, 'id'>
+  >;
+  signIn?: Resolver<
+    ResolversTypes['String'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationSignInArgs, 'email' | 'password'>
+  >;
+  signUp?: Resolver<
+    ResolversTypes['String'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationSignUpArgs, 'email' | 'password'>
+  >;
 };
 
-export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<QueryGetClubArgs, 'id'>>;
-  getEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<QueryGetEventArgs, 'id'>>;
-  getFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<QueryGetFileUploadArgs, 'id'>>;
-  getSite?: Resolver<ResolversTypes['Site'], ParentType, ContextType, RequireFields<QueryGetSiteArgs, 'id'>>;
-  getSiteImages?: Resolver<Array<ResolversTypes['FileUploadResponse']>, ParentType, ContextType, RequireFields<QueryGetSiteImagesArgs, 'id'>>;
-  getSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<QueryGetSubscriptionArgs, 'id'>>;
-  getSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<QueryGetSubscriptionOptionArgs, 'id'>>;
-  listClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListClubsArgs, 'first'>>;
-  listEnabledSubscriptionOptionsBySite?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListEnabledSubscriptionOptionsBySiteArgs, 'cslId' | 'first'>>;
-  listSiteEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListSiteEventsArgs, 'cslId' | 'first'>>;
-  listSites?: Resolver<ResolversTypes['SitePageInfo'], ParentType, ContextType, RequireFields<QueryListSitesArgs, 'first'>>;
-  listSitesByClub?: Resolver<ResolversTypes['SitePageInfo'], ParentType, ContextType, RequireFields<QueryListSitesByClubArgs, 'clubId' | 'first'>>;
-  listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
-  listSubscriptionOptionsBySite?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionOptionsBySiteArgs, 'cslId' | 'first'>>;
-  listSubscriptionsBySite?: Resolver<ResolversTypes['SubscriptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionsBySiteArgs, 'cslId' | 'first'>>;
-  listSubscriptionsBySubscriptionOption?: Resolver<ResolversTypes['SubscriptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionsBySubscriptionOptionArgs, 'first' | 'subscriptionOptionId'>>;
-  listTrainersByClub?: Resolver<ResolversTypes['TrainerPageInfo'], ParentType, ContextType, RequireFields<QueryListTrainersByClubArgs, 'clubId' | 'first'>>;
-  listUserClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListUserClubsArgs, 'first'>>;
+export type QueryResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
+> = {
+  getClub?: Resolver<
+    ResolversTypes['Club'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetClubArgs, 'id'>
+  >;
+  getEvent?: Resolver<
+    ResolversTypes['Event'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetEventArgs, 'id'>
+  >;
+  getFileUpload?: Resolver<
+    ResolversTypes['FileUploadResponse'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetFileUploadArgs, 'id'>
+  >;
+  getSite?: Resolver<
+    ResolversTypes['Site'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetSiteArgs, 'id'>
+  >;
+  getSiteImages?: Resolver<
+    Array<ResolversTypes['FileUploadResponse']>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetSiteImagesArgs, 'id'>
+  >;
+  getSubscription?: Resolver<
+    ResolversTypes['Subscription'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetSubscriptionArgs, 'id'>
+  >;
+  getSubscriptionOption?: Resolver<
+    ResolversTypes['SubscriptionOption'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetSubscriptionOptionArgs, 'id'>
+  >;
+  listClubs?: Resolver<
+    ResolversTypes['ClubPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListClubsArgs, 'first'>
+  >;
+  listEnabledSubscriptionOptionsBySite?: Resolver<
+    ResolversTypes['SubscriptionOptionPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<
+      QueryListEnabledSubscriptionOptionsBySiteArgs,
+      'siteId' | 'first'
+    >
+  >;
+  listSiteEvents?: Resolver<
+    ResolversTypes['EventPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListSiteEventsArgs, 'siteId' | 'first'>
+  >;
+  listSites?: Resolver<
+    ResolversTypes['SitePageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListSitesArgs, 'first'>
+  >;
+  listSitesByClub?: Resolver<
+    ResolversTypes['SitePageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListSitesByClubArgs, 'clubId' | 'first'>
+  >;
+  listSports?: Resolver<
+    ResolversTypes['SportPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListSportsArgs, 'first'>
+  >;
+  listSubscriptionOptionsBySite?: Resolver<
+    ResolversTypes['SubscriptionOptionPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListSubscriptionOptionsBySiteArgs, 'siteId' | 'first'>
+  >;
+  listSubscriptionsBySite?: Resolver<
+    ResolversTypes['SubscriptionPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListSubscriptionsBySiteArgs, 'siteId' | 'first'>
+  >;
+  listSubscriptionsBySubscriptionOption?: Resolver<
+    ResolversTypes['SubscriptionPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<
+      QueryListSubscriptionsBySubscriptionOptionArgs,
+      'first' | 'subscriptionOptionId'
+    >
+  >;
+  listTrainersByClub?: Resolver<
+    ResolversTypes['TrainerPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListTrainersByClubArgs, 'clubId' | 'first'>
+  >;
+  listUserClubs?: Resolver<
+    ResolversTypes['ClubPageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryListUserClubsArgs, 'first'>
+  >;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  searchSites?: Resolver<ResolversTypes['SitePageInfo'], ParentType, ContextType, RequireFields<QuerySearchSitesArgs, 'first' | 'query'>>;
+  searchSites?: Resolver<
+    ResolversTypes['SitePageInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<QuerySearchSitesArgs, 'first' | 'query'>
+  >;
 };
 
-export type SiteResolvers<ContextType = any, ParentType extends ResolversParentTypes['Site'] = ResolversParentTypes['Site']> = {
-  activities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
+export type SiteResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Site'] = ResolversParentTypes['Site'],
+> = {
+  activities?: Resolver<
+    Array<ResolversTypes['Activity']>,
+    ParentType,
+    ContextType
+  >;
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   club?: Resolver<ResolversTypes['Club'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -832,21 +1108,39 @@ export type SiteResolvers<ContextType = any, ParentType extends ResolversParentT
   lon?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  schedule?: Resolver<Array<ResolversTypes['CalendarSpan']>, ParentType, ContextType>;
+  schedule?: Resolver<
+    Array<ResolversTypes['CalendarSpan']>,
+    ParentType,
+    ContextType
+  >;
   sport?: Resolver<ResolversTypes['Sport'], ParentType, ContextType>;
-  trainers?: Resolver<Array<ResolversTypes['Trainer']>, ParentType, ContextType>;
+  trainers?: Resolver<
+    Array<ResolversTypes['Trainer']>,
+    ParentType,
+    ContextType
+  >;
   website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SitePageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SitePageInfo'] = ResolversParentTypes['SitePageInfo']> = {
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type SitePageInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['SitePageInfo'] = ResolversParentTypes['SitePageInfo'],
+> = {
+  endCursor?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   sites?: Resolver<Array<ResolversTypes['Site']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SportResolvers<ContextType = any, ParentType extends ResolversParentTypes['Sport'] = ResolversParentTypes['Sport']> = {
+export type SportResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Sport'] = ResolversParentTypes['Sport'],
+> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -854,14 +1148,24 @@ export type SportResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SportPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SportPageInfo'] = ResolversParentTypes['SportPageInfo']> = {
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type SportPageInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['SportPageInfo'] = ResolversParentTypes['SportPageInfo'],
+> = {
+  endCursor?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   sports?: Resolver<Array<ResolversTypes['Sport']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SubscriberDetailsResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriberDetails'] = ResolversParentTypes['SubscriberDetails']> = {
+export type SubscriberDetailsResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['SubscriberDetails'] = ResolversParentTypes['SubscriberDetails'],
+> = {
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   dateOfBirth?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -872,15 +1176,46 @@ export type SubscriberDetailsResolvers<ContextType = any, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
-  createdAtRFC3339?: SubscriptionResolver<ResolversTypes['String'], "createdAtRFC3339", ParentType, ContextType>;
-  id?: SubscriptionResolver<Maybe<ResolversTypes['ID']>, "id", ParentType, ContextType>;
-  site?: SubscriptionResolver<ResolversTypes['String'], "site", ParentType, ContextType>;
-  subscriberDetails?: SubscriptionResolver<ResolversTypes['SubscriberDetails'], "subscriberDetails", ParentType, ContextType>;
-  subscriptionOption?: SubscriptionResolver<ResolversTypes['SubscriptionOption'], "subscriptionOption", ParentType, ContextType>;
+export type SubscriptionResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription'],
+> = {
+  createdAtRFC3339?: SubscriptionResolver<
+    ResolversTypes['String'],
+    'createdAtRFC3339',
+    ParentType,
+    ContextType
+  >;
+  id?: SubscriptionResolver<
+    Maybe<ResolversTypes['ID']>,
+    'id',
+    ParentType,
+    ContextType
+  >;
+  site?: SubscriptionResolver<
+    ResolversTypes['String'],
+    'site',
+    ParentType,
+    ContextType
+  >;
+  subscriberDetails?: SubscriptionResolver<
+    ResolversTypes['SubscriberDetails'],
+    'subscriberDetails',
+    ParentType,
+    ContextType
+  >;
+  subscriptionOption?: SubscriptionResolver<
+    ResolversTypes['SubscriptionOption'],
+    'subscriptionOption',
+    ParentType,
+    ContextType
+  >;
 };
 
-export type SubscriptionOptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionOption'] = ResolversParentTypes['SubscriptionOption']> = {
+export type SubscriptionOptionResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['SubscriptionOption'] = ResolversParentTypes['SubscriptionOption'],
+> = {
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   features?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
@@ -890,21 +1225,46 @@ export type SubscriptionOptionResolvers<ContextType = any, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SubscriptionOptionPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionOptionPageInfo'] = ResolversParentTypes['SubscriptionOptionPageInfo']> = {
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type SubscriptionOptionPageInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['SubscriptionOptionPageInfo'] = ResolversParentTypes['SubscriptionOptionPageInfo'],
+> = {
+  endCursor?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  subscriptionOptions?: Resolver<Array<ResolversTypes['SubscriptionOption']>, ParentType, ContextType>;
+  subscriptionOptions?: Resolver<
+    Array<ResolversTypes['SubscriptionOption']>,
+    ParentType,
+    ContextType
+  >;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SubscriptionPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionPageInfo'] = ResolversParentTypes['SubscriptionPageInfo']> = {
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type SubscriptionPageInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['SubscriptionPageInfo'] = ResolversParentTypes['SubscriptionPageInfo'],
+> = {
+  endCursor?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
+  subscriptions?: Resolver<
+    Array<ResolversTypes['Subscription']>,
+    ParentType,
+    ContextType
+  >;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type TrainerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Trainer'] = ResolversParentTypes['Trainer']> = {
+export type TrainerResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['Trainer'] = ResolversParentTypes['Trainer'],
+> = {
   club?: Resolver<Maybe<ResolversTypes['Club']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   displayname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -915,14 +1275,28 @@ export type TrainerResolvers<ContextType = any, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type TrainerPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['TrainerPageInfo'] = ResolversParentTypes['TrainerPageInfo']> = {
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+export type TrainerPageInfoResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['TrainerPageInfo'] = ResolversParentTypes['TrainerPageInfo'],
+> = {
+  endCursor?: Resolver<
+    Maybe<ResolversTypes['String']>,
+    ParentType,
+    ContextType
+  >;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  trainers?: Resolver<Array<ResolversTypes['Trainer']>, ParentType, ContextType>;
+  trainers?: Resolver<
+    Array<ResolversTypes['Trainer']>,
+    ParentType,
+    ContextType
+  >;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+export type UserResolvers<
+  ContextType = any,
+  ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User'],
+> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -966,105 +1340,105 @@ export type DirectiveResolvers<ContextType = any> = {
 
 import { ObjectId } from 'mongodb';
 export type ActivityDbObject = {
-  description: string,
-  icon?: Maybe<string>,
-  name: string,
+  description: string;
+  icon?: Maybe<string>;
+  name: string;
 };
 
 export type CalendarSpanDbObject = {
-  day: number,
-  fromMinute: number,
-  title: string,
-  toMinute: number,
+  day: number;
+  fromMinute: number;
+  title: string;
+  toMinute: number;
 };
 
 export type ClubDbObject = {
-  _id?: Maybe<ObjectId>,
-  logo?: Maybe<string>,
-  name: string,
-  owner: string,
+  _id?: Maybe<ObjectId>;
+  logo?: Maybe<string>;
+  name: string;
+  owner: string;
 };
 
 export type EventDbObject = {
-  dateRFC3339: string,
-  description: string,
-  _id?: Maybe<ObjectId>,
-  image?: Maybe<string>,
-  site: string,
-  title: string,
+  dateRFC3339: string;
+  description: string;
+  _id?: Maybe<ObjectId>;
+  image?: Maybe<string>;
+  site: string;
+  title: string;
 };
 
 export type FileUploadDbObject = {
-  ext: string,
-  _id?: Maybe<ObjectId>,
-  kind: string,
-  size: number,
-  key: string,
+  ext: string;
+  _id?: Maybe<ObjectId>;
+  kind: string;
+  size: number;
+  key: string;
 };
 
 export type SiteDbObject = {
-  activities: Array<ActivityDbObject>,
-  address: string,
-  club: ClubDbObject['_id'],
-  description: string,
-  _id?: Maybe<ObjectId>,
-  images: Array<string>,
-  lat: number,
-  lon: number,
-  name: string,
-  phone: string,
-  schedule: Array<CalendarSpanDbObject>,
-  sport: SportDbObject['_id'],
-  trainers: Array<TrainerDbObject['_id']>,
-  website?: Maybe<string>,
+  activities: Array<ActivityDbObject>;
+  address: string;
+  club: ClubDbObject['_id'];
+  description: string;
+  _id?: Maybe<ObjectId>;
+  images: Array<string>;
+  lat: number;
+  lon: number;
+  name: string;
+  phone: string;
+  schedule: Array<CalendarSpanDbObject>;
+  sport: SportDbObject['_id'];
+  trainers: Array<TrainerDbObject['_id']>;
+  website?: Maybe<string>;
 };
 
 export type SportDbObject = {
-  description: string,
-  _id?: Maybe<ObjectId>,
-  tags: Array<string>,
-  title: string,
+  description: string;
+  _id?: Maybe<ObjectId>;
+  tags: Array<string>;
+  title: string;
 };
 
 export type SubscriberDetailsDbObject = {
-  address: string,
-  dateOfBirth: string,
-  email: string,
-  firstname: string,
-  gender: string,
-  lastname: string,
-  phone: string,
+  address: string;
+  dateOfBirth: string;
+  email: string;
+  firstname: string;
+  gender: string;
+  lastname: string;
+  phone: string;
 };
 
 export type SubscriptionDbObject = {
-  createdAtRFC3339: string,
-  _id?: Maybe<ObjectId>,
-  site: string,
-  subscriberDetails: SubscriberDetailsDbObject,
-  subscriptionOption: SubscriptionOptionDbObject['_id'],
+  createdAtRFC3339: string;
+  _id?: Maybe<ObjectId>;
+  site: string;
+  subscriberDetails: SubscriberDetailsDbObject;
+  subscriptionOption: SubscriptionOptionDbObject['_id'];
 };
 
 export type SubscriptionOptionDbObject = {
-  enabled: boolean,
-  features: Array<string>,
-  _id?: Maybe<ObjectId>,
-  price: number,
-  site: string,
-  title: string,
+  enabled: boolean;
+  features: Array<string>;
+  _id?: Maybe<ObjectId>;
+  price: number;
+  site: string;
+  title: string;
 };
 
 export type TrainerDbObject = {
-  club?: Maybe<ClubDbObject['_id']>,
-  description: string,
-  displayname: string,
-  firstname: string,
-  _id?: Maybe<ObjectId>,
-  lastname: string,
-  photo?: Maybe<string>,
+  club?: Maybe<ClubDbObject['_id']>;
+  description: string;
+  displayname: string;
+  firstname: string;
+  _id?: Maybe<ObjectId>;
+  lastname: string;
+  photo?: Maybe<string>;
 };
 
 export type UserDbObject = {
-  email: string,
-  _id?: Maybe<ObjectId>,
-  passwordHash: string,
+  email: string;
+  _id?: Maybe<ObjectId>;
+  passwordHash: string;
 };

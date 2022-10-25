@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db, ObjectId, WithId } from 'mongodb';
 import {
   DynamoDBClient,
   ScanCommand,
@@ -8,21 +7,29 @@ import {
   QueryCommand,
   PutItemCommand,
   DeleteItemCommand,
+  AttributeValue,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
-import { _Collection } from '.';
-import { ClubDbObject } from '../generated/graphql';
+import { Club, ClubPageInfo } from '../generated/graphql';
 import { logger } from '../logger';
 import SiteAPI from './site';
 import FileUploadAPI from './fileUpload';
-import { listByFilter } from './helpers';
 import TrainerAPI from './trainer';
 
-const CLUB_TABLE_NAME = 'Club';
-const CLUB_OWNER_INDEX_NAME = 'ClubOwnerIndex';
+const TABLE_NAME = 'Club';
+const OWNER_INDEX_NAME = 'ClubOwnerIndex';
+
+export function parseClub(item: Record<string, AttributeValue>): Club {
+  return {
+    id: item.Id.S,
+    name: item.Name?.S,
+    owner: item.Owner?.S,
+    logo: item.Logo?.S,
+  };
+}
+
 export default class ClubAPI extends DataSource {
-  collection: Collection<ClubDbObject>;
   dynamodbClient: DynamoDBClient;
   context: any;
   trainerAPI: TrainerAPI;
@@ -30,14 +37,12 @@ export default class ClubAPI extends DataSource {
   fileUploadAPI: FileUploadAPI;
 
   constructor(
-    db: Db,
     dynamodbClient: DynamoDBClient,
     trainerAPI: TrainerAPI,
     siteAPI: SiteAPI,
     fileUploadAPI: FileUploadAPI,
   ) {
     super();
-    this.collection = db.collection<ClubDbObject>(_Collection.Club);
     this.dynamodbClient = dynamodbClient;
     this.trainerAPI = trainerAPI;
     this.siteAPI = siteAPI;
@@ -48,75 +53,84 @@ export default class ClubAPI extends DataSource {
     this.context = config.context;
   }
 
-  async findClubById(id: string): Promise<WithId<ClubDbObject>> {
+  async findClubById(id: string): Promise<Club> {
     try {
       const result = await this.dynamodbClient.send(
         new GetItemCommand({
-          TableName: CLUB_TABLE_NAME,
+          TableName: TABLE_NAME,
           Key: { Id: { S: id } },
         }),
       );
-      console.log('Result item = ', result);
-
-      const club = await this.collection.findOne({
-        _id: new ObjectId(id),
-      });
+      const club = result.Item;
       if (!club) {
         return Promise.reject(`Club with id ${id} not found`);
       }
-      return Promise.resolve(club);
+      return Promise.resolve(parseClub(club));
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
-  async listClubs(
-    first: number,
-    after?: string,
-  ): Promise<[WithId<ClubDbObject>[], boolean]> {
-    const result = await this.dynamodbClient.send(
-      new ScanCommand({
-        TableName: CLUB_TABLE_NAME,
-        Limit: first,
-        ExclusiveStartKey: after ? { Id: { S: after } } : undefined,
-      }),
-    );
-    console.log('Results  ', result);
-    return listByFilter(this.collection, {}, first, after);
+  async listClubs(first: number, after?: string): Promise<ClubPageInfo> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new ScanCommand({
+          TableName: TABLE_NAME,
+          Limit: first,
+          ExclusiveStartKey: after ? { Id: { S: after } } : undefined,
+        }),
+      );
+      const pageInfo: ClubPageInfo = {
+        clubs: result.Items.map(parseClub),
+        endCursor: result.LastEvaluatedKey?.Id.S,
+        hasNextPage: result.LastEvaluatedKey !== undefined,
+      };
+      return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async listUserClubs(
     userId: string,
     first: number,
     after?: string,
-  ): Promise<[WithId<ClubDbObject>[], boolean]> {
-    const result = await this.dynamodbClient.send(
-      new QueryCommand({
-        TableName: CLUB_TABLE_NAME,
-        IndexName: CLUB_OWNER_INDEX_NAME,
-        KeyConditionExpression: '#owner = :userId',
-        ExpressionAttributeNames: {
-          '#owner': 'Owner',
-        },
-        ExpressionAttributeValues: {
-          ':userId': { S: userId },
-        },
-        Limit: first,
-        ExclusiveStartKey: after
-          ? { Id: { S: after }, Owner: { S: userId } }
-          : undefined,
-      }),
-    );
-    console.log('Results  ', result);
-    return listByFilter(this.collection, { owner: userId }, first, after);
+  ): Promise<ClubPageInfo> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: OWNER_INDEX_NAME,
+          KeyConditionExpression: '#owner = :userId',
+          ExpressionAttributeNames: {
+            '#owner': 'Owner',
+          },
+          ExpressionAttributeValues: {
+            ':userId': { S: userId },
+          },
+          Limit: first,
+          ExclusiveStartKey: after
+            ? { Id: { S: after }, Owner: { S: userId } }
+            : undefined,
+        }),
+      );
+      const pageInfo: ClubPageInfo = {
+        clubs: result.Items.map(parseClub),
+        endCursor: result.LastEvaluatedKey?.Id.S,
+        hasNextPage: result.LastEvaluatedKey !== undefined,
+      };
+      return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
-  async createClub(ownerId: string, name: string): Promise<ClubDbObject> {
+  async createClub(ownerId: string, name: string): Promise<Club> {
     try {
       const id = uuidv4();
-      const dynamodbResult = await this.dynamodbClient.send(
+      await this.dynamodbClient.send(
         new PutItemCommand({
-          TableName: CLUB_TABLE_NAME,
+          TableName: TABLE_NAME,
           ConditionExpression: 'attribute_not_exists(#id)',
           ExpressionAttributeNames: {
             '#id': 'Id',
@@ -124,23 +138,16 @@ export default class ClubAPI extends DataSource {
           Item: {
             Id: { S: id },
             Owner: { S: ownerId },
-            name: { S: name },
+            Name: { S: name },
           },
         }),
       );
-      console.log('Result = ', dynamodbResult);
-
-      const club: ClubDbObject = {
+      const club: Club = {
+        id,
         owner: ownerId,
         name,
       };
-
-      const result = await this.collection.insertOne(club);
-
-      return {
-        ...club,
-        _id: result.insertedId,
-      };
+      return Promise.resolve(club);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -154,19 +161,15 @@ export default class ClubAPI extends DataSource {
         id,
       );
       logger.info(`Deleted ${trainersDeleteCount} trainers`);
-      const cslDeleteCount = await this.siteAPI.deleteSitesByClub(id);
-      logger.info(`Deleted ${cslDeleteCount} sites`);
+      const siteDeleteCount = await this.siteAPI.deleteSitesByClub(id);
+      logger.info(`Deleted ${siteDeleteCount} sites`);
 
-      const dynamodbResult = await this.dynamodbClient.send(
+      await this.dynamodbClient.send(
         new DeleteItemCommand({
-          TableName: CLUB_TABLE_NAME,
+          TableName: TABLE_NAME,
           Key: { Id: { S: id } },
         }),
       );
-      console.log('Result = ', dynamodbResult);
-
-      const result = await this.collection.deleteOne({ _id: club._id });
-      logger.info(`Deleted ${result.deletedCount} club`);
       if (club.logo) {
         this.fileUploadAPI
           .deleteFileUpload(club.logo)
@@ -179,7 +182,7 @@ export default class ClubAPI extends DataSource {
             logger.error(e.toString());
           });
       }
-      return Promise.resolve(result.deletedCount === 1);
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }
