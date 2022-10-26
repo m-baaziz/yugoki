@@ -1,55 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db } from 'mongodb';
 import {
   DynamoDBClient,
   GetItemCommand,
   QueryCommand,
   PutItemCommand,
   DeleteItemCommand,
-  AttributeValue,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
-import { _Collection } from '.';
-import {
-  Event,
-  EventDbObject,
-  EventInput,
-  EventPageInfo,
-} from '../generated/graphql';
+import { Event, EventInput, EventPageInfo } from '../generated/graphql';
 import { logger } from '../logger';
 import FileUploadAPI from './fileUpload';
+import { parseEvent } from '../utils/event';
 
 const TABLE_NAME = 'Site';
 
 const sk1 = (siteId: string, eventId: string) =>
   `SITE#${siteId}#EVENT#${eventId}`;
 
-export function parseEvent(item: Record<string, AttributeValue>): Event {
-  return {
-    id: item.Id.S,
-    site: item.Site.S,
-    title: item.Title.S,
-    description: item.Description.S,
-    dateRFC3339: item.DateRFC3339.S,
-    image: item.Image?.S,
-  };
-}
-
 export default class EventAPI extends DataSource {
   dynamodbClient: DynamoDBClient;
-  collection: Collection<EventDbObject>;
   context: any;
   fileUploadAPI: FileUploadAPI;
 
-  constructor(
-    db: Db,
-    dynamodbClient: DynamoDBClient,
-    fileUploadAPI: FileUploadAPI,
-  ) {
+  constructor(dynamodbClient: DynamoDBClient, fileUploadAPI: FileUploadAPI) {
     super();
-    this.collection = db.collection<EventDbObject>(_Collection.Event);
     this.dynamodbClient = dynamodbClient;
     this.fileUploadAPI = fileUploadAPI;
   }
@@ -93,17 +69,17 @@ export default class EventAPI extends DataSource {
           },
           ExpressionAttributeValues: {
             ':hashKey': { S: siteId },
-            ':sortKey': { S: sk1(siteId, '') },
+            ':sortKeySubstr': { S: sk1(siteId, '') },
           },
           Limit: first,
           ExclusiveStartKey: after
-            ? { Id: { S: after }, Sk1: { S: sk1(siteId, after) } }
+            ? { SiteId: { S: after }, Sk1: { S: after } }
             : undefined,
         }),
       );
       const pageInfo: EventPageInfo = {
         events: result.Items.map(parseEvent),
-        endCursor: result.LastEvaluatedKey?.Id.S,
+        endCursor: result.LastEvaluatedKey?.Sk1.S,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

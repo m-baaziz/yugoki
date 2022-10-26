@@ -55,14 +55,17 @@ async function main() {
     resolvers,
   });
 
-  const fileUploadAPI = new FileUploadAPI(db, s3Client, s3Config);
+  const fileUploadAPI = new FileUploadAPI(dynamodbClient, s3Client, s3Config);
   const userAPI = new UserAPI(db, {
     jwtSecret: JWT_SECRET,
     jwtValiditySec: JWT_VALIDITY_SEC,
   });
-  const subscriptionOptionAPI = new SubscriptionOptionAPI(db);
-  const subscriptionAPI = new SubscriptionAPI(db, subscriptionOptionAPI);
-  const eventAPI = new EventAPI(db, fileUploadAPI);
+  const subscriptionOptionAPI = new SubscriptionOptionAPI(dynamodbClient);
+  const subscriptionAPI = new SubscriptionAPI(
+    dynamodbClient,
+    subscriptionOptionAPI,
+  );
+  const eventAPI = new EventAPI(dynamodbClient, fileUploadAPI);
   const trainerAPI = new TrainerAPI(db, fileUploadAPI);
   const siteAPI = new SiteAPI(
     db,
@@ -76,16 +79,11 @@ async function main() {
     siteAPI,
     fileUploadAPI,
   );
-  const sportAPI = new SportAPI(db);
+  const sportAPI = new SportAPI(dynamodbClient);
 
   await userAPI.createIndexes();
-  await sportAPI.createIndexes();
-  await subscriptionOptionAPI.createIndexes();
-  await subscriptionAPI.createIndexes();
-  await eventAPI.createIndexes();
   await trainerAPI.createIndexes();
   await siteAPI.createIndexes();
-  await fileUploadAPI.createIndexes();
 
   const server = new ApolloServer({
     schema,

@@ -170,7 +170,7 @@ function App() {
               element={withUser(<Subscriptions />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId/subscriptions/:id"
+              path="/profile/clubs/:clubId/locations/:cslId/subscriptions/:optionId/:id"
               element={withUser(<SubscriptionPage />)}
             />
             <Route

@@ -1,80 +1,137 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db, ObjectId, WithId } from 'mongodb';
-
-import { _Collection } from '.';
 import {
+  DynamoDBClient,
+  GetItemCommand,
+  QueryCommand,
+  PutItemCommand,
+  UpdateItemCommand,
+} from '@aws-sdk/client-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
+
+import {
+  SubscriptionOption,
   SubscriptionOptionDbObject,
   SubscriptionOptionInput,
+  SubscriptionOptionPageInfo,
 } from '../generated/graphql';
-import { listByFilter } from './helpers';
+import {
+  parseSubscriptionOption,
+  subscriptionOptionToRecord,
+} from '../utils/subscriptionOption';
+
+const TABLE_NAME = 'Site';
+
+const sk1 = (siteId: string, subscriptionOptionId: string) =>
+  `SITE#${siteId}#SUBSCRIPTIONOPTION#${subscriptionOptionId}`;
 
 export default class SubscriptionOptionAPI extends DataSource {
-  collection: Collection<SubscriptionOptionDbObject>;
+  dynamodbClient: DynamoDBClient;
   context: any;
 
-  constructor(db: Db) {
+  constructor(dynamodbClient: DynamoDBClient) {
     super();
-    this.collection = db.collection<SubscriptionOptionDbObject>(
-      _Collection.SubscriptionOption,
-    );
+    this.dynamodbClient = dynamodbClient;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
     this.context = config.context;
   }
 
-  async createIndexes(): Promise<void> {
-    try {
-      await this.collection.createIndex({ site: 1 }, { unique: false });
-      return Promise.resolve();
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
   async findSubscriptionOptionById(
+    siteId: string,
     id: string,
-  ): Promise<WithId<SubscriptionOptionDbObject>> {
+  ): Promise<SubscriptionOption> {
     try {
-      const subscriptionOption = await this.collection.findOne({
-        _id: new ObjectId(id),
-      });
-      if (!subscriptionOption) {
+      const result = await this.dynamodbClient.send(
+        new GetItemCommand({
+          TableName: TABLE_NAME,
+          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+        }),
+      );
+      const item = result.Item;
+      if (!item) {
         return Promise.reject(`Subscription Option with id ${id} not found`);
       }
-      return Promise.resolve(subscriptionOption);
+      return Promise.resolve(parseSubscriptionOption(item));
     } catch (e) {
       return Promise.reject(e);
     }
-  }
-
-  async listSubscriptionOptions(
-    first: number,
-    after?: string,
-  ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
-    return listByFilter(this.collection, {}, first, after);
   }
 
   async listSubscriptionOptionsBySite(
     siteId: string,
     first: number,
     after?: string,
-  ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
-    return listByFilter(this.collection, { site: siteId }, first, after);
+  ): Promise<SubscriptionOptionPageInfo> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression:
+            '#hashKey = :hashKey AND begins_with(#sortKey, :sortKeySubstr)',
+          ExpressionAttributeNames: {
+            '#hashKey': 'SiteId',
+            '#sortKey': 'Sk1',
+          },
+          ExpressionAttributeValues: {
+            ':hashKey': { S: siteId },
+            ':sortKeySubstr': { S: sk1(siteId, '') },
+          },
+          Limit: first,
+          ExclusiveStartKey: after
+            ? { Id: { S: after }, Sk1: { S: after } }
+            : undefined,
+        }),
+      );
+      const pageInfo: SubscriptionOptionPageInfo = {
+        subscriptionOptions: result.Items.map(parseSubscriptionOption),
+        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        hasNextPage: result.LastEvaluatedKey !== undefined,
+      };
+      return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async listEnabledSubscriptionOptionsBySite(
     siteId: string,
     first: number,
     after?: string,
-  ): Promise<[WithId<SubscriptionOptionDbObject>[], boolean]> {
-    return listByFilter(
-      this.collection,
-      { site: siteId, enabled: true },
-      first,
-      after,
-    );
+  ): Promise<SubscriptionOptionPageInfo> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression:
+            '#hashKey = :hashKey AND begins_with(#sortKey, :sortKeySubstr)',
+          FilterExpression: '#enabled = :enabled',
+          ExpressionAttributeNames: {
+            '#hashKey': 'SiteId',
+            '#sortKey': 'Sk1',
+            '#enabled': 'SubscriptionOptionEnabled',
+          },
+          ExpressionAttributeValues: {
+            ':hashKey': { S: siteId },
+            ':sortKeySubstr': { S: sk1(siteId, '') },
+            ':enabled': { BOOL: true },
+          },
+          Limit: first,
+          ExclusiveStartKey: after
+            ? { Id: { S: after }, Sk1: { S: after } }
+            : undefined,
+        }),
+      );
+      const pageInfo: SubscriptionOptionPageInfo = {
+        subscriptionOptions: result.Items.map(parseSubscriptionOption),
+        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        hasNextPage: result.LastEvaluatedKey !== undefined,
+      };
+      return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async createSubscriptionOption(
@@ -82,54 +139,73 @@ export default class SubscriptionOptionAPI extends DataSource {
     input: SubscriptionOptionInput,
   ): Promise<SubscriptionOptionDbObject> {
     try {
-      const subscriptionOption: SubscriptionOptionDbObject = {
+      const id = uuidv4();
+      const subscriptionOption: SubscriptionOption = {
+        id,
         site: siteId,
         ...input,
         enabled: true,
       };
-
-      const result = await this.collection.insertOne(subscriptionOption);
-
-      return {
-        ...subscriptionOption,
-        _id: result.insertedId,
-      };
+      await this.dynamodbClient.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          ConditionExpression: 'attribute_not_exists(#sk1)',
+          ExpressionAttributeNames: {
+            '#sk1': 'Sk1',
+          },
+          Item: {
+            ...subscriptionOptionToRecord(subscriptionOption),
+            SiteId: { S: siteId },
+            Sk1: { S: sk1(siteId, id) },
+          },
+        }),
+      );
+      return Promise.resolve(subscriptionOption);
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
-  async enableSubscriptionOption(
-    id: string,
-  ): Promise<SubscriptionOptionDbObject> {
+  async enableSubscriptionOption(siteId: string, id: string): Promise<boolean> {
     try {
-      await this.collection.updateOne(
-        {
-          _id: new ObjectId(id),
-        },
-        { $set: { enabled: true } },
-        { upsert: false },
+      await this.dynamodbClient.send(
+        new UpdateItemCommand({
+          TableName: TABLE_NAME,
+          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+          UpdateExpression: 'SET #enabled = :enabled',
+          ExpressionAttributeNames: {
+            '#enabled': 'SubscriptionOptionEnabled',
+          },
+          ExpressionAttributeValues: {
+            ':enabled': { BOOL: true },
+          },
+        }),
       );
-      const subscriptionOption = await this.findSubscriptionOptionById(id);
-      return Promise.resolve(subscriptionOption);
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
   async disableSubscriptionOption(
+    siteId: string,
     id: string,
-  ): Promise<SubscriptionOptionDbObject> {
+  ): Promise<boolean> {
     try {
-      await this.collection.updateOne(
-        {
-          _id: new ObjectId(id),
-        },
-        { $set: { enabled: false } },
-        { upsert: false },
+      await this.dynamodbClient.send(
+        new UpdateItemCommand({
+          TableName: TABLE_NAME,
+          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+          UpdateExpression: 'SET #enabled = :enabled',
+          ExpressionAttributeNames: {
+            '#enabled': 'SubscriptionOptionEnabled',
+          },
+          ExpressionAttributeValues: {
+            ':enabled': { BOOL: false },
+          },
+        }),
       );
-      const subscriptionOption = await this.findSubscriptionOptionById(id);
-      return Promise.resolve(subscriptionOption);
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }

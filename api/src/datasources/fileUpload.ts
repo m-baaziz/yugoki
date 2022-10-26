@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db, ObjectId, WithId } from 'mongodb';
+import {
+  DynamoDBClient,
+  GetItemCommand,
+  PutItemCommand,
+  DeleteItemCommand,
+} from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import {
   S3Client,
@@ -10,10 +15,11 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { _Collection } from '.';
-import { FileUploadDbObject, FileUploadInput } from '../generated/graphql';
-import { listByFilter } from './helpers';
+import { FileUpload, FileUploadInput } from '../generated/graphql';
 import { logger } from '../logger';
+import { parseFileUpload } from '../utils/fileUpload';
+
+const TABLE_NAME = 'File';
 
 export type S3Config = {
   bucket: string;
@@ -24,14 +30,18 @@ export type S3Config = {
 };
 
 export default class FileUploadAPI extends DataSource {
-  collection: Collection<FileUploadDbObject>;
+  dynamodbClient: DynamoDBClient;
   context: any;
   s3Client: S3Client;
   s3Config: S3Config;
 
-  constructor(db: Db, s3Client: S3Client, s3Config: S3Config) {
+  constructor(
+    dynamodbClient: DynamoDBClient,
+    s3Client: S3Client,
+    s3Config: S3Config,
+  ) {
     super();
-    this.collection = db.collection<FileUploadDbObject>(_Collection.FileUpload);
+    this.dynamodbClient = dynamodbClient;
     this.s3Client = s3Client;
     this.s3Config = s3Config;
   }
@@ -40,49 +50,49 @@ export default class FileUploadAPI extends DataSource {
     this.context = config.context;
   }
 
-  async createIndexes(): Promise<void> {
+  async findFileUploadById(id: string): Promise<FileUpload> {
     try {
-      await this.collection.createIndex({ key: 1 }, { unique: true });
-      return Promise.resolve();
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async findFileUploadById(id: string): Promise<WithId<FileUploadDbObject>> {
-    try {
-      const fileUpload = await this.collection.findOne({
-        _id: new ObjectId(id),
-      });
-      if (!fileUpload) {
+      const result = await this.dynamodbClient.send(
+        new GetItemCommand({
+          TableName: TABLE_NAME,
+          Key: { Id: { S: id } },
+        }),
+      );
+      const item = result.Item;
+      if (!item) {
         return Promise.reject(`File upload with id ${id} not found`);
       }
-      return Promise.resolve(fileUpload);
+      return Promise.resolve(parseFileUpload(item));
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
-  async listFileUploads(
-    first: number,
-    after?: string,
-  ): Promise<[WithId<FileUploadDbObject>[], boolean]> {
-    return listByFilter(this.collection, {}, first, after);
-  }
-
-  async createFileUpload(input: FileUploadInput): Promise<FileUploadDbObject> {
+  async createFileUpload(input: FileUploadInput): Promise<FileUpload> {
     try {
-      const fileUpload: FileUploadDbObject = {
-        key: uuidv4(),
-        ...input,
+      const id = uuidv4();
+      await this.dynamodbClient.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          ConditionExpression: 'attribute_not_exists(#id)',
+          ExpressionAttributeNames: {
+            '#id': 'Id',
+          },
+          Item: {
+            Id: { S: id },
+            Size: { N: input.size.toString() },
+            Ext: { S: input.ext },
+            Kind: { S: input.kind },
+          },
+        }),
+      );
+      const item: FileUpload = {
+        id,
+        size: input.size,
+        ext: input.ext,
+        kind: input.kind,
       };
-
-      const result = await this.collection.insertOne(fileUpload);
-
-      return {
-        ...fileUpload,
-        _id: result.insertedId,
-      };
+      return Promise.resolve(item);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -91,16 +101,22 @@ export default class FileUploadAPI extends DataSource {
   async deleteFileUpload(id: string): Promise<boolean> {
     try {
       const fileUpload = await this.findFileUploadById(id);
-      const result = await this.collection.deleteOne({ _id: new ObjectId(id) });
-      const deleteCommand = new DeleteObjectCommand({
-        Bucket: this.s3Config.bucket,
-        Key: fileUpload.key,
-      });
-      logger.info(
-        `Deleting file ${fileUpload.key} from bucket ${this.s3Config.bucket}.`,
+      await this.dynamodbClient.send(
+        new DeleteItemCommand({
+          TableName: TABLE_NAME,
+          Key: { Id: { S: id } },
+        }),
       );
-      await this.s3Client.send(deleteCommand);
-      return Promise.resolve(result.deletedCount === 1);
+      logger.info(
+        `Deleting file ${fileUpload.id} from bucket ${this.s3Config.bucket}.`,
+      );
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.s3Config.bucket,
+          Key: fileUpload.id,
+        }),
+      );
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -111,7 +127,7 @@ export default class FileUploadAPI extends DataSource {
       const fileUpload = await this.findFileUploadById(id);
       const getCommand = new GetObjectCommand({
         Bucket: this.s3Config.bucket,
-        Key: fileUpload.key,
+        Key: fileUpload.id,
       });
       const url = await getSignedUrl(this.s3Client, getCommand, {
         expiresIn: this.s3Config.presignedUrlsValidityPeriod.get,
@@ -127,7 +143,7 @@ export default class FileUploadAPI extends DataSource {
       const fileUpload = await this.findFileUploadById(id);
       const putCommand = new PutObjectCommand({
         Bucket: this.s3Config.bucket,
-        Key: fileUpload.key,
+        Key: fileUpload.id,
       });
       const url = await getSignedUrl(this.s3Client, putCommand, {
         expiresIn: this.s3Config.presignedUrlsValidityPeriod.put,

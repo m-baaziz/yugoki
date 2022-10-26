@@ -7,7 +7,6 @@ import {
   QueryCommand,
   PutItemCommand,
   DeleteItemCommand,
-  AttributeValue,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,18 +15,10 @@ import { logger } from '../logger';
 import SiteAPI from './site';
 import FileUploadAPI from './fileUpload';
 import TrainerAPI from './trainer';
+import { parseClub } from '../utils/club';
 
 const TABLE_NAME = 'Club';
 const OWNER_INDEX_NAME = 'ClubOwnerIndex';
-
-export function parseClub(item: Record<string, AttributeValue>): Club {
-  return {
-    id: item.Id.S,
-    name: item.Name?.S,
-    owner: item.Owner?.S,
-    logo: item.Logo?.S,
-  };
-}
 
 export default class ClubAPI extends DataSource {
   dynamodbClient: DynamoDBClient;

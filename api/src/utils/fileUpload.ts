@@ -1,3 +1,4 @@
+import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import {
   FileUpload,
   FileUploadDbObject,
@@ -21,5 +22,16 @@ export function dbFileUploadToFileUpload(
     size,
     ext,
     kind: parseFileUploadKind(kind),
+  };
+}
+
+export function parseFileUpload(
+  item: Record<string, AttributeValue>,
+): FileUpload {
+  return {
+    id: item.Id.S,
+    size: parseInt(item.Size.N, 10),
+    ext: item.Ext.S,
+    kind: parseFileUploadKind(item.Kind.S),
   };
 }

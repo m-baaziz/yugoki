@@ -54,8 +54,8 @@ type Mutation {
     siteId: ID!
     input: SubscriptionOptionInput!
   ): SubscriptionOption!
-  enableSubscriptionOption(id: ID!): SubscriptionOption!
-  disableSubscriptionOption(id: ID!): SubscriptionOption!
+  enableSubscriptionOption(id: ID!): Boolean!
+  disableSubscriptionOption(id: ID!): Boolean!
   createSubscription(
     subscriptionOptionId: ID!
     details: SubscriberDetailsInput!
@@ -98,7 +98,7 @@ type SportPageInfo {
 }
 
 type Club @entity {
-  id: ID @id
+  id: ID @id # after transition to dyanmodb over, ID -> ID!
   owner: String! @column # index
   name: String! @column # index
   logo: String @column
