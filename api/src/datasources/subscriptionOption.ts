@@ -80,7 +80,7 @@ export default class SubscriptionOptionAPI extends DataSource {
           },
           Limit: first,
           ExclusiveStartKey: after
-            ? { Id: { S: after }, Sk1: { S: after } }
+            ? { SiteId: { S: siteId }, Sk1: { S: after } }
             : undefined,
         }),
       );
@@ -119,7 +119,7 @@ export default class SubscriptionOptionAPI extends DataSource {
           },
           Limit: first,
           ExclusiveStartKey: after
-            ? { Id: { S: after }, Sk1: { S: after } }
+            ? { SiteId: { S: siteId }, Sk1: { S: after } }
             : undefined,
         }),
       );

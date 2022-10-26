@@ -21,24 +21,30 @@ resource "aws_dynamodb_table" "club" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
-  hash_key       = "Id"
+  hash_key       = "ClubId"
+  range_key      = "Sk1"
 
   attribute {
-    name = "Id"
+    name = "ClubId"
     type = "S"
   }
   attribute {
-    name = "Owner"
+    name = "Sk1" # CLUB#... | CLUB#...#TRAINER#...
+    type = "S"
+  }
+  attribute {
+    name = "ClubOwner"
     type = "S"
   }
 
   global_secondary_index {
-    name            = "ClubOwnerIndex"
-    hash_key        = "Owner"
-    range_key       = "Id"
-    write_capacity  = 1
-    read_capacity   = 1
-    projection_type = "ALL"
+    name               = "ClubOwnerIndex"
+    hash_key           = "ClubOwner"
+    range_key          = "ClubId"
+    write_capacity     = 1
+    read_capacity      = 1
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["ClubName", "ClubLogo"]
   }
 
   tags = {

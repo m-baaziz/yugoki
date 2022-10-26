@@ -2,11 +2,9 @@
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
 import {
   DynamoDBClient,
-  ScanCommand,
   GetItemCommand,
   QueryCommand,
   PutItemCommand,
-  DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,9 +14,12 @@ import SiteAPI from './site';
 import FileUploadAPI from './fileUpload';
 import TrainerAPI from './trainer';
 import { parseClub } from '../utils/club';
+import { batchDelete } from './helpers';
 
 const TABLE_NAME = 'Club';
 const OWNER_INDEX_NAME = 'ClubOwnerIndex';
+
+const sk1 = (clubId: string) => `CLUB#${clubId}`;
 
 export default class ClubAPI extends DataSource {
   dynamodbClient: DynamoDBClient;
@@ -49,7 +50,7 @@ export default class ClubAPI extends DataSource {
       const result = await this.dynamodbClient.send(
         new GetItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: id } },
+          Key: { ClubId: { S: id }, Sk1: { S: sk1(id) } },
         }),
       );
       const club = result.Item;
@@ -57,26 +58,6 @@ export default class ClubAPI extends DataSource {
         return Promise.reject(`Club with id ${id} not found`);
       }
       return Promise.resolve(parseClub(club));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async listClubs(first: number, after?: string): Promise<ClubPageInfo> {
-    try {
-      const result = await this.dynamodbClient.send(
-        new ScanCommand({
-          TableName: TABLE_NAME,
-          Limit: first,
-          ExclusiveStartKey: after ? { Id: { S: after } } : undefined,
-        }),
-      );
-      const pageInfo: ClubPageInfo = {
-        clubs: result.Items.map(parseClub),
-        endCursor: result.LastEvaluatedKey?.Id.S,
-        hasNextPage: result.LastEvaluatedKey !== undefined,
-      };
-      return Promise.resolve(pageInfo);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -94,20 +75,20 @@ export default class ClubAPI extends DataSource {
           IndexName: OWNER_INDEX_NAME,
           KeyConditionExpression: '#owner = :userId',
           ExpressionAttributeNames: {
-            '#owner': 'Owner',
+            '#owner': 'ClubOwner',
           },
           ExpressionAttributeValues: {
             ':userId': { S: userId },
           },
           Limit: first,
           ExclusiveStartKey: after
-            ? { Id: { S: after }, Owner: { S: userId } }
+            ? { ClubOwner: { S: userId }, ClubId: { S: after } }
             : undefined,
         }),
       );
       const pageInfo: ClubPageInfo = {
         clubs: result.Items.map(parseClub),
-        endCursor: result.LastEvaluatedKey?.Id.S,
+        endCursor: result.LastEvaluatedKey?.ClubId.S,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);
@@ -124,12 +105,13 @@ export default class ClubAPI extends DataSource {
           TableName: TABLE_NAME,
           ConditionExpression: 'attribute_not_exists(#id)',
           ExpressionAttributeNames: {
-            '#id': 'Id',
+            '#id': 'ClubId',
           },
           Item: {
-            Id: { S: id },
-            Owner: { S: ownerId },
-            Name: { S: name },
+            ClubId: { S: id },
+            ClubOwner: { S: ownerId },
+            ClubName: { S: name },
+            Sk1: { S: sk1(id) },
           },
         }),
       );
@@ -148,19 +130,25 @@ export default class ClubAPI extends DataSource {
     try {
       // make transaction
       const club = await this.findClubById(id);
-      const trainersDeleteCount = await this.trainerAPI.deleteTrainersByClub(
-        id,
-      );
-      logger.info(`Deleted ${trainersDeleteCount} trainers`);
       const siteDeleteCount = await this.siteAPI.deleteSitesByClub(id);
       logger.info(`Deleted ${siteDeleteCount} sites`);
-
-      await this.dynamodbClient.send(
-        new DeleteItemCommand({
+      const deletedItemsCount = await batchDelete(
+        this.dynamodbClient,
+        TABLE_NAME,
+        {
           TableName: TABLE_NAME,
-          Key: { Id: { S: id } },
-        }),
+          KeyConditionExpression: '#clubId = :clubId',
+          ExpressionAttributeNames: {
+            '#clubId': 'ClubId',
+          },
+          ExpressionAttributeValues: {
+            ':clubId': { S: id },
+          },
+        },
+        (item) => ({ ClubId: { S: item.ClubId.S }, Sk1: { S: item.Sk1.S } }),
       );
+      logger.info(`Deleted ${deletedItemsCount} related club items`);
+
       if (club.logo) {
         this.fileUploadAPI
           .deleteFileUpload(club.logo)

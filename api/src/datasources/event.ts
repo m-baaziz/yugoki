@@ -73,7 +73,7 @@ export default class EventAPI extends DataSource {
           },
           Limit: first,
           ExclusiveStartKey: after
-            ? { SiteId: { S: after }, Sk1: { S: after } }
+            ? { SiteId: { S: siteId }, Sk1: { S: after } }
             : undefined,
         }),
       );

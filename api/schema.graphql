@@ -1,7 +1,6 @@
 type Query {
   me: User! # uses JWT token in Authorization header to return the user
   listSports(first: Int!, after: String): SportPageInfo!
-  listClubs(first: Int!, after: String): ClubPageInfo!
   listUserClubs(first: Int!, after: String): ClubPageInfo!
   getClub(id: ID!): Club!
   getSite(id: ID!): Site!
@@ -124,7 +123,7 @@ type Trainer @entity {
   lastname: String! @column
   displayname: String! @column
   description: String! @column
-  club: Club @link # index
+  club: String! @column # index
   photo: String @column
 }
 

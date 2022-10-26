@@ -66,7 +66,7 @@ async function main() {
     subscriptionOptionAPI,
   );
   const eventAPI = new EventAPI(dynamodbClient, fileUploadAPI);
-  const trainerAPI = new TrainerAPI(db, fileUploadAPI);
+  const trainerAPI = new TrainerAPI(dynamodbClient, fileUploadAPI);
   const siteAPI = new SiteAPI(
     db,
     subscriptionOptionAPI,
@@ -82,7 +82,6 @@ async function main() {
   const sportAPI = new SportAPI(dynamodbClient);
 
   await userAPI.createIndexes();
-  await trainerAPI.createIndexes();
   await siteAPI.createIndexes();
 
   const server = new ApolloServer({

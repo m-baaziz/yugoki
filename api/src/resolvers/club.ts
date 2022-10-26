@@ -10,19 +10,6 @@ import {
 import { isUserAuthorized } from '../utils/club';
 import { logger } from '../logger';
 
-export async function listClubs(
-  _parent: unknown,
-  { first, after }: QueryListClubsArgs,
-  { dataSources: { clubAPI } }: ContextWithDataSources,
-): Promise<ClubPageInfo> {
-  try {
-    return await clubAPI.listClubs(first, after);
-  } catch (e) {
-    logger.error(e.toString());
-    return Promise.reject(e);
-  }
-}
-
 export async function listUserClubs(
   _parent: unknown,
   { first, after }: QueryListClubsArgs,

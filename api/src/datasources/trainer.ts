@@ -1,23 +1,39 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db, ObjectId, WithId } from 'mongodb';
-
-import { _Collection } from '.';
-import { TrainerDbObject, TrainerInput } from '../generated/graphql';
+import {
+  DynamoDBClient,
+  GetItemCommand,
+  QueryCommand,
+  PutItemCommand,
+  DeleteItemCommand,
+} from '@aws-sdk/client-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  Trainer,
+  TrainerDbObject,
+  TrainerInput,
+  TrainerPageInfo,
+} from '../generated/graphql';
 import { logger } from '../logger';
 import FileUploadAPI from './fileUpload';
-import { listByFilter } from './helpers';
+import { batchGet } from './helpers';
+import { parseTrainer, trainerToRecord } from '../utils/trainer';
 
 export const TRAINERS_LIST_LIMIT = 1000;
 
+const TABLE_NAME = 'Club';
+
+const sk1 = (clubId: string, trainerId: string) =>
+  `CLUB#${clubId}#TRAINER#${trainerId}`;
+
 export default class TrainerAPI extends DataSource {
-  collection: Collection<TrainerDbObject>;
+  dynamodbClient: DynamoDBClient;
   context: any;
   fileUploadAPI: FileUploadAPI;
 
-  constructor(db: Db, fileUploadAPI: FileUploadAPI) {
+  constructor(dynamodbClient: DynamoDBClient, fileUploadAPI: FileUploadAPI) {
     super();
-    this.collection = db.collection<TrainerDbObject>(_Collection.Trainer);
+    this.dynamodbClient = dynamodbClient;
     this.fileUploadAPI = fileUploadAPI;
   }
 
@@ -25,44 +41,50 @@ export default class TrainerAPI extends DataSource {
     this.context = config.context;
   }
 
-  async createIndexes(): Promise<void> {
+  async findTrainerById(clubId: string, id: string): Promise<Trainer> {
     try {
-      await this.collection.createIndex({ club: 1 }, { unique: false });
-      return Promise.resolve();
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async findTrainerById(id: string): Promise<WithId<TrainerDbObject>> {
-    try {
-      const trainer = await this.collection.findOne({
-        _id: new ObjectId(id),
-      });
+      const result = await this.dynamodbClient.send(
+        new GetItemCommand({
+          TableName: TABLE_NAME,
+          Key: { ClubId: { S: clubId }, Sk1: { S: sk1(clubId, id) } },
+        }),
+      );
+      const trainer = result.Item;
       if (!trainer) {
         return Promise.reject(`Trainer with id ${id} not found`);
       }
-      return Promise.resolve(trainer);
+      return Promise.resolve(parseTrainer(trainer));
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
-  async findTrainersByIds(ids: string[]): Promise<WithId<TrainerDbObject>[]> {
+  async findTrainersByIds(clubId: string, ids: string[]): Promise<Trainer[]> {
     try {
       if (ids.length > TRAINERS_LIST_LIMIT) {
         logger.warn(
           `Requesting too many trainers (${ids.length}, will limit to ${TRAINERS_LIST_LIMIT}`,
         );
       }
-      const trainers = await this.collection
-        .find({
-          _id: {
-            $in: ids.map((id) => new ObjectId(id)),
-          },
-        })
-        .limit(TRAINERS_LIST_LIMIT)
-        .toArray();
+      const trainers = await batchGet(
+        this.dynamodbClient,
+        TABLE_NAME,
+        ids.map((id) => ({
+          ClubId: { S: clubId },
+          Sk1: { S: sk1(clubId, id) },
+        })),
+        parseTrainer,
+        [
+          'TrainerId',
+          'ClubId',
+          'TrainerDescription',
+          'TrainerDisplayname',
+          'TrainerFirstname',
+          'TrainerLastname',
+          'TrainerPhoto',
+        ],
+      );
+
       return Promise.resolve(trainers);
     } catch (e) {
       return Promise.reject(e);
@@ -73,13 +95,36 @@ export default class TrainerAPI extends DataSource {
     clubId: string,
     first: number,
     after?: string,
-  ): Promise<[WithId<TrainerDbObject>[], boolean]> {
-    return listByFilter(
-      this.collection,
-      { club: new ObjectId(clubId) },
-      first,
-      after,
-    );
+  ): Promise<TrainerPageInfo> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          KeyConditionExpression:
+            '#hashKey = :hashKey AND begins_with(#sortKey, :sortKeySubstr)',
+          ExpressionAttributeNames: {
+            '#hashKey': 'ClubId',
+            '#sortKey': 'Sk1',
+          },
+          ExpressionAttributeValues: {
+            ':hashKey': { S: clubId },
+            ':sortKeySubstr': { S: sk1(clubId, '') },
+          },
+          Limit: first,
+          ExclusiveStartKey: after
+            ? { ClubId: { S: clubId }, Sk1: { S: after } }
+            : undefined,
+        }),
+      );
+      const pageInfo: TrainerPageInfo = {
+        trainers: result.Items.map(parseTrainer),
+        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        hasNextPage: result.LastEvaluatedKey !== undefined,
+      };
+      return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async createTrainer(
@@ -87,26 +132,41 @@ export default class TrainerAPI extends DataSource {
     input: TrainerInput,
   ): Promise<TrainerDbObject> {
     try {
-      const trainer: TrainerDbObject = {
-        club: new ObjectId(clubId),
+      const id = uuidv4();
+      const trainer: Trainer = {
+        id,
+        club: clubId,
         ...input,
       };
-
-      const result = await this.collection.insertOne(trainer);
-
-      return {
-        ...trainer,
-        _id: result.insertedId,
-      };
+      await this.dynamodbClient.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          ConditionExpression: 'attribute_not_exists(#id)',
+          ExpressionAttributeNames: {
+            '#id': 'ClubId',
+          },
+          Item: {
+            ...trainerToRecord(trainer),
+            Sk1: { S: sk1(clubId, id) },
+          },
+        }),
+      );
+      return Promise.resolve(trainer);
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
-  async deleteTrainer(id: string): Promise<boolean> {
+  async deleteTrainer(clubId: string, id: string): Promise<boolean> {
     // make transaction
     try {
-      const trainer = await this.findTrainerById(id);
+      const trainer = await this.findTrainerById(clubId, id);
+      await this.dynamodbClient.send(
+        new DeleteItemCommand({
+          TableName: TABLE_NAME,
+          Key: { ClubId: { S: clubId }, Sk1: { S: sk1(clubId, id) } },
+        }),
+      );
       if (trainer.photo) {
         this.fileUploadAPI
           .deleteFileUpload(trainer.photo)
@@ -122,26 +182,7 @@ export default class TrainerAPI extends DataSource {
             logger.error(e.toString());
           });
       }
-      const result = await this.collection.deleteOne({ _id: trainer._id });
-      return Promise.resolve(result.deletedCount === 1);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async deleteTrainersByClub(clubId: string): Promise<number> {
-    try {
-      const cursor = await this.collection.find({
-        club: new ObjectId(clubId),
-      });
-      let deleteCount = 0;
-      while (await cursor.hasNext()) {
-        const id = (await cursor.next())._id.toString();
-        if (await this.deleteTrainer(id)) {
-          deleteCount += 1;
-        }
-      }
-      return Promise.resolve(deleteCount);
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }

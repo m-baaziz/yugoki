@@ -1,11 +1,5 @@
 import { Resolvers } from '../generated/graphql';
-import {
-  listClubs,
-  listUserClubs,
-  getClub,
-  createClub,
-  deleteClub,
-} from './club';
+import { listUserClubs, getClub, createClub, deleteClub } from './club';
 import {
   getSite,
   getSiteImages,
@@ -40,7 +34,6 @@ const resolvers: Resolvers = {
     me,
     listSports,
     getClub,
-    listClubs,
     listUserClubs,
     getSite,
     getSiteImages,
