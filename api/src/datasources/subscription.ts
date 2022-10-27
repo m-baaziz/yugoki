@@ -14,11 +14,7 @@ import {
   SubscriptionPageInfo,
 } from '../generated/graphql';
 import SubscriptionOptionAPI from './subscriptionOption';
-import {
-  parseSubscription,
-  subscriberDetailsToRecord,
-} from '../utils/subscription';
-import { subscriptionOptionToRecord } from '../utils/subscriptionOption';
+import { parseSubscription, subscriptionToRecord } from '../utils/subscription';
 
 const TABLE_NAME = 'Subscription';
 const DATE_INDEX_NAME = 'DateIndex';
@@ -156,17 +152,16 @@ export default class SubscriptionAPI extends DataSource {
           siteId,
           subscriptionOptionId,
         );
+      const subscription: Subscription = {
+        id,
+        site: siteId,
+        subscriptionOption,
+        subscriberDetails,
+        createdAtRFC3339: now,
+      };
       const newItem = {
+        ...subscriptionToRecord(subscription),
         SiteId: { S: siteId },
-        SubscriptionOptionId: { S: subscriptionOptionId },
-        SubscriptionId: { S: id },
-        Date: { S: now },
-        SubscriberDetails: {
-          M: subscriberDetailsToRecord(subscriberDetails),
-        },
-        SubscriptionOption: {
-          M: subscriptionOptionToRecord(subscriptionOption),
-        },
         Sk1: { S: sk1(subscriptionOptionId, id) },
         Sk2: { S: sk2(now, subscriptionOptionId, id) },
       };
@@ -180,7 +175,7 @@ export default class SubscriptionAPI extends DataSource {
           Item: newItem,
         }),
       );
-      return Promise.resolve(parseSubscription(newItem));
+      return Promise.resolve(subscription);
     } catch (e) {
       return Promise.reject(e);
     }

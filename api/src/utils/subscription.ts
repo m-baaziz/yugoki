@@ -6,7 +6,10 @@ import {
   SubscriptionDbObject,
   SubscriptionOptionDbObject,
 } from '../generated/graphql';
-import { parseSubscriptionOption } from './subscriptionOption';
+import {
+  parseSubscriptionOption,
+  subscriptionOptionToRecord,
+} from './subscriptionOption';
 
 export function parseGender(gender: string): Gender | null {
   if (gender === 'Male') return Gender.Male;
@@ -68,5 +71,21 @@ export function parseSubscription(
     subscriptionOption: parseSubscriptionOption(item.SubscriptionOption.M),
     createdAtRFC3339: item.Date.S,
     subscriberDetails: parseSubscriberDetails(item.SubscriberDetails.M),
+  };
+}
+
+export function subscriptionToRecord(
+  subscription: Subscription,
+): Record<string, AttributeValue> {
+  return {
+    SubscriptionOptionId: { S: subscription.subscriptionOption.id },
+    SubscriptionId: { S: subscription.id },
+    Date: { S: subscription.createdAtRFC3339 },
+    SubscriberDetails: {
+      M: subscriberDetailsToRecord(subscription.subscriberDetails),
+    },
+    SubscriptionOption: {
+      M: subscriptionOptionToRecord(subscription.subscriptionOption),
+    },
   };
 }

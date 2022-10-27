@@ -22,6 +22,7 @@ export async function signIn(
 ): Promise<string> {
   logger.info(`User ${emailInput} signing in ...`);
   try {
+    // use cognito for sign in ...
     const user = await userAPI.findUserByEmail(emailInput);
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) {
@@ -54,6 +55,7 @@ export async function signUp(
 
     logger.info(`Creating user with email ${email}`);
     const passwordHash = await hashPassword(password);
+    // use cognito for sign up ...
     const newUser = await userAPI.insertUser({
       email,
       passwordHash,

@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Event, EventInput, EventPageInfo } from '../generated/graphql';
 import { logger } from '../logger';
 import FileUploadAPI from './fileUpload';
-import { parseEvent } from '../utils/event';
+import { eventToRecord, parseEvent } from '../utils/event';
 
 const TABLE_NAME = 'Site';
 
@@ -39,7 +39,7 @@ export default class EventAPI extends DataSource {
       const result = await this.dynamodbClient.send(
         new GetItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+          Key: { SiteId: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
         }),
       );
       const item = result.Item;
@@ -91,24 +91,6 @@ export default class EventAPI extends DataSource {
   async createEvent(siteId: string, input: EventInput): Promise<Event> {
     try {
       const id = uuidv4();
-      await this.dynamodbClient.send(
-        new PutItemCommand({
-          TableName: TABLE_NAME,
-          ConditionExpression: 'attribute_not_exists(#sk1)',
-          ExpressionAttributeNames: {
-            '#sk1': 'Sk1',
-          },
-          Item: {
-            SiteId: { S: siteId },
-            Sk1: { S: sk1(siteId, id) },
-            EventId: { S: id },
-            EventDate: { S: input.dateRFC3339 },
-            EventTitle: { S: input.title },
-            EventDescription: { S: input.description },
-            EventImage: input.image ? { S: input.image } : undefined,
-          },
-        }),
-      );
       const item: Event = {
         id,
         site: siteId,
@@ -117,6 +99,19 @@ export default class EventAPI extends DataSource {
         description: input.description,
         image: input.image,
       };
+      await this.dynamodbClient.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          ConditionExpression: 'attribute_not_exists(#sk1)',
+          ExpressionAttributeNames: {
+            '#sk1': 'Sk1',
+          },
+          Item: {
+            ...eventToRecord(item),
+            Sk1: { S: sk1(siteId, id) },
+          },
+        }),
+      );
       return Promise.resolve(item);
     } catch (e) {
       return Promise.reject(e);
@@ -130,7 +125,7 @@ export default class EventAPI extends DataSource {
       await this.dynamodbClient.send(
         new DeleteItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+          Key: { SiteId: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
         }),
       );
       if (event.image) {

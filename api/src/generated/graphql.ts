@@ -14,11 +14,6 @@ export type Scalars = {
   Float: number;
 };
 
-export type AdditionalEntityFields = {
-  path?: InputMaybe<Scalars['String']>;
-  type?: InputMaybe<Scalars['String']>;
-};
-
 export type Activity = {
   __typename?: 'Activity';
   description: Scalars['String'];
@@ -49,7 +44,7 @@ export type CalendarSpanInput = {
 
 export type Club = {
   __typename?: 'Club';
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   logo?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   owner: Scalars['String'];
@@ -66,7 +61,7 @@ export type Event = {
   __typename?: 'Event';
   dateRFC3339: Scalars['String'];
   description: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   site: Scalars['String'];
   title: Scalars['String'];
@@ -89,7 +84,7 @@ export type EventPageInfo = {
 export type FileUpload = {
   __typename?: 'FileUpload';
   ext: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   kind: FileUploadKind;
   size: Scalars['Int'];
 };
@@ -231,7 +226,6 @@ export type Query = {
   getSubscriptionOption: SubscriptionOption;
   listEnabledSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
   listSiteEvents: EventPageInfo;
-  listSites: SitePageInfo;
   listSitesByClub: SitePageInfo;
   listSports: SportPageInfo;
   listSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
@@ -290,12 +284,6 @@ export type QueryListSiteEventsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
   siteId: Scalars['ID'];
-};
-
-
-export type QueryListSitesArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first: Scalars['Int'];
 };
 
 
@@ -365,7 +353,7 @@ export type Site = {
   address: Scalars['String'];
   club: Club;
   description: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   images: Array<Scalars['String']>;
   lat: Scalars['Float'];
   lon: Scalars['Float'];
@@ -408,7 +396,7 @@ export type SiteSearchQueryInput = {
 export type Sport = {
   __typename?: 'Sport';
   description: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   tags: Array<Scalars['String']>;
   title: Scalars['String'];
 };
@@ -444,7 +432,7 @@ export type SubscriberDetailsInput = {
 export type Subscription = {
   __typename?: 'Subscription';
   createdAtRFC3339: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   site: Scalars['String'];
   subscriberDetails: SubscriberDetails;
   subscriptionOption: SubscriptionOption;
@@ -454,7 +442,7 @@ export type SubscriptionOption = {
   __typename?: 'SubscriptionOption';
   enabled: Scalars['Boolean'];
   features: Array<Scalars['String']>;
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   price: Scalars['Float'];
   site: Scalars['String'];
   title: Scalars['String'];
@@ -486,7 +474,7 @@ export type Trainer = {
   description: Scalars['String'];
   displayname: Scalars['String'];
   firstname: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   lastname: Scalars['String'];
   photo?: Maybe<Scalars['String']>;
 };
@@ -509,7 +497,7 @@ export type TrainerPageInfo = {
 export type User = {
   __typename?: 'User';
   email: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
 };
 
 
@@ -581,17 +569,13 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  AdditionalEntityFields: AdditionalEntityFields;
-  String: ResolverTypeWrapper<Scalars['String']>;
   Activity: ResolverTypeWrapper<Activity>;
   ActivityInput: ActivityInput;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   CalendarSpan: ResolverTypeWrapper<CalendarSpan>;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
   CalendarSpanInput: CalendarSpanInput;
   Club: ResolverTypeWrapper<Club>;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
   ClubPageInfo: ResolverTypeWrapper<ClubPageInfo>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Event: ResolverTypeWrapper<Event>;
   EventInput: EventInput;
   EventPageInfo: ResolverTypeWrapper<EventPageInfo>;
@@ -599,17 +583,20 @@ export type ResolversTypes = {
   FileUploadInput: FileUploadInput;
   FileUploadKind: FileUploadKind;
   FileUploadResponse: ResolverTypeWrapper<FileUploadResponse>;
+  Float: ResolverTypeWrapper<Scalars['Float']>;
   Gender: Gender;
+  ID: ResolverTypeWrapper<Scalars['ID']>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   SearchArea: SearchArea;
-  Float: ResolverTypeWrapper<Scalars['Float']>;
   Site: ResolverTypeWrapper<Site>;
   SiteInput: SiteInput;
   SitePageInfo: ResolverTypeWrapper<SitePageInfo>;
   SiteSearchQueryInput: SiteSearchQueryInput;
   Sport: ResolverTypeWrapper<Sport>;
   SportPageInfo: ResolverTypeWrapper<SportPageInfo>;
+  String: ResolverTypeWrapper<Scalars['String']>;
   SubscriberDetails: ResolverTypeWrapper<SubscriberDetails>;
   SubscriberDetailsInput: SubscriberDetailsInput;
   Subscription: ResolverTypeWrapper<{}>;
@@ -625,33 +612,32 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  AdditionalEntityFields: AdditionalEntityFields;
-  String: Scalars['String'];
   Activity: Activity;
   ActivityInput: ActivityInput;
+  Boolean: Scalars['Boolean'];
   CalendarSpan: CalendarSpan;
-  Int: Scalars['Int'];
   CalendarSpanInput: CalendarSpanInput;
   Club: Club;
-  ID: Scalars['ID'];
   ClubPageInfo: ClubPageInfo;
-  Boolean: Scalars['Boolean'];
   Event: Event;
   EventInput: EventInput;
   EventPageInfo: EventPageInfo;
   FileUpload: FileUpload;
   FileUploadInput: FileUploadInput;
   FileUploadResponse: FileUploadResponse;
+  Float: Scalars['Float'];
+  ID: Scalars['ID'];
+  Int: Scalars['Int'];
   Mutation: {};
   Query: {};
   SearchArea: SearchArea;
-  Float: Scalars['Float'];
   Site: Site;
   SiteInput: SiteInput;
   SitePageInfo: SitePageInfo;
   SiteSearchQueryInput: SiteSearchQueryInput;
   Sport: Sport;
   SportPageInfo: SportPageInfo;
+  String: Scalars['String'];
   SubscriberDetails: SubscriberDetails;
   SubscriberDetailsInput: SubscriberDetailsInput;
   Subscription: {};
@@ -664,53 +650,6 @@ export type ResolversParentTypes = {
   TrainerPageInfo: TrainerPageInfo;
   User: User;
 };
-
-export type UnionDirectiveArgs = {
-  discriminatorField?: Maybe<Scalars['String']>;
-  additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>;
-};
-
-export type UnionDirectiveResolver<Result, Parent, ContextType = any, Args = UnionDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type AbstractEntityDirectiveArgs = {
-  discriminatorField: Scalars['String'];
-  additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>;
-};
-
-export type AbstractEntityDirectiveResolver<Result, Parent, ContextType = any, Args = AbstractEntityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type EntityDirectiveArgs = {
-  embedded?: Maybe<Scalars['Boolean']>;
-  additionalFields?: Maybe<Array<Maybe<AdditionalEntityFields>>>;
-};
-
-export type EntityDirectiveResolver<Result, Parent, ContextType = any, Args = EntityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type ColumnDirectiveArgs = {
-  overrideType?: Maybe<Scalars['String']>;
-};
-
-export type ColumnDirectiveResolver<Result, Parent, ContextType = any, Args = ColumnDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type IdDirectiveArgs = { };
-
-export type IdDirectiveResolver<Result, Parent, ContextType = any, Args = IdDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type LinkDirectiveArgs = {
-  overrideType?: Maybe<Scalars['String']>;
-};
-
-export type LinkDirectiveResolver<Result, Parent, ContextType = any, Args = LinkDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type EmbeddedDirectiveArgs = { };
-
-export type EmbeddedDirectiveResolver<Result, Parent, ContextType = any, Args = EmbeddedDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type MapDirectiveArgs = {
-  path: Scalars['String'];
-};
-
-export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type ActivityResolvers<ContextType = any, ParentType extends ResolversParentTypes['Activity'] = ResolversParentTypes['Activity']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -728,7 +667,7 @@ export type CalendarSpanResolvers<ContextType = any, ParentType extends Resolver
 };
 
 export type ClubResolvers<ContextType = any, ParentType extends ResolversParentTypes['Club'] = ResolversParentTypes['Club']> = {
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -745,7 +684,7 @@ export type ClubPageInfoResolvers<ContextType = any, ParentType extends Resolver
 export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = {
   dateRFC3339?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   site?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -761,7 +700,7 @@ export type EventPageInfoResolvers<ContextType = any, ParentType extends Resolve
 
 export type FileUploadResolvers<ContextType = any, ParentType extends ResolversParentTypes['FileUpload'] = ResolversParentTypes['FileUpload']> = {
   ext?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['FileUploadKind'], ParentType, ContextType>;
   size?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -801,7 +740,6 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<QueryGetSubscriptionOptionArgs, 'id'>>;
   listEnabledSubscriptionOptionsBySite?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListEnabledSubscriptionOptionsBySiteArgs, 'first' | 'siteId'>>;
   listSiteEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListSiteEventsArgs, 'first' | 'siteId'>>;
-  listSites?: Resolver<ResolversTypes['SitePageInfo'], ParentType, ContextType, RequireFields<QueryListSitesArgs, 'first'>>;
   listSitesByClub?: Resolver<ResolversTypes['SitePageInfo'], ParentType, ContextType, RequireFields<QueryListSitesByClubArgs, 'clubId' | 'first'>>;
   listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
   listSubscriptionOptionsBySite?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionOptionsBySiteArgs, 'first' | 'siteId'>>;
@@ -818,7 +756,7 @@ export type SiteResolvers<ContextType = any, ParentType extends ResolversParentT
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   club?: Resolver<ResolversTypes['Club'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   images?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   lon?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -840,7 +778,7 @@ export type SitePageInfoResolvers<ContextType = any, ParentType extends Resolver
 
 export type SportResolvers<ContextType = any, ParentType extends ResolversParentTypes['Sport'] = ResolversParentTypes['Sport']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -866,7 +804,7 @@ export type SubscriberDetailsResolvers<ContextType = any, ParentType extends Res
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   createdAtRFC3339?: SubscriptionResolver<ResolversTypes['String'], "createdAtRFC3339", ParentType, ContextType>;
-  id?: SubscriptionResolver<Maybe<ResolversTypes['ID']>, "id", ParentType, ContextType>;
+  id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
   site?: SubscriptionResolver<ResolversTypes['String'], "site", ParentType, ContextType>;
   subscriberDetails?: SubscriptionResolver<ResolversTypes['SubscriberDetails'], "subscriberDetails", ParentType, ContextType>;
   subscriptionOption?: SubscriptionResolver<ResolversTypes['SubscriptionOption'], "subscriptionOption", ParentType, ContextType>;
@@ -875,7 +813,7 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
 export type SubscriptionOptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionOption'] = ResolversParentTypes['SubscriptionOption']> = {
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   features?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   price?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   site?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -901,7 +839,7 @@ export type TrainerResolvers<ContextType = any, ParentType extends ResolversPare
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   displayname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   firstname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   photo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -916,7 +854,7 @@ export type TrainerPageInfoResolvers<ContextType = any, ParentType extends Resol
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -945,118 +883,3 @@ export type Resolvers<ContextType = any> = {
   User?: UserResolvers<ContextType>;
 };
 
-export type DirectiveResolvers<ContextType = any> = {
-  union?: UnionDirectiveResolver<any, any, ContextType>;
-  abstractEntity?: AbstractEntityDirectiveResolver<any, any, ContextType>;
-  entity?: EntityDirectiveResolver<any, any, ContextType>;
-  column?: ColumnDirectiveResolver<any, any, ContextType>;
-  id?: IdDirectiveResolver<any, any, ContextType>;
-  link?: LinkDirectiveResolver<any, any, ContextType>;
-  embedded?: EmbeddedDirectiveResolver<any, any, ContextType>;
-  map?: MapDirectiveResolver<any, any, ContextType>;
-};
-
-import { ObjectId } from 'mongodb';
-export type ActivityDbObject = {
-  description: string,
-  icon?: Maybe<string>,
-  name: string,
-};
-
-export type CalendarSpanDbObject = {
-  day: number,
-  fromMinute: number,
-  title: string,
-  toMinute: number,
-};
-
-export type ClubDbObject = {
-  _id?: Maybe<ObjectId>,
-  logo?: Maybe<string>,
-  name: string,
-  owner: string,
-};
-
-export type EventDbObject = {
-  dateRFC3339: string,
-  description: string,
-  _id?: Maybe<ObjectId>,
-  image?: Maybe<string>,
-  site: string,
-  title: string,
-};
-
-export type FileUploadDbObject = {
-  ext: string,
-  _id?: Maybe<ObjectId>,
-  kind: string,
-  size: number,
-  key: string,
-};
-
-export type SiteDbObject = {
-  activities: Array<ActivityDbObject>,
-  address: string,
-  club: ClubDbObject['_id'],
-  description: string,
-  _id?: Maybe<ObjectId>,
-  images: Array<string>,
-  lat: number,
-  lon: number,
-  name: string,
-  phone: string,
-  schedule: Array<CalendarSpanDbObject>,
-  sport: SportDbObject['_id'],
-  trainers: Array<TrainerDbObject['_id']>,
-  website?: Maybe<string>,
-};
-
-export type SportDbObject = {
-  description: string,
-  _id?: Maybe<ObjectId>,
-  tags: Array<string>,
-  title: string,
-};
-
-export type SubscriberDetailsDbObject = {
-  address: string,
-  dateOfBirth: string,
-  email: string,
-  firstname: string,
-  gender: string,
-  lastname: string,
-  phone: string,
-};
-
-export type SubscriptionDbObject = {
-  createdAtRFC3339: string,
-  _id?: Maybe<ObjectId>,
-  site: string,
-  subscriberDetails: SubscriberDetailsDbObject,
-  subscriptionOption: SubscriptionOptionDbObject['_id'],
-};
-
-export type SubscriptionOptionDbObject = {
-  enabled: boolean,
-  features: Array<string>,
-  _id?: Maybe<ObjectId>,
-  price: number,
-  site: string,
-  title: string,
-};
-
-export type TrainerDbObject = {
-  club: string,
-  description: string,
-  displayname: string,
-  firstname: string,
-  _id?: Maybe<ObjectId>,
-  lastname: string,
-  photo?: Maybe<string>,
-};
-
-export type UserDbObject = {
-  email: string,
-  _id?: Maybe<ObjectId>,
-  passwordHash: string,
-};

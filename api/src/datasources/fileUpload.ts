@@ -17,9 +17,9 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { FileUpload, FileUploadInput } from '../generated/graphql';
 import { logger } from '../logger';
-import { parseFileUpload } from '../utils/fileUpload';
+import { fileUploadToRecord, parseFileUpload } from '../utils/fileUpload';
 
-const TABLE_NAME = 'File';
+const TABLE_NAME = 'FileUpload';
 
 export type S3Config = {
   bucket: string;
@@ -55,7 +55,7 @@ export default class FileUploadAPI extends DataSource {
       const result = await this.dynamodbClient.send(
         new GetItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: id } },
+          Key: { FileUploadId: { S: id } },
         }),
       );
       const item = result.Item;
@@ -71,6 +71,12 @@ export default class FileUploadAPI extends DataSource {
   async createFileUpload(input: FileUploadInput): Promise<FileUpload> {
     try {
       const id = uuidv4();
+      const item: FileUpload = {
+        id,
+        size: input.size,
+        ext: input.ext,
+        kind: input.kind,
+      };
       await this.dynamodbClient.send(
         new PutItemCommand({
           TableName: TABLE_NAME,
@@ -79,19 +85,10 @@ export default class FileUploadAPI extends DataSource {
             '#id': 'Id',
           },
           Item: {
-            Id: { S: id },
-            Size: { N: input.size.toString() },
-            Ext: { S: input.ext },
-            Kind: { S: input.kind },
+            ...fileUploadToRecord(item),
           },
         }),
       );
-      const item: FileUpload = {
-        id,
-        size: input.size,
-        ext: input.ext,
-        kind: input.kind,
-      };
       return Promise.resolve(item);
     } catch (e) {
       return Promise.reject(e);
@@ -104,7 +101,7 @@ export default class FileUploadAPI extends DataSource {
       await this.dynamodbClient.send(
         new DeleteItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: id } },
+          Key: { FileUploadId: { S: id } },
         }),
       );
       logger.info(

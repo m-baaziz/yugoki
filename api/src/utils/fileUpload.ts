@@ -35,3 +35,14 @@ export function parseFileUpload(
     kind: parseFileUploadKind(item.Kind.S),
   };
 }
+
+export function fileUploadToRecord(
+  fileUpload: FileUpload,
+): Record<string, AttributeValue> {
+  return {
+    FileUploadId: { S: fileUpload.id },
+    FileUploadSize: { N: fileUpload.size.toString() },
+    FileUploadExt: { S: fileUpload.ext },
+    FileUploadKind: { S: fileUpload.kind },
+  };
+}

@@ -3,7 +3,6 @@ import { listUserClubs, getClub, createClub, deleteClub } from './club';
 import {
   getSite,
   getSiteImages,
-  listSites,
   listSitesByClub,
   searchSites,
   createSite,
@@ -37,7 +36,6 @@ const resolvers: Resolvers = {
     listUserClubs,
     getSite,
     getSiteImages,
-    listSites,
     listSitesByClub,
     searchSites,
     getEvent,

@@ -28,7 +28,7 @@ export default class SportAPI extends DataSource {
       const result = await this.dynamodbClient.send(
         new GetItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: id } },
+          Key: { SportId: { S: id } },
         }),
       );
       const item = result.Item;
@@ -47,12 +47,12 @@ export default class SportAPI extends DataSource {
         new ScanCommand({
           TableName: TABLE_NAME,
           Limit: first,
-          ExclusiveStartKey: after ? { Id: { S: after } } : undefined,
+          ExclusiveStartKey: after ? { SportId: { S: after } } : undefined,
         }),
       );
       const pageInfo: SportPageInfo = {
         sports: result.Items.map(parseSport),
-        endCursor: result.LastEvaluatedKey?.Id.S,
+        endCursor: result.LastEvaluatedKey?.SportId.S,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

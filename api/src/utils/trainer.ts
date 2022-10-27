@@ -33,12 +33,12 @@ export function trainerToRecord(
 
 export function parseTrainer(item: Record<string, AttributeValue>): Trainer {
   return {
-    id: item.TrainerId?.S,
+    id: item.TrainerId.S,
     club: item.ClubId.S,
-    description: item.TrainerDescription?.S,
-    displayname: item.TrainerDisplayname?.S,
-    firstname: item.TrainerFirstname?.S,
-    lastname: item.TrainerLastname?.S,
+    description: item.TrainerDescription.S,
+    displayname: item.TrainerDisplayname.S,
+    firstname: item.TrainerFirstname.S,
+    lastname: item.TrainerLastname.S,
     photo: item.TrainerPhoto?.S,
   };
 }

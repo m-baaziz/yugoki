@@ -18,8 +18,17 @@ export function isUserAuthorized(club: ClubDbObject, user?: User): boolean {
 export function parseClub(item: Record<string, AttributeValue>): Club {
   return {
     id: item.ClubId.S,
-    name: item.ClubName?.S,
-    owner: item.ClubOwner?.S,
+    name: item.ClubName.S,
+    owner: item.ClubOwner.S,
     logo: item.ClubLogo?.S,
+  };
+}
+
+export function clubToRecord(club: Club): Record<string, AttributeValue> {
+  return {
+    ClubId: { S: club.id },
+    ClubOwner: { S: club.owner },
+    ClubName: { S: club.name },
+    ClubLogo: club.logo ? { S: club.logo } : undefined,
   };
 }

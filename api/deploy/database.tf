@@ -1,17 +1,39 @@
+locals {
+  app_name = "klubzz"
+}
+
+resource "aws_dynamodb_table" "user" {
+  name           = "User"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "UserId"
+
+  attribute {
+    name = "UserId"
+    type = "S"
+  }
+
+  tags = {
+    AppName     = local.app_name
+    Environment = "dev"
+  }
+}
+
 resource "aws_dynamodb_table" "sport" {
   name           = "Sport"
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
-  hash_key       = "Id"
+  hash_key       = "SportId"
 
   attribute {
-    name = "Id"
+    name = "SportId"
     type = "S"
   }
 
   tags = {
-    AppName     = "klubzz"
+    AppName     = local.app_name
     Environment = "dev"
   }
 }
@@ -48,38 +70,7 @@ resource "aws_dynamodb_table" "club" {
   }
 
   tags = {
-    AppName     = "klubzz"
-    Environment = "dev"
-  }
-}
-
-resource "aws_dynamodb_table" "trainer" {
-  name           = "Trainer"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 1
-  write_capacity = 1
-  hash_key       = "ClubId"
-  range_key      = "TrainerId"
-
-  attribute {
-    name = "ClubId"
-    type = "S"
-  }
-  attribute {
-    name = "TrainerId"
-    type = "S"
-  }
-
-  global_secondary_index {
-    name = "TrainerClubIndex"
-
-    write_capacity  = 1
-    read_capacity   = 1
-    projection_type = "ALL"
-  }
-
-  tags = {
-    AppName     = "klubzz"
+    AppName     = local.app_name
     Environment = "dev"
   }
 }
@@ -101,22 +92,23 @@ resource "aws_dynamodb_table" "site" {
     name = "Sk1"
     type = "S"
   }
+
   attribute {
-    name = "SiteClub"
+    name = "Sk2" # GEOHASH#...#SITE#...
     type = "S"
   }
   attribute {
-    name = "SiteSport"
+    name = "ClubId"
     type = "S"
   }
   attribute {
-    name = "SiteGeohash#SiteId"
+    name = "SportId"
     type = "S"
   }
 
   global_secondary_index {
     name            = "SiteClubIndex"
-    hash_key        = "SiteClub"
+    hash_key        = "ClubId"
     range_key       = "Sk1"
     write_capacity  = 1
     read_capacity   = 1
@@ -124,33 +116,33 @@ resource "aws_dynamodb_table" "site" {
   }
   global_secondary_index {
     name            = "SiteSportGeohashIndex"
-    hash_key        = "SiteSport"
-    range_key       = "SiteGeohash#SiteId"
+    hash_key        = "SportId"
+    range_key       = "Sk2"
     write_capacity  = 1
     read_capacity   = 1
     projection_type = "ALL"
   }
 
   tags = {
-    AppName     = "klubzz"
+    AppName     = local.app_name
     Environment = "dev"
   }
 }
 
-resource "aws_dynamodb_table" "file" {
-  name           = "File"
+resource "aws_dynamodb_table" "fileUpload" {
+  name           = "FileUpload"
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
-  hash_key       = "Id"
+  hash_key       = "FileUploadId"
 
   attribute {
-    name = "Id"
+    name = "FileUploadId"
     type = "S"
   }
 
   tags = {
-    AppName     = "klubzz"
+    AppName     = local.app_name
     Environment = "dev"
   }
 }
@@ -183,7 +175,7 @@ resource "aws_dynamodb_table" "subscription" {
   }
 
   tags = {
-    AppName     = "klubzz"
+    AppName     = local.app_name
     Environment = "dev"
   }
 }

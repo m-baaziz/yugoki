@@ -5,7 +5,6 @@ type Query {
   getClub(id: ID!): Club!
   getSite(id: ID!): Site!
   getSiteImages(id: ID!): [FileUploadResponse!]!
-  listSites(first: Int!, after: String): SitePageInfo!
   listSitesByClub(clubId: ID!, first: Int!, after: String): SitePageInfo!
   searchSites(
     query: SiteSearchQueryInput!
@@ -77,17 +76,16 @@ input SiteSearchQueryInput {
   area: SearchArea
 }
 
-type User
-  @entity(additionalFields: [{ path: "passwordHash", type: "string" }]) {
-  id: ID @id
-  email: String! @column
+type User {
+  id: ID!
+  email: String!
 }
 
-type Sport @entity {
-  id: ID @id
-  title: String! @column
-  description: String! @column
-  tags: [String!]! @column
+type Sport {
+  id: ID!
+  title: String!
+  description: String!
+  tags: [String!]!
 }
 
 type SportPageInfo {
@@ -96,11 +94,11 @@ type SportPageInfo {
   endCursor: String
 }
 
-type Club @entity {
-  id: ID @id # after transition to dyanmodb over, ID -> ID!
-  owner: String! @column # index
-  name: String! @column # index
-  logo: String @column
+type Club {
+  id: ID!
+  owner: String!
+  name: String!
+  logo: String
 }
 
 type ClubPageInfo {
@@ -117,14 +115,14 @@ input TrainerInput {
   photo: String
 }
 
-type Trainer @entity {
-  id: ID @id
-  firstname: String! @column
-  lastname: String! @column
-  displayname: String! @column
-  description: String! @column
-  club: String! @column # index
-  photo: String @column
+type Trainer {
+  id: ID!
+  firstname: String!
+  lastname: String!
+  displayname: String!
+  description: String!
+  club: String!
+  photo: String
 }
 
 type TrainerPageInfo {
@@ -140,13 +138,13 @@ input EventInput {
   image: String
 }
 
-type Event @entity {
-  id: ID @id
-  site: String! @column # index
-  dateRFC3339: String! @column
-  title: String! @column
-  description: String! @column
-  image: String @column
+type Event {
+  id: ID!
+  site: String!
+  dateRFC3339: String!
+  title: String!
+  description: String!
+  image: String
 }
 
 type EventPageInfo {
@@ -161,10 +159,10 @@ input ActivityInput {
   icon: String
 }
 
-type Activity @entity(embedded: true) {
-  name: String! @column
-  description: String! @column
-  icon: String @column
+type Activity {
+  name: String!
+  description: String!
+  icon: String
 }
 
 input CalendarSpanInput {
@@ -174,11 +172,11 @@ input CalendarSpanInput {
   toMinute: Int!
 }
 
-type CalendarSpan @entity(embedded: true) {
-  title: String! @column
-  day: Int! @column
-  fromMinute: Int! @column
-  toMinute: Int! @column
+type CalendarSpan {
+  title: String!
+  day: Int!
+  fromMinute: Int!
+  toMinute: Int!
 }
 
 input SiteInput {
@@ -196,21 +194,21 @@ input SiteInput {
   schedule: [CalendarSpanInput!]!
 }
 
-type Site @entity {
-  id: ID @id
-  name: String! @column #index
-  club: Club! @link # index
-  sport: Sport! @link # index
-  address: String! @column # index (address is not unique but combination of club, sport and address is unique)
-  lat: Float! @column
-  lon: Float! @column
-  phone: String! @column
-  website: String @column
-  images: [String!]! @column
-  description: String! @column
-  activities: [Activity!]! @embedded
-  trainers: [Trainer!]! @link
-  schedule: [CalendarSpan!]! @embedded
+type Site {
+  id: ID!
+  name: String!
+  club: Club!
+  sport: Sport!
+  address: String! # (address is not unique but combination of club, sport and address is unique)
+  lat: Float!
+  lon: Float!
+  phone: String!
+  website: String
+  images: [String!]!
+  description: String!
+  activities: [Activity!]!
+  trainers: [Trainer!]!
+  schedule: [CalendarSpan!]!
 }
 
 type SitePageInfo {
@@ -225,13 +223,13 @@ input SubscriptionOptionInput {
   price: Float!
 }
 
-type SubscriptionOption @entity {
-  id: ID @id
-  site: String! @column # index
-  title: String! @column
-  features: [String!]! @column
-  price: Float! @column
-  enabled: Boolean! @column
+type SubscriptionOption {
+  id: ID!
+  site: String!
+  title: String!
+  features: [String!]!
+  price: Float!
+  enabled: Boolean!
 }
 
 type SubscriptionOptionPageInfo {
@@ -256,22 +254,22 @@ input SubscriberDetailsInput {
   dateOfBirth: String!
 }
 
-type SubscriberDetails @entity(embedded: true) {
-  firstname: String! @column
-  lastname: String! @column
-  gender: Gender! @column
-  email: String! @column
-  address: String! @column
-  phone: String! @column
-  dateOfBirth: String! @column
+type SubscriberDetails {
+  firstname: String!
+  lastname: String!
+  gender: Gender!
+  email: String!
+  address: String!
+  phone: String!
+  dateOfBirth: String!
 }
 
-type Subscription @entity {
-  id: ID @id
-  subscriptionOption: SubscriptionOption! @link #index
-  site: String! @column #index
-  subscriberDetails: SubscriberDetails! @embedded
-  createdAtRFC3339: String! @column
+type Subscription {
+  id: ID!
+  subscriptionOption: SubscriptionOption!
+  site: String!
+  subscriberDetails: SubscriberDetails!
+  createdAtRFC3339: String!
 }
 
 type SubscriptionPageInfo {
@@ -295,11 +293,12 @@ input FileUploadInput {
 }
 
 # TODO: need periodic job to clean all files that are not linked to any object (use kind)
-type FileUpload @entity(additionalFields: [{ path: "key", type: "string" }]) {
-  id: ID @id
-  size: Int! @column
-  ext: String! @column
-  kind: FileUploadKind! @column
+# + path (string) in db
+type FileUpload {
+  id: ID!
+  size: Int!
+  ext: String!
+  kind: FileUploadKind!
 }
 
 type FileUploadResponse {

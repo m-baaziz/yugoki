@@ -2,7 +2,6 @@ import { ContextWithDataSources } from '../datasources';
 import {
   Site,
   SitePageInfo,
-  QueryListSitesArgs,
   QueryGetSiteArgs,
   QuerySearchSitesArgs,
   MutationCreateSiteArgs,
@@ -15,42 +14,6 @@ import { isUserAuthorized } from '../utils/club';
 import { dbSiteToSite } from '../utils/site';
 import { logger } from '../logger';
 import { dbFileUploadToFileUpload } from '../utils/fileUpload';
-
-export async function listSites(
-  _parent: unknown,
-  { first, after }: QueryListSitesArgs,
-  {
-    dataSources: { siteAPI, sportAPI, clubAPI, trainerAPI },
-  }: ContextWithDataSources,
-): Promise<SitePageInfo> {
-  try {
-    const [sites, hasNextPage] = await siteAPI.listSites(first, after);
-    const endCursor =
-      sites.length > 0 ? sites[sites.length - 1]._id.toString() : undefined;
-    const fullSites = await Promise.all(
-      sites.map(async (site) => {
-        try {
-          const sport = await sportAPI.findSportById(site.sport.toString());
-          const club = await clubAPI.findClubById(site.club.toString());
-          const trainers = await trainerAPI.findTrainersByIds(
-            site.trainers.map((tid) => tid.toString()),
-          );
-          return dbSiteToSite(site, sport, club, trainers);
-        } catch (e) {
-          return Promise.reject(e);
-        }
-      }),
-    );
-    return {
-      sites: fullSites,
-      hasNextPage,
-      endCursor,
-    };
-  } catch (e) {
-    logger.error(e.toString());
-    return Promise.reject(e);
-  }
-}
 
 export async function listSitesByClub(
   _parent: unknown,
@@ -102,23 +65,14 @@ export async function searchSites(
   try {
     let [sites, hasNextPage] = [[], false];
     if (area) {
-      const { topLeftLat, topLeftLon, bottomRightLat, bottomRightLon } = area;
       [sites, hasNextPage] = await siteAPI.listSitesBySportAndArea(
         sport,
-        topLeftLat,
-        topLeftLon,
-        bottomRightLat,
-        bottomRightLon,
+        area,
         first,
         after,
       );
     } else if (address) {
-      [sites, hasNextPage] = await siteAPI.listSitesBySportAndAddress(
-        sport,
-        address,
-        first,
-        after,
-      );
+      return Promise.reject('Search by address is not supported yet');
     }
     const endCursor =
       sites.length > 0 ? sites[sites.length - 1]._id.toString() : undefined;

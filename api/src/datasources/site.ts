@@ -1,30 +1,55 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db, ObjectId, WithId } from 'mongodb';
+import {
+  DynamoDBClient,
+  GetItemCommand,
+  QueryCommand,
+  PutItemCommand,
+} from '@aws-sdk/client-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
 
-import { _Collection } from '.';
-import { SiteDbObject, SiteInput } from '../generated/graphql';
+import {
+  Club,
+  SearchArea,
+  Site,
+  SiteInput,
+  SitePageInfo,
+  Sport,
+} from '../generated/graphql';
 import { logger } from '../logger';
 import EventAPI from './event';
 import FileUploadAPI from './fileUpload';
-import { listByFilter } from './helpers';
+import { batchDelete } from './helpers';
 import SubscriptionOptionAPI from './subscriptionOption';
+import { computeAreaGeohash, parseSite, siteToRecord } from '../utils/site';
+import TrainerAPI from './trainer';
+
+const TABLE_NAME = 'Site';
+const CLUB_INDEX_NAME = 'SiteClubIndex';
+const GEOHASH_INDEX_NAME = 'SiteSportGeohashIndex';
+
+const sk1 = (siteId: string) => `SITE#${siteId}`;
+const sk2 = (geohash: string, siteId: string) =>
+  `GEOHASH#${geohash}#SITE#${siteId}`;
 
 export default class SiteAPI extends DataSource {
-  collection: Collection<SiteDbObject>;
+  dynamodbClient: DynamoDBClient;
   context: any;
+  trainerAPI: TrainerAPI;
   subscriptionOptionAPI: SubscriptionOptionAPI;
   eventAPI: EventAPI;
   fileUploadAPI: FileUploadAPI;
 
   constructor(
-    db: Db,
+    dynamodbClient: DynamoDBClient,
+    trainerAPI: TrainerAPI,
     subscriptionOptionAPI: SubscriptionOptionAPI,
     eventAPI: EventAPI,
     fileUploadAPI: FileUploadAPI,
   ) {
     super();
-    this.collection = db.collection<SiteDbObject>(_Collection.Site);
+    this.dynamodbClient = dynamodbClient;
+    this.trainerAPI = trainerAPI;
     this.subscriptionOptionAPI = subscriptionOptionAPI;
     this.eventAPI = eventAPI;
     this.fileUploadAPI = fileUploadAPI;
@@ -34,104 +59,132 @@ export default class SiteAPI extends DataSource {
     this.context = config.context;
   }
 
-  async createIndexes(): Promise<void> {
+  async findSiteById(id: string): Promise<Site> {
     try {
-      await this.collection.createIndex({ name: 1 }, { unique: true });
-      await this.collection.createIndex({ sport: 1 }, { unique: false });
-      await this.collection.createIndex({ address: 1 }, { unique: false });
-      return Promise.resolve();
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async findSiteById(id: string): Promise<WithId<SiteDbObject>> {
-    try {
-      const club = await this.collection.findOne({
-        _id: new ObjectId(id),
-      });
-      if (!club) {
+      const result = await this.dynamodbClient.send(
+        new GetItemCommand({
+          TableName: TABLE_NAME,
+          Key: { SiteId: { S: id }, Sk1: { S: sk1(id) } },
+        }),
+      );
+      const site = result.Item;
+      if (!site) {
         return Promise.reject(`Site with id ${id} not found`);
       }
-      return Promise.resolve(club);
+      return Promise.resolve(parseSite(site));
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
-  listSites(
-    first: number,
-    after?: string,
-  ): Promise<[WithId<SiteDbObject>[], boolean]> {
-    return listByFilter(this.collection, {}, first, after);
-  }
-
-  listSitesByClub(
+  async listSitesByClub(
     clubId: string,
     first: number,
     after?: string,
-  ): Promise<[WithId<SiteDbObject>[], boolean]> {
-    return listByFilter(
-      this.collection,
-      { club: new ObjectId(clubId) },
-      first,
-      after,
-    );
-  }
-
-  listSitesBySportAndArea(
-    sport: string,
-    topLeftLat: number,
-    topLeftLon: number,
-    bottomRightLat: number,
-    bottomRightLon: number,
-    first: number,
-    after?: string,
-  ): Promise<[WithId<SiteDbObject>[], boolean]> {
-    const filter = {
-      sport: new ObjectId(sport),
-      $and: [
-        { lat: { $lte: topLeftLat } },
-        { lat: { $gte: bottomRightLat } },
-        { lon: { $gte: topLeftLon } },
-        { lon: { $lte: bottomRightLon } },
-      ],
-    };
-    return listByFilter(this.collection, filter, first, after);
-  }
-
-  listSitesBySportAndAddress(
-    sport: string,
-    address: string,
-    first: number,
-    after?: string,
-  ): Promise<[WithId<SiteDbObject>[], boolean]> {
-    const filter = {
-      sport: new ObjectId(sport),
-      address: { $regex: address },
-    };
-    return listByFilter(this.collection, filter, first, after);
-  }
-
-  async createSite(
-    clubId: string,
-    sportId: string,
-    input: SiteInput,
-  ): Promise<SiteDbObject> {
+  ): Promise<SitePageInfo> {
     try {
-      const site: SiteDbObject = {
-        club: new ObjectId(clubId),
-        sport: new ObjectId(sportId),
+      const result = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: CLUB_INDEX_NAME,
+          KeyConditionExpression: '#clubId = :clubId',
+          ExpressionAttributeNames: {
+            '#clubId': 'ClubId',
+          },
+          ExpressionAttributeValues: {
+            ':clubId': { S: clubId },
+          },
+          Limit: first,
+          ExclusiveStartKey: after
+            ? { ClubId: { S: clubId }, Sk1: { S: after } }
+            : undefined,
+        }),
+      );
+      const pageInfo: SitePageInfo = {
+        sites: result.Items.map(parseSite),
+        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        hasNextPage: result.LastEvaluatedKey !== undefined,
+      };
+      return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async listSitesBySportAndArea(
+    sportId: string,
+    searchArea: SearchArea,
+    first: number,
+    after?: string,
+  ): Promise<SitePageInfo> {
+    try {
+      const geohash = computeAreaGeohash(searchArea);
+      const result = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: GEOHASH_INDEX_NAME,
+          KeyConditionExpression:
+            '#sportId = :sportId AND begins_with(#sortKey, :sortKeySubstr)',
+          FilterExpression:
+            '#siteLat <= :topLeftLat AND #siteLat >= :bottomRightLat AND #siteLon >= :topLeftLon AND #siteLon <= :bottomRightLon',
+          ExpressionAttributeNames: {
+            '#sportId': 'SportId',
+            '#sortKey': 'Sk2',
+            '#siteLat': 'SiteLat',
+            '#siteLon': 'SiteLon',
+          },
+          ExpressionAttributeValues: {
+            ':sportId': { S: sportId },
+            ':sortKeySubstr': { S: sk2(geohash, '') },
+            ':topLeftLat': { N: searchArea.topLeftLat.toString() },
+            ':bottomRightLat': { N: searchArea.bottomRightLat.toString() },
+            ':topLeftLon': { N: searchArea.topLeftLon.toString() },
+            ':bottomRightLon': { N: searchArea.bottomRightLon.toString() },
+          },
+          Limit: first,
+          ExclusiveStartKey: after
+            ? { SportId: { S: sportId }, Sk2: { S: after } }
+            : undefined,
+        }),
+      );
+      const pageInfo: SitePageInfo = {
+        sites: result.Items.map(parseSite),
+        endCursor: result.LastEvaluatedKey?.Sk2.S,
+        hasNextPage: result.LastEvaluatedKey !== undefined,
+      };
+      return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async createSite(club: Club, sport: Sport, input: SiteInput): Promise<Site> {
+    try {
+      const id = uuidv4();
+      const item: Site = {
+        id,
+        club,
+        sport,
         ...input,
-        trainers: input.trainerIds.map((id) => new ObjectId(id)),
+        trainers: await this.trainerAPI.findTrainersByIds(
+          club.id,
+          input.trainerIds,
+        ),
       };
-
-      const result = await this.collection.insertOne(site);
-
-      return {
-        ...site,
-        _id: result.insertedId,
-      };
+      await this.dynamodbClient.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          ConditionExpression: 'attribute_not_exists(#sk1)',
+          ExpressionAttributeNames: {
+            '#sk1': 'Sk1',
+          },
+          Item: {
+            ...siteToRecord(item),
+            Sk1: { S: sk1(id) },
+          },
+        }),
+      );
+      return Promise.resolve(item);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -139,14 +192,27 @@ export default class SiteAPI extends DataSource {
 
   async deleteSite(id: string): Promise<boolean> {
     try {
-      // make mongodb transaction
-      // Query SiteId = id and delete all items (use BatchWriteItem)
+      // make transaction
       // maybe not expose deleteSite, but allow to just disable
       const site = await this.findSiteById(id);
 
-      const result = await this.collection.deleteOne({
-        _id: site._id,
-      });
+      const deletedItemsCount = await batchDelete(
+        this.dynamodbClient,
+        TABLE_NAME,
+        {
+          TableName: TABLE_NAME,
+          KeyConditionExpression: '#siteId = :siteId',
+          ExpressionAttributeNames: {
+            '#siteId': 'SiteId',
+          },
+          ExpressionAttributeValues: {
+            ':siteId': { S: id },
+          },
+        },
+        (item) => ({ SiteId: { S: item.SiteId.S }, Sk1: { S: item.Sk1.S } }),
+      );
+      logger.info(`Deleted ${deletedItemsCount} related site items`);
+
       Promise.all(
         site.images.map((imageId) =>
           this.fileUploadAPI.deleteFileUpload(imageId),
@@ -159,7 +225,7 @@ export default class SiteAPI extends DataSource {
         .catch((errors) => {
           logger.error(errors.map((e) => e.toString()));
         });
-      return Promise.resolve(result.deletedCount === 1);
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -167,17 +233,23 @@ export default class SiteAPI extends DataSource {
 
   async deleteSitesByClub(clubId: string): Promise<number> {
     try {
-      const cursor = await this.collection.find({
-        club: new ObjectId(clubId),
-      });
-      let siteDeleteCount = 0;
-      while (await cursor.hasNext()) {
-        const siteId = (await cursor.next())._id.toString();
-        if (await this.deleteSite(siteId)) {
-          siteDeleteCount += 1;
-        }
-      }
-      return Promise.resolve(siteDeleteCount);
+      const deletedItemsCount = await batchDelete(
+        this.dynamodbClient,
+        TABLE_NAME,
+        {
+          TableName: CLUB_INDEX_NAME,
+          KeyConditionExpression: '#clubId = :clubId',
+          ExpressionAttributeNames: {
+            '#clubId': 'ClubId',
+          },
+          ExpressionAttributeValues: {
+            ':clubId': { S: clubId },
+          },
+        },
+        (item) => ({ ClubId: { S: item.ClubId.S }, Sk1: { S: item.Sk1.S } }),
+      );
+      logger.info(`Deleted ${deletedItemsCount} related site items`);
+      return Promise.resolve(deletedItemsCount);
     } catch (e) {
       return Promise.reject(e);
     }

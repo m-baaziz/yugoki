@@ -46,7 +46,7 @@ export default class SubscriptionOptionAPI extends DataSource {
       const result = await this.dynamodbClient.send(
         new GetItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+          Key: { SiteId: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
         }),
       );
       const item = result.Item;
@@ -171,7 +171,7 @@ export default class SubscriptionOptionAPI extends DataSource {
       await this.dynamodbClient.send(
         new UpdateItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+          Key: { SiteId: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
           UpdateExpression: 'SET #enabled = :enabled',
           ExpressionAttributeNames: {
             '#enabled': 'SubscriptionOptionEnabled',
@@ -195,7 +195,7 @@ export default class SubscriptionOptionAPI extends DataSource {
       await this.dynamodbClient.send(
         new UpdateItemCommand({
           TableName: TABLE_NAME,
-          Key: { Id: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
+          Key: { SiteId: { S: siteId }, Sk1: { S: sk1(siteId, id) } },
           UpdateExpression: 'SET #enabled = :enabled',
           ExpressionAttributeNames: {
             '#enabled': 'SubscriptionOptionEnabled',

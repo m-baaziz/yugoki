@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Collection, Db, ObjectId, WithId } from 'mongodb';
+import {
+  DynamoDBClient,
+  GetItemCommand,
+  PutItemCommand,
+} from '@aws-sdk/client-dynamodb';
 import jwt from 'jsonwebtoken';
 
-import { User, UserDbObject } from '../generated/graphql';
-import { _Collection } from '.';
+import { User } from '../generated/graphql';
+import { parseUser, userToRecord } from '../utils/user';
 
 export type InsertUserArgs = {
   email: string;
@@ -18,28 +22,21 @@ export type UserAPIConfig = {
 
 export type UserJwt = User & jwt.JwtPayload;
 
+const TABLE_NAME = 'User';
+
 export default class UserAPI extends DataSource {
-  collection: Collection<UserDbObject>;
+  dynamodbClient: DynamoDBClient;
   config: UserAPIConfig;
   context: any;
 
-  constructor(db: Db, config: UserAPIConfig) {
+  constructor(config: UserAPIConfig, dynamodbClient: DynamoDBClient) {
     super();
-    this.collection = db.collection<UserDbObject>(_Collection.User);
+    this.dynamodbClient = dynamodbClient;
     this.config = config;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
     this.context = config.context;
-  }
-
-  async createIndexes(): Promise<void> {
-    try {
-      await this.collection.createIndex({ email: 1 }, { unique: true });
-      return Promise.resolve();
-    } catch (e) {
-      return Promise.reject(e);
-    }
   }
 
   async generateToken(user: User): Promise<string> {
@@ -60,7 +57,7 @@ export default class UserAPI extends DataSource {
     });
   }
 
-  async verifyToken(token: string): Promise<UserDbObject> {
+  async verifyToken(token: string): Promise<User> {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.config.jwtSecret, {}, async (err, decoded) => {
         if (err) {
@@ -80,47 +77,45 @@ export default class UserAPI extends DataSource {
     });
   }
 
-  async insertUser({
-    email,
-    passwordHash,
-  }: InsertUserArgs): Promise<WithId<UserDbObject>> {
+  async findUserById(id: string): Promise<User> {
     try {
-      if ((await this.collection.countDocuments({ email })) > 0)
-        return Promise.reject('User with the same email already exists');
-      const user: UserDbObject = {
+      const result = await this.dynamodbClient.send(
+        new GetItemCommand({
+          TableName: TABLE_NAME,
+          Key: { UserId: { S: id } },
+        }),
+      );
+      const item = result.Item;
+      if (!item) {
+        return Promise.reject(`User with id ${id} not found`);
+      }
+      return Promise.resolve(parseUser(item));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async insertUser(id: string, email: string): Promise<User> {
+    // use cognito for signup ... (get id from cognito result)
+    try {
+      const item: User = {
+        id,
         email,
-        passwordHash,
       };
-      const result = await this.collection.insertOne(user);
+      await this.dynamodbClient.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          ConditionExpression: 'attribute_not_exists(#id)',
+          ExpressionAttributeNames: {
+            '#id': 'UserId',
+          },
+          Item: {
+            ...userToRecord(item),
+          },
+        }),
+      );
 
-      return Promise.resolve({
-        _id: result.insertedId,
-        ...user,
-      });
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async findUserById(id: string): Promise<WithId<UserDbObject>> {
-    try {
-      const user = await this.collection.findOne({ _id: new ObjectId(id) });
-      if (!user) {
-        return Promise.reject('User not found');
-      }
-      return Promise.resolve(user);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  async findUserByEmail(email: string): Promise<WithId<UserDbObject>> {
-    try {
-      const user = await this.collection.findOne({ email });
-      if (!user) {
-        return Promise.reject('User not found');
-      }
-      return Promise.resolve(user);
+      return Promise.resolve(item);
     } catch (e) {
       return Promise.reject(e);
     }

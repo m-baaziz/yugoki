@@ -13,7 +13,7 @@ import { logger } from '../logger';
 import SiteAPI from './site';
 import FileUploadAPI from './fileUpload';
 import TrainerAPI from './trainer';
-import { parseClub } from '../utils/club';
+import { clubToRecord, parseClub } from '../utils/club';
 import { batchDelete } from './helpers';
 
 const TABLE_NAME = 'Club';
@@ -100,6 +100,11 @@ export default class ClubAPI extends DataSource {
   async createClub(ownerId: string, name: string): Promise<Club> {
     try {
       const id = uuidv4();
+      const item: Club = {
+        id,
+        owner: ownerId,
+        name,
+      };
       await this.dynamodbClient.send(
         new PutItemCommand({
           TableName: TABLE_NAME,
@@ -108,19 +113,12 @@ export default class ClubAPI extends DataSource {
             '#id': 'ClubId',
           },
           Item: {
-            ClubId: { S: id },
-            ClubOwner: { S: ownerId },
-            ClubName: { S: name },
+            ...clubToRecord(item),
             Sk1: { S: sk1(id) },
           },
         }),
       );
-      const club: Club = {
-        id,
-        owner: ownerId,
-        name,
-      };
-      return Promise.resolve(club);
+      return Promise.resolve(item);
     } catch (e) {
       return Promise.reject(e);
     }
