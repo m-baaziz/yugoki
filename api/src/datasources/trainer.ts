@@ -8,12 +8,7 @@ import {
   DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  Trainer,
-  TrainerDbObject,
-  TrainerInput,
-  TrainerPageInfo,
-} from '../generated/graphql';
+import { Trainer, TrainerInput, TrainerPageInfo } from '../generated/graphql';
 import { logger } from '../logger';
 import FileUploadAPI from './fileUpload';
 import { batchGet } from './helpers';
@@ -127,10 +122,7 @@ export default class TrainerAPI extends DataSource {
     }
   }
 
-  async createTrainer(
-    clubId: string,
-    input: TrainerInput,
-  ): Promise<TrainerDbObject> {
+  async createTrainer(clubId: string, input: TrainerInput): Promise<Trainer> {
     try {
       const id = uuidv4();
       const trainer: Trainer = {
@@ -183,6 +175,27 @@ export default class TrainerAPI extends DataSource {
           });
       }
       return Promise.resolve(true);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteTrainersByClub(clubId: string): Promise<number> {
+    try {
+      let deletedCount = 0;
+      let lastCursor = undefined;
+      let hasNext = true;
+      while (hasNext) {
+        const page = await this.listTrainersByClub(clubId, 100, lastCursor);
+        lastCursor = page.endCursor;
+        hasNext = page.hasNextPage;
+        const items = page.trainers;
+        for (let i = 0; i < items.length; i++) {
+          await this.deleteTrainer(clubId, items[i].id);
+          deletedCount++;
+        }
+      }
+      return Promise.resolve(deletedCount);
     } catch (e) {
       return Promise.reject(e);
     }

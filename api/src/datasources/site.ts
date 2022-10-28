@@ -195,7 +195,8 @@ export default class SiteAPI extends DataSource {
       // make transaction
       // maybe not expose deleteSite, but allow to just disable
       const site = await this.findSiteById(id);
-
+      const eventsDeleteCount = await this.eventAPI.deleteEventsBySite(id);
+      logger.info(`Deleted ${eventsDeleteCount} events`);
       const deletedItemsCount = await batchDelete(
         this.dynamodbClient,
         TABLE_NAME,
@@ -213,7 +214,7 @@ export default class SiteAPI extends DataSource {
       );
       logger.info(`Deleted ${deletedItemsCount} related site items`);
 
-      Promise.all(
+      await Promise.all(
         site.images.map((imageId) =>
           this.fileUploadAPI.deleteFileUpload(imageId),
         ),
@@ -233,23 +234,20 @@ export default class SiteAPI extends DataSource {
 
   async deleteSitesByClub(clubId: string): Promise<number> {
     try {
-      const deletedItemsCount = await batchDelete(
-        this.dynamodbClient,
-        TABLE_NAME,
-        {
-          TableName: CLUB_INDEX_NAME,
-          KeyConditionExpression: '#clubId = :clubId',
-          ExpressionAttributeNames: {
-            '#clubId': 'ClubId',
-          },
-          ExpressionAttributeValues: {
-            ':clubId': { S: clubId },
-          },
-        },
-        (item) => ({ ClubId: { S: item.ClubId.S }, Sk1: { S: item.Sk1.S } }),
-      );
-      logger.info(`Deleted ${deletedItemsCount} related site items`);
-      return Promise.resolve(deletedItemsCount);
+      let deletedCount = 0;
+      let lastCursor = undefined;
+      let hasNext = true;
+      while (hasNext) {
+        const page = await this.listSitesByClub(clubId, 100, lastCursor);
+        lastCursor = page.endCursor;
+        hasNext = page.hasNextPage;
+        const items = page.sites;
+        for (let i = 0; i < items.length; i++) {
+          await this.deleteSite(items[i].id);
+          deletedCount++;
+        }
+      }
+      return Promise.resolve(deletedCount);
     } catch (e) {
       return Promise.reject(e);
     }

@@ -128,6 +128,8 @@ export default class ClubAPI extends DataSource {
     try {
       // make transaction
       const club = await this.findClubById(id);
+      const trainerDeleteCount = await this.trainerAPI.deleteTrainersByClub(id);
+      logger.info(`Deleted ${trainerDeleteCount} trainers`);
       const siteDeleteCount = await this.siteAPI.deleteSitesByClub(id);
       logger.info(`Deleted ${siteDeleteCount} sites`);
       const deletedItemsCount = await batchDelete(

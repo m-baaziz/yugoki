@@ -145,4 +145,25 @@ export default class EventAPI extends DataSource {
       return Promise.reject(e);
     }
   }
+
+  async deleteEventsBySite(siteId: string): Promise<number> {
+    try {
+      let deletedCount = 0;
+      let lastCursor = undefined;
+      let hasNext = true;
+      while (hasNext) {
+        const page = await this.listEventsBySiteId(siteId, 100, lastCursor);
+        lastCursor = page.endCursor;
+        hasNext = page.hasNextPage;
+        const items = page.events;
+        for (let i = 0; i < items.length; i++) {
+          await this.deleteEvent(siteId, items[i].id);
+          deletedCount++;
+        }
+      }
+      return Promise.resolve(deletedCount);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
 }
