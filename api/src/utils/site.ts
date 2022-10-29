@@ -1,55 +1,9 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { encode } from 'ngeohash';
-import {
-  ClubDbObject,
-  Site,
-  SiteDbObject,
-  SearchArea,
-  SportDbObject,
-  TrainerDbObject,
-  Activity,
-  CalendarSpan,
-} from '../generated/graphql';
-import { clubToRecord, dbClubToClub, parseClub } from './club';
-import { dbSportToSport, parseSport, sportToRecord } from './sport';
-import { dbTrainerToTrainer, parseTrainer, trainerToRecord } from './trainer';
-
-export function dbSiteToSite(
-  site: SiteDbObject,
-  sport: SportDbObject,
-  club: ClubDbObject,
-  trainers: TrainerDbObject[],
-): Site {
-  const {
-    _id,
-    name,
-    address,
-    lat,
-    lon,
-    phone,
-    website,
-    images,
-    description,
-    activities,
-    schedule,
-  } = site;
-  return {
-    id: _id.toString(),
-    name,
-    club: dbClubToClub(club),
-    sport: dbSportToSport(sport),
-    address,
-    lat,
-    lon,
-    images,
-    description,
-    phone,
-    website,
-    trainers: trainers.map((trainer) => dbTrainerToTrainer(trainer, club)),
-    activities,
-    schedule,
-  };
-}
+import { Site, SearchArea, Activity, CalendarSpan } from '../generated/graphql';
+import { clubToRecord, parseClub } from './club';
+import { parseSport, sportToRecord } from './sport';
+import { parseTrainer, trainerToRecord } from './trainer';
 
 export function commonRadical(left: string, right: string): string {
   const minLength = Math.min(left.length, right.length);

@@ -42,7 +42,7 @@ export type CalendarSpanInput = {
 
 export type Club = {
   __typename?: 'Club';
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   logo?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   owner: Scalars['String'];
@@ -55,59 +55,13 @@ export type ClubPageInfo = {
   hasNextPage: Scalars['Boolean'];
 };
 
-export type ClubSportLocation = {
-  __typename?: 'ClubSportLocation';
-  activities: Array<Activity>;
-  address: Scalars['String'];
-  club: Club;
-  description: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
-  images: Array<Scalars['String']>;
-  lat: Scalars['Float'];
-  lon: Scalars['Float'];
-  name: Scalars['String'];
-  phone: Scalars['String'];
-  schedule: Array<CalendarSpan>;
-  sport: Sport;
-  trainers: Array<Trainer>;
-  website?: Maybe<Scalars['String']>;
-};
-
-export type ClubSportLocationInput = {
-  activities: Array<ActivityInput>;
-  address: Scalars['String'];
-  description: Scalars['String'];
-  images: Array<Scalars['String']>;
-  lat: Scalars['Float'];
-  lon: Scalars['Float'];
-  name: Scalars['String'];
-  phone: Scalars['String'];
-  schedule: Array<CalendarSpanInput>;
-  sportId: Scalars['ID'];
-  trainerIds: Array<Scalars['ID']>;
-  website?: InputMaybe<Scalars['String']>;
-};
-
-export type ClubSportLocationPageInfo = {
-  __typename?: 'ClubSportLocationPageInfo';
-  clubSportLocations: Array<ClubSportLocation>;
-  endCursor?: Maybe<Scalars['String']>;
-  hasNextPage: Scalars['Boolean'];
-};
-
-export type ClubSportLocationSearchQueryInput = {
-  address?: InputMaybe<Scalars['String']>;
-  area?: InputMaybe<SearchArea>;
-  sport: Scalars['ID'];
-};
-
 export type Event = {
   __typename?: 'Event';
-  clubSportLocation: Scalars['String'];
   dateRFC3339: Scalars['String'];
   description: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
+  site: Scalars['String'];
   title: Scalars['String'];
 };
 
@@ -128,7 +82,7 @@ export type EventPageInfo = {
 export type FileUpload = {
   __typename?: 'FileUpload';
   ext: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   kind: FileUploadKind;
   size: Scalars['Int'];
 };
@@ -141,8 +95,8 @@ export type FileUploadInput = {
 
 export enum FileUploadKind {
   ClubLogo = 'ClubLogo',
-  ClubSportLocationImage = 'ClubSportLocationImage',
   EventImage = 'EventImage',
+  SiteImage = 'SiteImage',
   TrainerPhoto = 'TrainerPhoto'
 }
 
@@ -161,15 +115,17 @@ export enum Gender {
 export type Mutation = {
   __typename?: 'Mutation';
   createClub: Club;
-  createClubSportLocation?: Maybe<ClubSportLocation>;
   createEvent: Event;
   createFileUpload: FileUploadResponse;
+  createSite?: Maybe<Site>;
+  createSport: Sport;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
   createTrainer: Trainer;
   deleteClub: Scalars['Boolean'];
-  deleteClubSportLocation: Scalars['Boolean'];
   deleteEvent: Scalars['Boolean'];
+  deleteSite: Scalars['Boolean'];
+  deleteSport: Scalars['Boolean'];
   deleteTrainer: Scalars['Boolean'];
   disableSubscriptionOption: SubscriptionOption;
   enableSubscriptionOption: SubscriptionOption;
@@ -183,15 +139,9 @@ export type MutationCreateClubArgs = {
 };
 
 
-export type MutationCreateClubSportLocationArgs = {
-  clubId: Scalars['ID'];
-  input: ClubSportLocationInput;
-};
-
-
 export type MutationCreateEventArgs = {
-  cslId: Scalars['ID'];
   input: EventInput;
+  siteId: Scalars['ID'];
 };
 
 
@@ -200,15 +150,27 @@ export type MutationCreateFileUploadArgs = {
 };
 
 
+export type MutationCreateSiteArgs = {
+  clubId: Scalars['ID'];
+  input: SiteInput;
+};
+
+
+export type MutationCreateSportArgs = {
+  input: SportInput;
+};
+
+
 export type MutationCreateSubscriptionArgs = {
   details: SubscriberDetailsInput;
+  siteId: Scalars['ID'];
   subscriptionOptionId: Scalars['ID'];
 };
 
 
 export type MutationCreateSubscriptionOptionArgs = {
-  cslId: Scalars['ID'];
   input: SubscriptionOptionInput;
+  siteId: Scalars['ID'];
 };
 
 
@@ -223,28 +185,37 @@ export type MutationDeleteClubArgs = {
 };
 
 
-export type MutationDeleteClubSportLocationArgs = {
+export type MutationDeleteEventArgs = {
+  id: Scalars['ID'];
+  siteId: Scalars['ID'];
+};
+
+
+export type MutationDeleteSiteArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteEventArgs = {
+export type MutationDeleteSportArgs = {
   id: Scalars['ID'];
 };
 
 
 export type MutationDeleteTrainerArgs = {
+  clubId: Scalars['ID'];
   id: Scalars['ID'];
 };
 
 
 export type MutationDisableSubscriptionOptionArgs = {
   id: Scalars['ID'];
+  siteId: Scalars['ID'];
 };
 
 
 export type MutationEnableSubscriptionOptionArgs = {
   id: Scalars['ID'];
+  siteId: Scalars['ID'];
 };
 
 
@@ -262,25 +233,23 @@ export type MutationSignUpArgs = {
 export type Query = {
   __typename?: 'Query';
   getClub: Club;
-  getClubSportLocation: ClubSportLocation;
-  getClubSportLocationImages: Array<FileUploadResponse>;
   getEvent: Event;
   getFileUpload: FileUploadResponse;
+  getSite: Site;
+  getSiteImages: Array<FileUploadResponse>;
   getSubscription: Subscription;
   getSubscriptionOption: SubscriptionOption;
-  listClubSportLocationEvents: EventPageInfo;
-  listClubSportLocations: ClubSportLocationPageInfo;
-  listClubSportLocationsByClub: ClubSportLocationPageInfo;
-  listClubs: ClubPageInfo;
-  listEnabledSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
+  listEnabledSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
+  listSiteEvents: EventPageInfo;
+  listSitesByClub: SitePageInfo;
   listSports: SportPageInfo;
-  listSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
-  listSubscriptionsByClubSportLocation: SubscriptionPageInfo;
+  listSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
+  listSubscriptionsBySite: SubscriptionPageInfo;
   listSubscriptionsBySubscriptionOption: SubscriptionPageInfo;
   listTrainersByClub: TrainerPageInfo;
   listUserClubs: ClubPageInfo;
   me: User;
-  searchClubSportLocations: ClubSportLocationPageInfo;
+  searchSites: SitePageInfo;
 };
 
 
@@ -289,18 +258,9 @@ export type QueryGetClubArgs = {
 };
 
 
-export type QueryGetClubSportLocationArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetClubSportLocationImagesArgs = {
-  id: Scalars['ID'];
-};
-
-
 export type QueryGetEventArgs = {
   id: Scalars['ID'];
+  siteId: Scalars['ID'];
 };
 
 
@@ -309,45 +269,45 @@ export type QueryGetFileUploadArgs = {
 };
 
 
+export type QueryGetSiteArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryGetSiteImagesArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type QueryGetSubscriptionArgs = {
   id: Scalars['ID'];
+  siteId: Scalars['ID'];
 };
 
 
 export type QueryGetSubscriptionOptionArgs = {
   id: Scalars['ID'];
+  siteId: Scalars['ID'];
 };
 
 
-export type QueryListClubSportLocationEventsArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
-  first: Scalars['Int'];
-};
-
-
-export type QueryListClubSportLocationsArgs = {
+export type QueryListEnabledSubscriptionOptionsBySiteArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
+  siteId: Scalars['ID'];
 };
 
 
-export type QueryListClubSportLocationsByClubArgs = {
+export type QueryListSiteEventsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  siteId: Scalars['ID'];
+};
+
+
+export type QueryListSitesByClubArgs = {
   after?: InputMaybe<Scalars['String']>;
   clubId: Scalars['ID'];
-  first: Scalars['Int'];
-};
-
-
-export type QueryListClubsArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first: Scalars['Int'];
-};
-
-
-export type QueryListEnabledSubscriptionOptionsByClubSportLocationArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
   first: Scalars['Int'];
 };
 
@@ -358,23 +318,24 @@ export type QueryListSportsArgs = {
 };
 
 
-export type QueryListSubscriptionOptionsByClubSportLocationArgs = {
+export type QueryListSubscriptionOptionsBySiteArgs = {
   after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
   first: Scalars['Int'];
+  siteId: Scalars['ID'];
 };
 
 
-export type QueryListSubscriptionsByClubSportLocationArgs = {
+export type QueryListSubscriptionsBySiteArgs = {
   after?: InputMaybe<Scalars['String']>;
-  cslId: Scalars['ID'];
   first: Scalars['Int'];
+  siteId: Scalars['ID'];
 };
 
 
 export type QueryListSubscriptionsBySubscriptionOptionArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
+  siteId: Scalars['ID'];
   subscriptionOptionId: Scalars['ID'];
 };
 
@@ -392,10 +353,10 @@ export type QueryListUserClubsArgs = {
 };
 
 
-export type QuerySearchClubSportLocationsArgs = {
+export type QuerySearchSitesArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
-  query: ClubSportLocationSearchQueryInput;
+  query: SiteSearchQueryInput;
 };
 
 export type SearchArea = {
@@ -405,10 +366,63 @@ export type SearchArea = {
   topLeftLon: Scalars['Float'];
 };
 
+export type Site = {
+  __typename?: 'Site';
+  activities: Array<Activity>;
+  address: Scalars['String'];
+  club: Club;
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  images: Array<Scalars['String']>;
+  lat: Scalars['Float'];
+  lon: Scalars['Float'];
+  name: Scalars['String'];
+  phone: Scalars['String'];
+  schedule: Array<CalendarSpan>;
+  sport: Sport;
+  trainers: Array<Trainer>;
+  website?: Maybe<Scalars['String']>;
+};
+
+export type SiteInput = {
+  activities: Array<ActivityInput>;
+  address: Scalars['String'];
+  description: Scalars['String'];
+  images: Array<Scalars['String']>;
+  lat: Scalars['Float'];
+  lon: Scalars['Float'];
+  name: Scalars['String'];
+  phone: Scalars['String'];
+  schedule: Array<CalendarSpanInput>;
+  sportId: Scalars['ID'];
+  trainerIds: Array<Scalars['ID']>;
+  website?: InputMaybe<Scalars['String']>;
+};
+
+export type SitePageInfo = {
+  __typename?: 'SitePageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  sites: Array<Site>;
+};
+
+export type SiteSearchQueryInput = {
+  address?: InputMaybe<Scalars['String']>;
+  area?: InputMaybe<SearchArea>;
+  sport: Scalars['ID'];
+};
+
 export type Sport = {
   __typename?: 'Sport';
   description: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
+  tags: Array<Scalars['String']>;
+  title: Scalars['String'];
+};
+
+export type SportInput = {
+  __typename?: 'SportInput';
+  description: Scalars['String'];
   tags: Array<Scalars['String']>;
   title: Scalars['String'];
 };
@@ -443,20 +457,20 @@ export type SubscriberDetailsInput = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  clubSportLocation: Scalars['String'];
   createdAtRFC3339: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
+  site: Scalars['String'];
   subscriberDetails: SubscriberDetails;
   subscriptionOption: SubscriptionOption;
 };
 
 export type SubscriptionOption = {
   __typename?: 'SubscriptionOption';
-  clubSportLocation: Scalars['String'];
   enabled: Scalars['Boolean'];
   features: Array<Scalars['String']>;
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   price: Scalars['Float'];
+  site: Scalars['String'];
   title: Scalars['String'];
 };
 
@@ -482,11 +496,11 @@ export type SubscriptionPageInfo = {
 
 export type Trainer = {
   __typename?: 'Trainer';
-  club?: Maybe<Club>;
+  club: Scalars['String'];
   description: Scalars['String'];
   displayname: Scalars['String'];
   firstname: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   lastname: Scalars['String'];
   photo?: Maybe<Scalars['String']>;
 };
@@ -509,5 +523,5 @@ export type TrainerPageInfo = {
 export type User = {
   __typename?: 'User';
   email: Scalars['String'];
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
 };

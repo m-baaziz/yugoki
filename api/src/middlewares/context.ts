@@ -2,7 +2,6 @@ import { Context } from 'apollo-server-core';
 import { ExpressContext } from 'apollo-server-express';
 import UserAPI from '../datasources/user';
 import { User } from '../generated/graphql';
-import { dbUserToUser } from '../utils/user';
 
 export type AuthenticationContext = {
   user?: User;
@@ -18,7 +17,7 @@ const authenticationMiddleware =
       }
       const token = authoriaztionSplit[1];
       const user = await userAPI.verifyToken(token);
-      return Promise.resolve({ user: dbUserToUser(user) });
+      return Promise.resolve({ user });
     } catch (e) {
       return Promise.resolve({ user: undefined });
     }

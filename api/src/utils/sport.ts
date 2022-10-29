@@ -1,15 +1,5 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { Sport, SportDbObject } from '../generated/graphql';
-
-export function dbSportToSport(sport: SportDbObject): Sport {
-  const { _id, title, description, tags } = sport;
-  return {
-    id: _id.toString(),
-    title,
-    description,
-    tags,
-  };
-}
+import { Sport } from '../generated/graphql';
 
 export function parseSport(item: Record<string, AttributeValue>): Sport {
   return {

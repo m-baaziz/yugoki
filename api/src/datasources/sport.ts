@@ -4,9 +4,12 @@ import {
   DynamoDBClient,
   GetItemCommand,
   ScanCommand,
+  PutItemCommand,
+  DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
-import { Sport, SportPageInfo } from '../generated/graphql';
-import { parseSport } from '../utils/sport';
+import { v4 as uuidv4 } from 'uuid';
+import { Sport, SportInput, SportPageInfo } from '../generated/graphql';
+import { parseSport, sportToRecord } from '../utils/sport';
 
 const TABLE_NAME = 'Sport';
 
@@ -56,6 +59,47 @@ export default class SportAPI extends DataSource {
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async createSport(input: SportInput): Promise<Sport> {
+    try {
+      const id = uuidv4();
+      const item: Sport = {
+        id,
+        title: input.title,
+        description: input.description,
+        tags: input.tags,
+      };
+      await this.dynamodbClient.send(
+        new PutItemCommand({
+          TableName: TABLE_NAME,
+          ConditionExpression: 'attribute_not_exists(#id)',
+          ExpressionAttributeNames: {
+            '#id': 'SportId',
+          },
+          Item: {
+            ...sportToRecord(item),
+          },
+        }),
+      );
+      return Promise.resolve(item);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async deleteSport(id: string): Promise<boolean> {
+    try {
+      await this.dynamodbClient.send(
+        new DeleteItemCommand({
+          TableName: TABLE_NAME,
+          Key: { SportId: { S: id } },
+        }),
+      );
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }

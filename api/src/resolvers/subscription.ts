@@ -9,32 +9,17 @@ import {
 } from '../generated/graphql';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
-import { dbSubscriptionToSubscription } from '../utils/subscription';
 
 export async function getSubscription(
   _parent: unknown,
-  { id }: QueryGetSubscriptionArgs,
-  {
-    user,
-    dataSources: { subscriptionAPI, subscriptionOptionAPI, siteAPI, clubAPI },
-  }: ContextWithDataSources,
+  { siteId, id }: QueryGetSubscriptionArgs,
+  { user, dataSources: { subscriptionAPI } }: ContextWithDataSources,
 ): Promise<Subscription> {
   try {
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const subscription = await subscriptionAPI.findSubscriptionById(id);
-    const subscriptionOption =
-      await subscriptionOptionAPI.findSubscriptionOptionById(
-        subscription.subscriptionOption.toString(),
-      );
-    const site = await siteAPI.findSiteById(subscriptionOption.site);
-    const club = await clubAPI.findClubById(site.club.toString());
-    if (!isUserAuthorized(club, user)) {
-      return Promise.reject('Unauthorized');
-    }
-
-    return await dbSubscriptionToSubscription(subscription, subscriptionOption);
+    return await subscriptionAPI.findSubscriptionById(siteId, id);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -44,6 +29,7 @@ export async function getSubscription(
 export async function listSubscriptionsBySubscriptionOption(
   _parent: unknown,
   {
+    siteId,
     subscriptionOptionId,
     first,
     after,
@@ -59,6 +45,7 @@ export async function listSubscriptionsBySubscriptionOption(
     }
     const subscriptionOption =
       await subscriptionOptionAPI.findSubscriptionOptionById(
+        siteId,
         subscriptionOptionId,
       );
     const site = await siteAPI.findSiteById(subscriptionOption.site);
@@ -66,27 +53,12 @@ export async function listSubscriptionsBySubscriptionOption(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const [subscriptions, hasNextPage] =
-      await subscriptionAPI.listSubscriptionsBySubscriptionOption(
-        subscriptionOptionId,
-        first,
-        after,
-      );
-    const endCursor =
-      subscriptions.length > 0
-        ? subscriptions[subscriptions.length - 1]._id.toString()
-        : undefined;
-
-    const fullSubscriptions = await Promise.all(
-      subscriptions.map((subscription) =>
-        dbSubscriptionToSubscription(subscription, subscriptionOption),
-      ),
+    return await subscriptionAPI.listSubscriptionsBySubscriptionOption(
+      siteId,
+      subscriptionOptionId,
+      first,
+      after,
     );
-    return {
-      subscriptions: fullSubscriptions,
-      hasNextPage,
-      endCursor,
-    };
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -98,7 +70,7 @@ export async function listSubscriptionsBySite(
   { siteId, first, after }: QueryListSubscriptionsBySiteArgs,
   {
     user,
-    dataSources: { subscriptionAPI, subscriptionOptionAPI, siteAPI, clubAPI },
+    dataSources: { subscriptionAPI, siteAPI, clubAPI },
   }: ContextWithDataSources,
 ): Promise<SubscriptionPageInfo> {
   try {
@@ -110,34 +82,7 @@ export async function listSubscriptionsBySite(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const [subscriptions, hasNextPage] =
-      await subscriptionAPI.listSubscriptionsBySite(siteId, first, after);
-    const endCursor =
-      subscriptions.length > 0
-        ? subscriptions[subscriptions.length - 1]._id.toString()
-        : undefined;
-
-    const fullSubscriptions = await Promise.all(
-      subscriptions.map(async (subscription) => {
-        try {
-          const subscriptionOption =
-            await subscriptionOptionAPI.findSubscriptionOptionById(
-              subscription.subscriptionOption.toString(),
-            );
-          return await dbSubscriptionToSubscription(
-            subscription,
-            subscriptionOption,
-          );
-        } catch (e) {
-          return Promise.reject(e);
-        }
-      }),
-    );
-    return {
-      subscriptions: fullSubscriptions,
-      hasNextPage,
-      endCursor,
-    };
+    return await subscriptionAPI.listSubscriptionsBySite(siteId, first, after);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -146,7 +91,7 @@ export async function listSubscriptionsBySite(
 
 export async function createSubscription(
   _parent: unknown,
-  { subscriptionOptionId, details }: MutationCreateSubscriptionArgs,
+  { siteId, subscriptionOptionId, details }: MutationCreateSubscriptionArgs,
   {
     dataSources: {
       subscriptionAPI,
@@ -160,6 +105,7 @@ export async function createSubscription(
   try {
     const subscriptionOption =
       await subscriptionOptionAPI.findSubscriptionOptionById(
+        siteId,
         subscriptionOptionId,
       );
     if (!subscriptionOption.enabled) {
@@ -168,6 +114,7 @@ export async function createSubscription(
       );
     }
     const subscription = await subscriptionAPI.createSubscription(
+      siteId,
       subscriptionOptionId,
       details,
     );
@@ -178,7 +125,7 @@ export async function createSubscription(
       `Sending email to club owner ${owner.email} and customer ${details.email}`,
     );
     // send emails
-    return await dbSubscriptionToSubscription(subscription, subscriptionOption);
+    return subscription;
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

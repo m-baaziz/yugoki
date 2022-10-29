@@ -7,7 +7,6 @@ import {
   MutationDeleteEventArgs,
   MutationCreateEventArgs,
 } from '../generated/graphql';
-import { dbEventToEvent } from '../utils/event';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
 
@@ -17,18 +16,7 @@ export async function listSiteEvents(
   { dataSources: { eventAPI } }: ContextWithDataSources,
 ): Promise<EventPageInfo> {
   try {
-    const [events, hasNextPage] = await eventAPI.listEventsBySiteId(
-      siteId,
-      first,
-      after,
-    );
-    const endCursor =
-      events.length > 0 ? events[events.length - 1]._id.toString() : undefined;
-    return {
-      events: events.map(dbEventToEvent),
-      hasNextPage,
-      endCursor,
-    };
+    return await eventAPI.listEventsBySiteId(siteId, first, after);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -37,12 +25,12 @@ export async function listSiteEvents(
 
 export async function getEvent(
   _parent: unknown,
-  { id }: QueryGetEventArgs,
+  { siteId, id }: QueryGetEventArgs,
   { dataSources: { eventAPI } }: ContextWithDataSources,
 ): Promise<Event> {
   try {
-    const event = await eventAPI.findEventById(id);
-    return Promise.resolve(dbEventToEvent(event));
+    const event = await eventAPI.findEventById(siteId, id);
+    return Promise.resolve(event);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -63,8 +51,7 @@ export async function createEvent(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const clubEvent = await eventAPI.createEvent(siteId, input);
-    return dbEventToEvent(clubEvent);
+    return await eventAPI.createEvent(siteId, input);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -73,11 +60,11 @@ export async function createEvent(
 
 export async function deleteEvent(
   _parent: unknown,
-  { id }: MutationDeleteEventArgs,
+  { siteId, id }: MutationDeleteEventArgs,
   { dataSources: { eventAPI } }: ContextWithDataSources,
 ): Promise<boolean> {
   try {
-    const result = await eventAPI.deleteEvent(id);
+    const result = await eventAPI.deleteEvent(siteId, id);
     return Promise.resolve(result);
   } catch (e) {
     logger.error(e.toString());

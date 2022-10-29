@@ -5,7 +5,6 @@ import {
   MutationCreateFileUploadArgs,
 } from '../generated/graphql';
 import { logger } from '../logger';
-import { dbFileUploadToFileUpload } from '../utils/fileUpload';
 
 export async function getFileUpload(
   _parent: unknown,
@@ -13,11 +12,9 @@ export async function getFileUpload(
   { dataSources: { fileUploadAPI } }: ContextWithDataSources,
 ): Promise<FileUploadResponse> {
   try {
-    const fileUpload = await fileUploadAPI.findFileUploadById(id);
-    const url = await fileUploadAPI.generateFileUrlGet(id);
     return {
-      file: dbFileUploadToFileUpload(fileUpload),
-      url,
+      file: await fileUploadAPI.findFileUploadById(id),
+      url: await fileUploadAPI.generateFileUrlGet(id),
     };
   } catch (e) {
     logger.error(e.toString());
@@ -34,13 +31,10 @@ export async function createFileUpload(
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const fileUpload = await fileUploadAPI.createFileUpload(input);
-    const url = await fileUploadAPI.generateFileUrlPut(
-      fileUpload._id.toString(),
-    );
+    const file = await fileUploadAPI.createFileUpload(input);
     return {
-      file: dbFileUploadToFileUpload(fileUpload),
-      url,
+      file,
+      url: await fileUploadAPI.generateFileUrlPut(file.id),
     };
   } catch (e) {
     logger.error(e.toString());

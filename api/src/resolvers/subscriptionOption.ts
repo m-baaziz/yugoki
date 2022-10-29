@@ -10,17 +10,14 @@ import {
 } from '../generated/graphql';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
-import { dbSubscriptionOptionToSubscriptionOption } from '../utils/subscriptionOption';
 
 export async function getSubscriptionOption(
   _parent: unknown,
-  { id }: QueryGetSubscriptionOptionArgs,
+  { siteId, id }: QueryGetSubscriptionOptionArgs,
   { dataSources: { subscriptionOptionAPI } }: ContextWithDataSources,
 ): Promise<SubscriptionOption> {
   try {
-    const subscriptionOption =
-      await subscriptionOptionAPI.findSubscriptionOptionById(id);
-    return dbSubscriptionOptionToSubscriptionOption(subscriptionOption);
+    return await subscriptionOptionAPI.findSubscriptionOptionById(siteId, id);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -33,23 +30,11 @@ export async function listSubscriptionOptionsBySite(
   { dataSources: { subscriptionOptionAPI } }: ContextWithDataSources,
 ): Promise<SubscriptionOptionPageInfo> {
   try {
-    const [subscriptionOptions, hasNextPage] =
-      await subscriptionOptionAPI.listSubscriptionOptionsBySite(
-        siteId,
-        first,
-        after,
-      );
-    const endCursor =
-      subscriptionOptions.length > 0
-        ? subscriptionOptions[subscriptionOptions.length - 1]._id.toString()
-        : undefined;
-    return {
-      subscriptionOptions: subscriptionOptions.map(
-        dbSubscriptionOptionToSubscriptionOption,
-      ),
-      hasNextPage,
-      endCursor,
-    };
+    return await subscriptionOptionAPI.listSubscriptionOptionsBySite(
+      siteId,
+      first,
+      after,
+    );
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -62,23 +47,11 @@ export async function listEnabledSubscriptionOptionsBySite(
   { dataSources: { subscriptionOptionAPI } }: ContextWithDataSources,
 ): Promise<SubscriptionOptionPageInfo> {
   try {
-    const [subscriptionOptions, hasNextPage] =
-      await subscriptionOptionAPI.listEnabledSubscriptionOptionsBySite(
-        siteId,
-        first,
-        after,
-      );
-    const endCursor =
-      subscriptionOptions.length > 0
-        ? subscriptionOptions[subscriptionOptions.length - 1]._id.toString()
-        : undefined;
-    return {
-      subscriptionOptions: subscriptionOptions.map(
-        dbSubscriptionOptionToSubscriptionOption,
-      ),
-      hasNextPage,
-      endCursor,
-    };
+    return await subscriptionOptionAPI.listEnabledSubscriptionOptionsBySite(
+      siteId,
+      first,
+      after,
+    );
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -102,9 +75,7 @@ export async function createSubscriptionOption(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const subscriptionOption =
-      await subscriptionOptionAPI.createSubscriptionOption(siteId, input);
-    return dbSubscriptionOptionToSubscriptionOption(subscriptionOption);
+    return await subscriptionOptionAPI.createSubscriptionOption(siteId, input);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -113,7 +84,7 @@ export async function createSubscriptionOption(
 
 export async function enableSubscriptionOption(
   _parent: unknown,
-  { id }: MutationEnableSubscriptionOptionArgs,
+  { siteId, id }: MutationEnableSubscriptionOptionArgs,
   {
     user,
     dataSources: { subscriptionOptionAPI, siteAPI, clubAPI },
@@ -124,15 +95,20 @@ export async function enableSubscriptionOption(
       return Promise.reject('Unauthorized');
     }
     const subscriptionOption =
-      await subscriptionOptionAPI.findSubscriptionOptionById(id);
+      await subscriptionOptionAPI.findSubscriptionOptionById(siteId, id);
     const site = await siteAPI.findSiteById(subscriptionOption.site);
     const club = await clubAPI.findClubById(site.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const newSubscriptionOption =
-      await subscriptionOptionAPI.enableSubscriptionOption(id);
-    return dbSubscriptionOptionToSubscriptionOption(newSubscriptionOption);
+    const done = await subscriptionOptionAPI.enableSubscriptionOption(
+      siteId,
+      id,
+    );
+    return {
+      ...subscriptionOption,
+      enabled: done ? true : subscriptionOption.enabled,
+    };
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -141,7 +117,7 @@ export async function enableSubscriptionOption(
 
 export async function disableSubscriptionOption(
   _parent: unknown,
-  { id }: MutationEnableSubscriptionOptionArgs,
+  { siteId, id }: MutationEnableSubscriptionOptionArgs,
   {
     user,
     dataSources: { subscriptionOptionAPI, siteAPI, clubAPI },
@@ -152,15 +128,20 @@ export async function disableSubscriptionOption(
       return Promise.reject('Unauthorized');
     }
     const subscriptionOption =
-      await subscriptionOptionAPI.findSubscriptionOptionById(id);
+      await subscriptionOptionAPI.findSubscriptionOptionById(siteId, id);
     const site = await siteAPI.findSiteById(subscriptionOption.site);
     const club = await clubAPI.findClubById(site.club.toString());
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const newSubscriptionOption =
-      await subscriptionOptionAPI.disableSubscriptionOption(id);
-    return dbSubscriptionOptionToSubscriptionOption(newSubscriptionOption);
+    const done = await subscriptionOptionAPI.disableSubscriptionOption(
+      siteId,
+      id,
+    );
+    return {
+      ...subscriptionOption,
+      enabled: done ? false : subscriptionOption.enabled,
+    };
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

@@ -3,12 +3,19 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource';
 import {
   DynamoDBClient,
   GetItemCommand,
+  QueryCommand,
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 
 import { User } from '../generated/graphql';
-import { parseUser, userToRecord } from '../utils/user';
+import {
+  parseUser,
+  parseUserWithPasswordHard,
+  userToRecord,
+  UserWithPasswordHash,
+} from '../utils/user';
 
 export type InsertUserArgs = {
   email: string;
@@ -23,6 +30,7 @@ export type UserAPIConfig = {
 export type UserJwt = User & jwt.JwtPayload;
 
 const TABLE_NAME = 'User';
+const EMAIL_INDEX_NAME = 'EmailIndex';
 
 export default class UserAPI extends DataSource {
   dynamodbClient: DynamoDBClient;
@@ -95,9 +103,53 @@ export default class UserAPI extends DataSource {
     }
   }
 
-  async insertUser(id: string, email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<UserWithPasswordHash> {
+    try {
+      const result = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: EMAIL_INDEX_NAME,
+          KeyConditionExpression: '#email = :email',
+          ExpressionAttributeNames: {
+            '#email': 'UserEmail',
+          },
+          ExpressionAttributeValues: {
+            ':email': { S: email },
+          },
+          Limit: 1,
+        }),
+      );
+      const items = result.Items;
+      if (items.length === 0) {
+        return Promise.reject(`User with email ${email} not found`);
+      }
+      return Promise.resolve(parseUserWithPasswordHard(items[0]));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async insertUser(email: string, passwordHash: string): Promise<User> {
     // use cognito for signup ... (get id from cognito result)
     try {
+      const existingUsers = await this.dynamodbClient.send(
+        new QueryCommand({
+          TableName: TABLE_NAME,
+          IndexName: EMAIL_INDEX_NAME,
+          KeyConditionExpression: '#email = :email',
+          ExpressionAttributeNames: {
+            '#email': 'UserEmail',
+          },
+          ExpressionAttributeValues: {
+            ':email': { S: email },
+          },
+          Limit: 1,
+        }),
+      );
+      if (existingUsers.Items.length > 0) {
+        return Promise.reject(`User with email ${email} already exists`);
+      }
+      const id = uuidv4();
       const item: User = {
         id,
         email,
@@ -110,7 +162,7 @@ export default class UserAPI extends DataSource {
             '#id': 'UserId',
           },
           Item: {
-            ...userToRecord(item),
+            ...userToRecord(item, passwordHash),
           },
         }),
       );

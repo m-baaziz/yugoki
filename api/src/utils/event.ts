@@ -1,17 +1,5 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { EventDbObject, Event } from '../generated/graphql';
-
-export function dbEventToEvent(event: EventDbObject): Event {
-  const { _id, site, dateRFC3339, title, description, image } = event;
-  return {
-    id: _id.toString(),
-    site,
-    dateRFC3339,
-    title,
-    description,
-    image,
-  };
-}
+import { Event } from '../generated/graphql';
 
 export function parseEvent(item: Record<string, AttributeValue>): Event {
   return {

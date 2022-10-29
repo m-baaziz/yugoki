@@ -11,44 +11,15 @@ import {
   FileUploadResponse,
 } from '../generated/graphql';
 import { isUserAuthorized } from '../utils/club';
-import { dbSiteToSite } from '../utils/site';
 import { logger } from '../logger';
-import { dbFileUploadToFileUpload } from '../utils/fileUpload';
 
 export async function listSitesByClub(
   _parent: unknown,
   { clubId, first, after }: QueryListSitesByClubArgs,
-  {
-    dataSources: { siteAPI, sportAPI, clubAPI, trainerAPI },
-  }: ContextWithDataSources,
+  { dataSources: { siteAPI } }: ContextWithDataSources,
 ): Promise<SitePageInfo> {
   try {
-    const [sites, hasNextPage] = await siteAPI.listSitesByClub(
-      clubId,
-      first,
-      after,
-    );
-    const endCursor =
-      sites.length > 0 ? sites[sites.length - 1]._id.toString() : undefined;
-    const fullSites = await Promise.all(
-      sites.map(async (site) => {
-        try {
-          const sport = await sportAPI.findSportById(site.sport.toString());
-          const club = await clubAPI.findClubById(site.club.toString());
-          const trainers = await trainerAPI.findTrainersByIds(
-            site.trainers.map((tid) => tid.toString()),
-          );
-          return dbSiteToSite(site, sport, club, trainers);
-        } catch (e) {
-          return Promise.reject(e);
-        }
-      }),
-    );
-    return {
-      sites: fullSites,
-      hasNextPage,
-      endCursor,
-    };
+    return await siteAPI.listSitesByClub(clubId, first, after);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -58,43 +29,15 @@ export async function listSitesByClub(
 export async function searchSites(
   _parent: unknown,
   { query: { sport, address, area }, first, after }: QuerySearchSitesArgs,
-  {
-    dataSources: { siteAPI, sportAPI, clubAPI, trainerAPI },
-  }: ContextWithDataSources,
+  { dataSources: { siteAPI } }: ContextWithDataSources,
 ): Promise<SitePageInfo> {
   try {
-    let [sites, hasNextPage] = [[], false];
     if (area) {
-      [sites, hasNextPage] = await siteAPI.listSitesBySportAndArea(
-        sport,
-        area,
-        first,
-        after,
-      );
+      return await siteAPI.listSitesBySportAndArea(sport, area, first, after);
     } else if (address) {
       return Promise.reject('Search by address is not supported yet');
     }
-    const endCursor =
-      sites.length > 0 ? sites[sites.length - 1]._id.toString() : undefined;
-    const fullSites = await Promise.all(
-      sites.map(async (site) => {
-        try {
-          const sport = await sportAPI.findSportById(site.sport.toString());
-          const club = await clubAPI.findClubById(site.club.toString());
-          const trainers = await trainerAPI.findTrainersByIds(
-            site.trainers.map((tid) => tid.toString()),
-          );
-          return dbSiteToSite(site, sport, club, trainers);
-        } catch (e) {
-          return Promise.reject(e);
-        }
-      }),
-    );
-    return {
-      sites: fullSites,
-      hasNextPage,
-      endCursor,
-    };
+    return Promise.reject('Please specify a sport id and an area');
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -104,18 +47,10 @@ export async function searchSites(
 export async function getSite(
   _parent: unknown,
   { id }: QueryGetSiteArgs,
-  {
-    dataSources: { siteAPI, sportAPI, clubAPI, trainerAPI },
-  }: ContextWithDataSources,
+  { dataSources: { siteAPI } }: ContextWithDataSources,
 ): Promise<Site> {
   try {
-    const site = await siteAPI.findSiteById(id);
-    const sport = await sportAPI.findSportById(site.sport.toString());
-    const club = await clubAPI.findClubById(site.club.toString());
-    const trainers = await trainerAPI.findTrainersByIds(
-      site.trainers.map((tid) => tid.toString()),
-    );
-    return dbSiteToSite(site, sport, club, trainers);
+    return await siteAPI.findSiteById(id);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -132,11 +67,9 @@ export async function getSiteImages(
     const fileUploadResponses = await Promise.all(
       site.images.map(async (imageId) => {
         try {
-          const fileUpload = await fileUploadAPI.findFileUploadById(imageId);
-          const url = await fileUploadAPI.generateFileUrlGet(imageId);
           return Promise.resolve({
-            file: dbFileUploadToFileUpload(fileUpload),
-            url,
+            file: await fileUploadAPI.findFileUploadById(imageId),
+            url: await fileUploadAPI.generateFileUrlGet(imageId),
           });
         } catch (e) {
           return Promise.reject(e);
@@ -153,10 +86,7 @@ export async function getSiteImages(
 export async function createSite(
   _parent: unknown,
   { clubId, input }: MutationCreateSiteArgs,
-  {
-    user,
-    dataSources: { siteAPI, sportAPI, clubAPI, trainerAPI },
-  }: ContextWithDataSources,
+  { user, dataSources: { siteAPI, sportAPI, clubAPI } }: ContextWithDataSources,
 ): Promise<Site> {
   try {
     if (!user) {
@@ -167,11 +97,7 @@ export async function createSite(
       return Promise.reject('Unauthorized');
     }
     const sport = await sportAPI.findSportById(input.sportId);
-    const site = await siteAPI.createSite(clubId, input.sportId, input);
-    const trainers = await trainerAPI.findTrainersByIds(
-      site.trainers.map((tid) => tid.toString()),
-    );
-    return dbSiteToSite(site, sport, club, trainers);
+    return await siteAPI.createSite(club, sport, input);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

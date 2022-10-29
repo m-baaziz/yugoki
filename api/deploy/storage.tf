@@ -1,7 +1,3 @@
-locals {
-  app_name = "klubzz"
-}
-
 resource "aws_s3_bucket" "files" {
   bucket = "${local.app_name}-files"
   tags = {

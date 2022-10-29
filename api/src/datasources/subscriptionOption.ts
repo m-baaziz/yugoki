@@ -11,7 +11,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   SubscriptionOption,
-  SubscriptionOptionDbObject,
   SubscriptionOptionInput,
   SubscriptionOptionPageInfo,
 } from '../generated/graphql';
@@ -137,7 +136,7 @@ export default class SubscriptionOptionAPI extends DataSource {
   async createSubscriptionOption(
     siteId: string,
     input: SubscriptionOptionInput,
-  ): Promise<SubscriptionOptionDbObject> {
+  ): Promise<SubscriptionOption> {
     try {
       const id = uuidv4();
       const subscriptionOption: SubscriptionOption = {

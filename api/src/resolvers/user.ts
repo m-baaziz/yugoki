@@ -5,7 +5,6 @@ import {
   User,
 } from '../generated/graphql';
 import { logger } from '../logger';
-import { dbUserToUser } from '../utils/user';
 import { ContextWithDataSources } from '../datasources';
 import { validate as validateEmail } from 'email-validator';
 
@@ -28,7 +27,7 @@ export async function signIn(
     if (!match) {
       return Promise.reject('Invalid credentials');
     }
-    return userAPI.generateToken(dbUserToUser(user));
+    return userAPI.generateToken(user);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject('Invalid credentials');
@@ -56,12 +55,9 @@ export async function signUp(
     logger.info(`Creating user with email ${email}`);
     const passwordHash = await hashPassword(password);
     // use cognito for sign up ...
-    const newUser = await userAPI.insertUser({
-      email,
-      passwordHash,
-    });
-    logger.info(`New user successfully created (id = ${newUser._id})`);
-    return userAPI.generateToken(dbUserToUser(newUser));
+    const newUser = await userAPI.insertUser(email, passwordHash);
+    logger.info(`New user successfully created (id = ${newUser.id})`);
+    return userAPI.generateToken(newUser);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

@@ -11,20 +11,21 @@ type Query {
     first: Int!
     after: String
   ): SitePageInfo!
-  getEvent(id: ID!): Event!
+  getEvent(siteId: ID!, id: ID!): Event!
   listSiteEvents(siteId: ID!, first: Int!, after: String): EventPageInfo!
   listSubscriptionOptionsBySite(
     siteId: ID!
     first: Int!
     after: String
   ): SubscriptionOptionPageInfo!
-  getSubscriptionOption(id: ID!): SubscriptionOption!
+  getSubscriptionOption(siteId: ID!, id: ID!): SubscriptionOption!
   listEnabledSubscriptionOptionsBySite(
     siteId: ID!
     first: Int!
     after: String
   ): SubscriptionOptionPageInfo!
   listSubscriptionsBySubscriptionOption(
+    siteId: ID!
     subscriptionOptionId: ID!
     first: Int!
     after: String
@@ -34,7 +35,7 @@ type Query {
     first: Int!
     after: String
   ): SubscriptionPageInfo!
-  getSubscription(id: ID!): Subscription!
+  getSubscription(siteId: ID!, id: ID!): Subscription!
   listTrainersByClub(clubId: ID!, first: Int!, after: String): TrainerPageInfo!
   getFileUpload(id: ID!): FileUploadResponse!
 }
@@ -42,24 +43,27 @@ type Query {
 type Mutation {
   signIn(email: String!, password: String!): String! # returns token
   signUp(email: String!, password: String!): String! # returns token
+  createSport(input: SportInput!): Sport!
+  deleteSport(id: ID!): Boolean!
   createClub(name: String!): Club!
   deleteClub(id: ID!): Boolean!
   createTrainer(clubId: ID!, input: TrainerInput!): Trainer!
-  deleteTrainer(id: ID!): Boolean!
+  deleteTrainer(clubId: ID!, id: ID!): Boolean!
   createSite(clubId: ID!, input: SiteInput!): Site
   deleteSite(id: ID!): Boolean!
   createSubscriptionOption(
     siteId: ID!
     input: SubscriptionOptionInput!
   ): SubscriptionOption!
-  enableSubscriptionOption(id: ID!): Boolean!
-  disableSubscriptionOption(id: ID!): Boolean!
+  enableSubscriptionOption(siteId: ID!, id: ID!): SubscriptionOption!
+  disableSubscriptionOption(siteId: ID!, id: ID!): SubscriptionOption!
   createSubscription(
+    siteId: ID!
     subscriptionOptionId: ID!
     details: SubscriberDetailsInput!
   ): Subscription!
   createEvent(siteId: ID!, input: EventInput!): Event!
-  deleteEvent(id: ID!): Boolean!
+  deleteEvent(siteId: ID!, id: ID!): Boolean!
   createFileUpload(input: FileUploadInput!): FileUploadResponse!
 }
 
@@ -79,6 +83,12 @@ input SiteSearchQueryInput {
 type User {
   id: ID!
   email: String!
+}
+
+type SportInput {
+  title: String!
+  description: String!
+  tags: [String!]!
 }
 
 type Sport {

@@ -2,17 +2,17 @@ import { ContextWithDataSources } from '../datasources';
 import {
   Club,
   ClubPageInfo,
-  QueryListClubsArgs,
   QueryGetClubArgs,
   MutationCreateClubArgs,
   MutationDeleteClubArgs,
+  QueryListUserClubsArgs,
 } from '../generated/graphql';
 import { isUserAuthorized } from '../utils/club';
 import { logger } from '../logger';
 
 export async function listUserClubs(
   _parent: unknown,
-  { first, after }: QueryListClubsArgs,
+  { first, after }: QueryListUserClubsArgs,
   { user, dataSources: { clubAPI } }: ContextWithDataSources,
 ): Promise<ClubPageInfo> {
   try {

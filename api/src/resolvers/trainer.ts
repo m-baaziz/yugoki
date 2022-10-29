@@ -6,31 +6,16 @@ import {
   MutationCreateTrainerArgs,
   MutationDeleteTrainerArgs,
 } from '../generated/graphql';
-import { dbTrainerToTrainer } from '../utils/trainer';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
 
 export async function listTrainersByClub(
   _parent: unknown,
   { clubId, first, after }: QueryListTrainersByClubArgs,
-  { dataSources: { trainerAPI, clubAPI } }: ContextWithDataSources,
+  { dataSources: { trainerAPI } }: ContextWithDataSources,
 ): Promise<TrainerPageInfo> {
   try {
-    const club = await clubAPI.findClubById(clubId);
-    const [trainers, hasNextPage] = await trainerAPI.listTrainersByClub(
-      clubId,
-      first,
-      after,
-    );
-    const endCursor =
-      trainers.length > 0
-        ? trainers[trainers.length - 1]._id.toString()
-        : undefined;
-    return {
-      trainers: trainers.map((t) => dbTrainerToTrainer(t, club)),
-      hasNextPage,
-      endCursor,
-    };
+    return await trainerAPI.listTrainersByClub(clubId, first, after);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -50,8 +35,7 @@ export async function createTrainer(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const trainer = await trainerAPI.createTrainer(clubId, input);
-    return Promise.resolve(dbTrainerToTrainer(trainer, club));
+    return await trainerAPI.createTrainer(clubId, input);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -60,20 +44,18 @@ export async function createTrainer(
 
 export async function deleteTrainer(
   _parent: unknown,
-  { id }: MutationDeleteTrainerArgs,
+  { clubId, id }: MutationDeleteTrainerArgs,
   { user, dataSources: { trainerAPI, clubAPI } }: ContextWithDataSources,
 ): Promise<boolean> {
   try {
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    const trainer = await trainerAPI.findTrainerById(id);
-    const club = await clubAPI.findClubById(trainer.club.toString());
+    const club = await clubAPI.findClubById(clubId);
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    const result = await trainerAPI.deleteTrainer(id);
-    return Promise.resolve(result);
+    return await trainerAPI.deleteTrainer(clubId, id);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

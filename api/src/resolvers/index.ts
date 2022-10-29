@@ -9,7 +9,7 @@ import {
   deleteSite,
 } from './site';
 import { getEvent, listSiteEvents, createEvent, deleteEvent } from './event';
-import { listSports } from './sport';
+import { listSports, createSport, deleteSport } from './sport';
 import { signIn, signUp, me } from './user';
 import {
   getSubscriptionOption,
@@ -65,6 +65,8 @@ const resolvers: Resolvers = {
     createEvent,
     deleteEvent,
     createFileUpload,
+    createSport,
+    deleteSport,
   },
 };
 

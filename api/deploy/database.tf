@@ -1,7 +1,3 @@
-locals {
-  app_name = "klubzz"
-}
-
 resource "aws_dynamodb_table" "user" {
   name           = "User"
   billing_mode   = "PROVISIONED"
@@ -12,6 +8,20 @@ resource "aws_dynamodb_table" "user" {
   attribute {
     name = "UserId"
     type = "S"
+  }
+
+  attribute {
+    name = "UserEmail"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "EmailIndex"
+    hash_key        = "UserEmail"
+    range_key       = "UserId"
+    write_capacity  = 1
+    read_capacity   = 1
+    projection_type = "ALL"
   }
 
   tags = {
