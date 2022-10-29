@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import path from 'path';
 import { readFileSync } from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server';
@@ -20,14 +19,11 @@ import SubscriptionAPI from './datasources/subscription';
 import SubscriptionOptionAPI from './datasources/subscriptionOption';
 import FileUploadAPI, { S3Config } from './datasources/fileUpload';
 
-const SCHEMA_PATH = path.join(__dirname, '../schema.graphql');
-
-async function main() {
-  const SERVER_PORT = parseInt(process.env.SERVER_PORT, 10) || 4000;
+export function createApolloServer(schemaPath: string): ApolloServer {
   const JWT_SECRET = process.env.JWT_SECRET;
   const JWT_VALIDITY_SEC = parseInt(process.env.JWT_VALIDITY_SEC, 10);
 
-  const typeDefs = readFileSync(SCHEMA_PATH).toString('utf-8');
+  const typeDefs = readFileSync(schemaPath).toString('utf-8');
 
   const s3Config: S3Config = {
     bucket: process.env.FILES_BUCKET,
@@ -95,17 +91,5 @@ async function main() {
     context: authenticationMiddleware(userAPI),
     logger,
   });
-
-  const serverInfo = await server.listen({
-    port: SERVER_PORT,
-    logger,
-  });
-
-  console.log(`Apollo Server is running! Listening on ${serverInfo.url}`);
-}
-
-try {
-  main();
-} catch (e) {
-  console.error(e);
+  return server;
 }

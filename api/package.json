@@ -9,6 +9,7 @@
     "prebuild": "npm run lint && npm run graphql:codegen",
     "build": "webpack",
     "build:watch": "npm run prebuild && NODE_ENV=development webpack",
+    "build:lambda": "webpack --config ./webpack-lambda.config.js",
     "graphql:codegen:watch": "graphql-codegen --watch --config codegen.yml",
     "graphql:codegen": "graphql-codegen --config codegen.yml",
     "lint": "eslint . --ext .ts,.tsx",

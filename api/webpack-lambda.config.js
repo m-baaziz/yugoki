@@ -6,8 +6,7 @@ const { NODE_ENV = 'production' } = process.env;
 
 module.exports = {
   mode: NODE_ENV,
-  watch: NODE_ENV === 'development',
-  entry: './src/local.ts',
+  entry: './src/lambda.ts',
   devtool: 'inline-source-map',
   target: 'node',
   module: {
@@ -23,8 +22,8 @@ module.exports = {
     extensions: ['.ts', '.js'],
   },
   output: {
-    filename: 'src/main.js',
-    path: path.resolve(__dirname, 'build'),
+    filename: 'handler.js',
+    path: path.resolve(__dirname, 'lambda'),
   },
   externals: [nodeExternals()],
   plugins: [
