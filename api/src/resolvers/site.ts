@@ -114,7 +114,7 @@ export async function deleteSite(
       return Promise.reject('Unauthorized');
     }
     const site = await siteAPI.findSiteById(id);
-    const club = await clubAPI.findClubById(site.club.toString());
+    const club = await clubAPI.findClubById(site.club.id);
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }

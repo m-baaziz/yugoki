@@ -53,7 +53,7 @@ export async function listSubscriptionsBySubscriptionOption(
         subscriptionOptionId,
       );
     const site = await siteAPI.findSiteById(subscriptionOption.site);
-    const club = await clubAPI.findClubById(site.club.toString());
+    const club = await clubAPI.findClubById(site.club.id);
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
@@ -82,7 +82,7 @@ export async function listSubscriptionsBySite(
       return Promise.reject('Unauthorized');
     }
     const site = await siteAPI.findSiteById(siteId);
-    const club = await clubAPI.findClubById(site.club.toString());
+    const club = await clubAPI.findClubById(site.club.id);
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
@@ -123,7 +123,7 @@ export async function createSubscription(
       details,
     );
     const site = await siteAPI.findSiteById(subscriptionOption.site);
-    const club = await clubAPI.findClubById(site.club.toString());
+    const club = await clubAPI.findClubById(site.club.id);
     const owner = await userAPI.findUserById(club.owner);
     logger.info(
       `Sending email to club owner ${owner.email} and customer ${details.email}`,

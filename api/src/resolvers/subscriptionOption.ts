@@ -71,7 +71,7 @@ export async function createSubscriptionOption(
       return Promise.reject('Unauthorized');
     }
     const site = await siteAPI.findSiteById(siteId);
-    const club = await clubAPI.findClubById(site.club.toString());
+    const club = await clubAPI.findClubById(site.club.id);
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
@@ -97,7 +97,7 @@ export async function enableSubscriptionOption(
     const subscriptionOption =
       await subscriptionOptionAPI.findSubscriptionOptionById(siteId, id);
     const site = await siteAPI.findSiteById(subscriptionOption.site);
-    const club = await clubAPI.findClubById(site.club.toString());
+    const club = await clubAPI.findClubById(site.club.id);
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
@@ -130,7 +130,7 @@ export async function disableSubscriptionOption(
     const subscriptionOption =
       await subscriptionOptionAPI.findSubscriptionOptionById(siteId, id);
     const site = await siteAPI.findSiteById(subscriptionOption.site);
-    const club = await clubAPI.findClubById(site.club.toString());
+    const club = await clubAPI.findClubById(site.club.id);
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }

@@ -15,6 +15,10 @@ export function commonRadical(left: string, right: string): string {
   return radical;
 }
 
+export function computeGeohash(lat: number, lon: number): string {
+  return encode(lat, lon, 9);
+}
+
 export function computeAreaGeohash(area: SearchArea): string {
   const encodedTopLeft = encode(area.topLeftLat, area.topLeftLon, 9);
   const encodedBottomRight = encode(
@@ -39,7 +43,7 @@ export function activityToRecord(
   return {
     Name: { S: activity.name },
     Description: { S: activity.description },
-    Icon: activity.icon ? { S: activity.icon } : undefined,
+    Icon: activity.icon ? { S: activity.icon } : { S: '' },
   };
 }
 
@@ -87,12 +91,14 @@ export function parseSite(item: Record<string, AttributeValue>): Site {
 export function siteToRecord(site: Site): Record<string, AttributeValue> {
   return {
     SiteId: { S: site.id },
+    ClubId: { S: site.club.id },
+    SportId: { S: site.sport.id },
     SiteName: { S: site.name },
     Club: { M: clubToRecord(site.club) },
     Sport: { M: sportToRecord(site.sport) },
     SiteAddress: { S: site.address },
     SiteLat: { N: site.lat.toString() },
-    SiteLon: { S: site.lon.toString() },
+    SiteLon: { N: site.lon.toString() },
     SitePhone: { S: site.phone },
     SiteWebsite: { S: site.website },
     SiteImages: { L: site.images.map((im) => ({ S: im })) },

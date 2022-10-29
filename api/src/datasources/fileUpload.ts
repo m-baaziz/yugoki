@@ -82,7 +82,7 @@ export default class FileUploadAPI extends DataSource {
           TableName: TABLE_NAME,
           ConditionExpression: 'attribute_not_exists(#id)',
           ExpressionAttributeNames: {
-            '#id': 'Id',
+            '#id': 'FileUploadId',
           },
           Item: {
             ...fileUploadToRecord(item),

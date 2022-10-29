@@ -31,6 +31,7 @@ import SubscriptionPage from './components/Profile/UserSites/Subscriptions/Subsc
 import SiteEvents from './components/Profile/UserSites/SiteEvents';
 import SiteEvent from './components/Profile/UserSites/SiteEvents/SiteEvent';
 import NewSiteEvent from './components/Profile/UserSites/SiteEvents/NewSiteEvent';
+import Wip from './components/Wip';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -150,6 +151,10 @@ function App() {
               element={withUser(<UserClubTrainers />)}
             />
             <Route
+              path="/profile/clubs/:id/trainers/:trainerId"
+              element={withUser(<Wip />)}
+            />
+            <Route
               path="/profile/clubs/:id/trainers/new"
               element={withUser(<ClubTrainerForm />)}
             />
@@ -170,12 +175,16 @@ function App() {
               element={withUser(<Subscriptions />)}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/:subscriptionOptionId/:id"
-              element={withUser(<SubscriptionPage />)}
+              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/options/:subscriptionOptionId"
+              element={withUser(<Wip />)}
             />
             <Route
               path="/profile/clubs/:clubId/sites/:siteId/subscriptions/options/new"
               element={withUser(<SubscriptionOptionForm />)}
+            />
+            <Route
+              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/options/:subscriptionOptionId/:id"
+              element={withUser(<SubscriptionPage />)}
             />
             <Route
               path="/profile/clubs/:clubId/sites/:siteId/events"

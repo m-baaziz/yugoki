@@ -13,10 +13,10 @@ export function parseFileUpload(
   item: Record<string, AttributeValue>,
 ): FileUpload {
   return {
-    id: item.Id.S,
-    size: parseInt(item.Size.N, 10),
-    ext: item.Ext.S,
-    kind: parseFileUploadKind(item.Kind.S),
+    id: item.FileUploadId.S,
+    size: parseInt(item.FileUploadSize.N, 10),
+    ext: item.FileUploadExt.S,
+    kind: parseFileUploadKind(item.FileUploadKind.S),
   };
 }
 

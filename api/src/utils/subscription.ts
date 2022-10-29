@@ -47,7 +47,7 @@ export function parseSubscription(
     id: item.SubscriptionId.S,
     site: item.SiteId.S,
     subscriptionOption: parseSubscriptionOption(item.SubscriptionOption.M),
-    createdAtRFC3339: item.Date.S,
+    createdAtRFC3339: item.SubscriptionDate.S,
     subscriberDetails: parseSubscriberDetails(item.SubscriberDetails.M),
   };
 }
@@ -58,7 +58,7 @@ export function subscriptionToRecord(
   return {
     SubscriptionOptionId: { S: subscription.subscriptionOption.id },
     SubscriptionId: { S: subscription.id },
-    Date: { S: subscription.createdAtRFC3339 },
+    SubscriptionDate: { S: subscription.createdAtRFC3339 },
     SubscriberDetails: {
       M: subscriberDetailsToRecord(subscription.subscriberDetails),
     },

@@ -21,7 +21,12 @@ import EventAPI from './event';
 import FileUploadAPI from './fileUpload';
 import { batchDelete } from './helpers';
 import SubscriptionOptionAPI from './subscriptionOption';
-import { computeAreaGeohash, parseSite, siteToRecord } from '../utils/site';
+import {
+  computeAreaGeohash,
+  computeGeohash,
+  parseSite,
+  siteToRecord,
+} from '../utils/site';
 import TrainerAPI from './trainer';
 
 const TABLE_NAME = 'Site';
@@ -29,8 +34,10 @@ const CLUB_INDEX_NAME = 'SiteClubIndex';
 const GEOHASH_INDEX_NAME = 'SiteSportGeohashIndex';
 
 const sk1 = (siteId: string) => `SITE#${siteId}`;
-const sk2 = (geohash: string, siteId: string) =>
-  `GEOHASH#${geohash}#SITE#${siteId}`;
+const sk2 = (geohash: string, siteId?: string) =>
+  siteId === undefined
+    ? `GEOHASH#${geohash}`
+    : `GEOHASH#${geohash}#SITE#${siteId}`;
 
 export default class SiteAPI extends DataSource {
   dynamodbClient: DynamoDBClient;
@@ -119,34 +126,33 @@ export default class SiteAPI extends DataSource {
   ): Promise<SitePageInfo> {
     try {
       const geohash = computeAreaGeohash(searchArea);
-      const result = await this.dynamodbClient.send(
-        new QueryCommand({
-          TableName: TABLE_NAME,
-          IndexName: GEOHASH_INDEX_NAME,
-          KeyConditionExpression:
-            '#sportId = :sportId AND begins_with(#sortKey, :sortKeySubstr)',
-          FilterExpression:
-            '#siteLat <= :topLeftLat AND #siteLat >= :bottomRightLat AND #siteLon >= :topLeftLon AND #siteLon <= :bottomRightLon',
-          ExpressionAttributeNames: {
-            '#sportId': 'SportId',
-            '#sortKey': 'Sk2',
-            '#siteLat': 'SiteLat',
-            '#siteLon': 'SiteLon',
-          },
-          ExpressionAttributeValues: {
-            ':sportId': { S: sportId },
-            ':sortKeySubstr': { S: sk2(geohash, '') },
-            ':topLeftLat': { N: searchArea.topLeftLat.toString() },
-            ':bottomRightLat': { N: searchArea.bottomRightLat.toString() },
-            ':topLeftLon': { N: searchArea.topLeftLon.toString() },
-            ':bottomRightLon': { N: searchArea.bottomRightLon.toString() },
-          },
-          Limit: first,
-          ExclusiveStartKey: after
-            ? { SportId: { S: sportId }, Sk2: { S: after } }
-            : undefined,
-        }),
-      );
+      const query = {
+        TableName: TABLE_NAME,
+        IndexName: GEOHASH_INDEX_NAME,
+        KeyConditionExpression:
+          '#sportId = :sportId AND begins_with(#sortKey, :sortKeySubstr)',
+        FilterExpression:
+          '#siteLat <= :topLeftLat AND #siteLat >= :bottomRightLat AND #siteLon >= :topLeftLon AND #siteLon <= :bottomRightLon',
+        ExpressionAttributeNames: {
+          '#sportId': 'SportId',
+          '#sortKey': 'Sk2',
+          '#siteLat': 'SiteLat',
+          '#siteLon': 'SiteLon',
+        },
+        ExpressionAttributeValues: {
+          ':sportId': { S: sportId },
+          ':sortKeySubstr': { S: sk2(geohash) },
+          ':topLeftLat': { N: searchArea.topLeftLat.toString() },
+          ':bottomRightLat': { N: searchArea.bottomRightLat.toString() },
+          ':topLeftLon': { N: searchArea.topLeftLon.toString() },
+          ':bottomRightLon': { N: searchArea.bottomRightLon.toString() },
+        },
+        Limit: first,
+        ExclusiveStartKey: after
+          ? { SportId: { S: sportId }, Sk2: { S: after } }
+          : undefined,
+      };
+      const result = await this.dynamodbClient.send(new QueryCommand(query));
       const pageInfo: SitePageInfo = {
         sites: result.Items.map(parseSite),
         endCursor: result.LastEvaluatedKey?.Sk2.S,
@@ -171,6 +177,7 @@ export default class SiteAPI extends DataSource {
           input.trainerIds,
         ),
       };
+      const geohash = computeGeohash(input.lat, input.lon);
       await this.dynamodbClient.send(
         new PutItemCommand({
           TableName: TABLE_NAME,
@@ -181,6 +188,7 @@ export default class SiteAPI extends DataSource {
           Item: {
             ...siteToRecord(item),
             Sk1: { S: sk1(id) },
+            Sk2: { S: sk2(geohash, id) },
           },
         }),
       );

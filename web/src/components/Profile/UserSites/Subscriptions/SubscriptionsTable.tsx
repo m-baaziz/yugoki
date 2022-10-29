@@ -30,6 +30,7 @@ const LIST_SUBSCRIPTIONS = gql`
         id
         createdAtRFC3339
         subscriptionOption {
+          id
           title
           price
         }
@@ -134,7 +135,7 @@ export default function SubscriptionsTable(props: SubscriptionsTableProps) {
                   </StyledTableCell>
                   <StyledTableCell align="left">
                     <Link
-                      to={`${subscription.subscriptionOption.id}/${subscription.id}`}
+                      to={`options/${subscription.subscriptionOption.id}/${subscription.id}`}
                     >
                       view
                     </Link>

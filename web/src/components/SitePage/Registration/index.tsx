@@ -40,10 +40,12 @@ const GET_SUBSCRIPTION_OPTION = gql`
 
 const CREATE_SUBSCRIPTION = gql`
   mutation createSubscription(
+    $siteId: ID!
     $subscriptionOptionId: ID!
     $details: SubscriberDetailsInput!
   ) {
     createSubscription(
+      siteId: $siteId
       subscriptionOptionId: $subscriptionOptionId
       details: $details
     ) {
