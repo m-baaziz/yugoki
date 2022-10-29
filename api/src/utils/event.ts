@@ -19,6 +19,6 @@ export function eventToRecord(event: Event): Record<string, AttributeValue> {
     EventTitle: { S: event.title },
     EventDescription: { S: event.description },
     EventDateRFC3339: { S: event.dateRFC3339 },
-    EventImage: event.image ? { S: event.image } : undefined,
+    EventImage: event.image ? { S: event.image } : { S: '' },
   };
 }

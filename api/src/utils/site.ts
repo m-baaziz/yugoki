@@ -76,7 +76,7 @@ export function parseSite(item: Record<string, AttributeValue>): Site {
     lon: parseFloat(item.SiteLon.N),
     phone: item.SitePhone.S,
     website: item.SiteWebsite.S,
-    images: item.SiteImages.SS,
+    images: item.SiteImages.L.map((im) => im.S),
     description: item.SiteDescription.S,
     activities: item.Activities.L.map((activity) => parseActivity(activity.M)),
     trainers: item.Trainers.L.map((trainer) => parseTrainer(trainer.M)),
@@ -95,7 +95,7 @@ export function siteToRecord(site: Site): Record<string, AttributeValue> {
     SiteLon: { S: site.lon.toString() },
     SitePhone: { S: site.phone },
     SiteWebsite: { S: site.website },
-    SiteImages: { SS: site.images },
+    SiteImages: { L: site.images.map((im) => ({ S: im })) },
     SiteDescription: { S: site.description },
     Activities: {
       L: site.activities.map((activity) => ({ M: activityToRecord(activity) })),

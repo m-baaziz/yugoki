@@ -70,13 +70,12 @@ resource "aws_dynamodb_table" "club" {
   }
 
   global_secondary_index {
-    name               = "ClubOwnerIndex"
-    hash_key           = "ClubOwner"
-    range_key          = "ClubId"
-    write_capacity     = 1
-    read_capacity      = 1
-    projection_type    = "INCLUDE"
-    non_key_attributes = ["ClubName", "ClubLogo"]
+    name            = "ClubOwnerIndex"
+    hash_key        = "ClubOwner"
+    range_key       = "ClubId"
+    write_capacity  = 1
+    read_capacity   = 1
+    projection_type = "ALL"
   }
 
   tags = {

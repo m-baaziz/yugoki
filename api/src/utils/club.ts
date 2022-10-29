@@ -19,6 +19,6 @@ export function clubToRecord(club: Club): Record<string, AttributeValue> {
     ClubId: { S: club.id },
     ClubOwner: { S: club.owner },
     ClubName: { S: club.name },
-    ClubLogo: club.logo ? { S: club.logo } : undefined,
+    ClubLogo: club.logo ? { S: club.logo } : { S: '' },
   };
 }

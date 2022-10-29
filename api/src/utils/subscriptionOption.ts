@@ -9,7 +9,7 @@ export function parseSubscriptionOption(
     site: item.SiteId.S,
     title: item.SubscriptionOptionTitle.S,
     price: parseFloat(item.SubscriptionOptionPrice.N),
-    features: item.SubscriptionOptionFeatures.SS,
+    features: item.SubscriptionOptionFeatures.L.map((f) => f.S),
     enabled: item.SubscriptionOptionEnabled.BOOL,
   };
 }
@@ -21,7 +21,9 @@ export function subscriptionOptionToRecord(
     SubscriptionOptionId: { S: subscriptionOption.id },
     SiteId: { S: subscriptionOption.site },
     SubscriptionOptionTitle: { S: subscriptionOption.title },
-    SubscriptionOptionFeatures: { SS: subscriptionOption.features },
+    SubscriptionOptionFeatures: {
+      L: subscriptionOption.features.map((f) => ({ S: f })),
+    },
     SubscriptionOptionPrice: { N: subscriptionOption.price.toString() },
     SubscriptionOptionEnabled: { BOOL: subscriptionOption.enabled },
   };

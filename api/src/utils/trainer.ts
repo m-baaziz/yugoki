@@ -11,7 +11,7 @@ export function trainerToRecord(
     TrainerDisplayname: { S: trainer.displayname },
     TrainerFirstname: { S: trainer.firstname },
     TrainerLastname: { S: trainer.lastname },
-    TrainerPhoto: trainer.photo ? { S: trainer.photo } : undefined,
+    TrainerPhoto: trainer.photo ? { S: trainer.photo } : { S: '' },
   };
 }
 
