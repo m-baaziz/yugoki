@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Trainer } from '../../../generated/graphql';
 import { Link } from 'react-router-dom';
-import TrainerCard from '../../CslPage/InfoTabs/TrainerCard';
+import TrainerCard from '../../SitePage/InfoTabs/TrainerCard';
 
 export type UserClubTrainerCardProps = {
   trainer: Trainer;

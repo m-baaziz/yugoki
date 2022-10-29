@@ -9,42 +9,40 @@ import {
   Theme,
   Box,
 } from '@mui/material';
-import { ClubSportLocation } from '../../../generated/graphql';
+import { Site } from '../../../generated/graphql';
 import { Link } from 'react-router-dom';
 
-export type UserClubSportLocationCardProps = {
-  clubSportLocation: ClubSportLocation;
+export type UserSiteCardProps = {
+  site: Site;
   onDelete: (id: string) => void;
   sx?: SxProps<Theme>;
 };
 
-export default function UserClubSportLocationCard(
-  props: UserClubSportLocationCardProps,
-) {
-  const { sx, clubSportLocation, onDelete } = props;
+export default function UserSiteCard(props: UserSiteCardProps) {
+  const { sx, site, onDelete } = props;
 
   const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     event.preventDefault();
-    if (!clubSportLocation.id) return;
-    onDelete(clubSportLocation.id);
+    if (!site.id) return;
+    onDelete(site.id);
   };
 
   return (
     <Box sx={{ ...sx }}>
       <Link
-        to={`${clubSportLocation.id || ''}`}
+        to={`${site.id || ''}`}
         style={{ textDecoration: 'none', color: 'inherit' }}
       >
         <Card variant="outlined">
           <CardContent>
             <Typography variant="h5" component="div">
-              {clubSportLocation.name}
+              {site.name}
             </Typography>
             <Typography sx={{ mb: 1.5 }} color="text.secondary">
-              {clubSportLocation.sport.title}
+              {site.sport.title}
             </Typography>
-            <Typography variant="body2">{clubSportLocation.address}</Typography>
+            <Typography variant="body2">{site.address}</Typography>
           </CardContent>
           <CardActions
             sx={{

@@ -12,14 +12,18 @@ import { isUserAuthorized } from '../utils/club';
 
 export async function getSubscription(
   _parent: unknown,
-  { siteId, id }: QueryGetSubscriptionArgs,
+  { siteId, subscriptionOptionId, id }: QueryGetSubscriptionArgs,
   { user, dataSources: { subscriptionAPI } }: ContextWithDataSources,
 ): Promise<Subscription> {
   try {
     if (!user) {
       return Promise.reject('Unauthorized');
     }
-    return await subscriptionAPI.findSubscriptionById(siteId, id);
+    return await subscriptionAPI.findSubscriptionById(
+      siteId,
+      subscriptionOptionId,
+      id,
+    );
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

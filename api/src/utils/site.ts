@@ -22,7 +22,6 @@ export function computeAreaGeohash(area: SearchArea): string {
     area.bottomRightLon,
     9,
   );
-  console.log(encodedTopLeft, encodedBottomRight);
   return commonRadical(encodedTopLeft, encodedBottomRight);
 }
 

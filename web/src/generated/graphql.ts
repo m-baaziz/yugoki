@@ -282,6 +282,7 @@ export type QueryGetSiteImagesArgs = {
 export type QueryGetSubscriptionArgs = {
   id: Scalars['ID'];
   siteId: Scalars['ID'];
+  subscriptionOptionId: Scalars['ID'];
 };
 
 

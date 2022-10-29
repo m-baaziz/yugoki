@@ -33,8 +33,8 @@ const LIST_TRAINERS = gql`
 `;
 
 const DELETE_TRAINER = gql`
-  mutation deleteTrainer($id: ID!) {
-    deleteTrainer(id: $id)
+  mutation deleteTrainer($clubId: ID!, $id: ID!) {
+    deleteTrainer(clubId: $clubId, id: $id)
   }
 `;
 
@@ -77,9 +77,11 @@ export default function UserClubTrainers() {
   >(DELETE_TRAINER);
 
   const handleDelete = async (id: string): Promise<void> => {
+    if (!clubId) return;
     try {
       await deleteTrainer({
         variables: {
+          clubId,
           id,
         },
       });

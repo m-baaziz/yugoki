@@ -88,10 +88,11 @@ export default function SignIn(props: SignInProps) {
 
   const handleSubmit = (e: React.ChangeEvent<HTMLDivElement>) => {
     e.preventDefault();
-    handleSignInClick();
+    signIn();
   };
 
-  const handleSignInClick = () => {
+  const handleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     signIn();
   };
 

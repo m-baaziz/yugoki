@@ -93,12 +93,7 @@ export default function SignUp(props: SignUpProps) {
     setPasswordConfirmation(event.target.value);
   };
 
-  const handleSubmit = (e: React.ChangeEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    handleSignUpClick();
-  };
-
-  const handleSignUpClick = () => {
+  const callSignUp = () => {
     if (passwordConfirmation !== password) {
       notify({
         level: NotificationLevel.ERROR,
@@ -107,6 +102,16 @@ export default function SignUp(props: SignUpProps) {
       return;
     }
     signUp();
+  };
+
+  const handleSubmit = (e: React.ChangeEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    callSignUp();
+  };
+
+  const handleSignUpClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    callSignUp();
   };
 
   return (

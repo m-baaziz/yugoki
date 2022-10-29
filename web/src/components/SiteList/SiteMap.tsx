@@ -59,7 +59,7 @@ const positionToGoogleLatLng = (pos: Position): google.maps.LatLng => {
   return new window.google.maps.LatLng(pos.lat, pos.lon);
 };
 
-export type CslMapProps = {
+export type SiteMapProps = {
   positions: Position[];
   onChange?: (
     topLeftLat: number,
@@ -81,7 +81,7 @@ const Container = styled(Box)<BoxProps>(() => ({
   height: 350,
 }));
 
-export default function CslMap(props: CslMapProps) {
+export default function SiteMap(props: SiteMapProps) {
   const {
     positions,
     centerPosition,

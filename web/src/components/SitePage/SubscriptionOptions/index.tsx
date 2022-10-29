@@ -3,7 +3,7 @@ import { SxProps, Theme, Grid } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import {
-  QueryListEnabledSubscriptionOptionsByClubSportLocationArgs,
+  QueryListEnabledSubscriptionOptionsBySiteArgs,
   SubscriptionOptionPageInfo,
 } from '../../../generated/graphql';
 import SubscriptionOptionCard from './SubscriptionOptionCard';
@@ -11,13 +11,13 @@ import SubscriptionOptionCard from './SubscriptionOptionCard';
 const SUBSCRIPTION_OPTIONS_PAGE_SIZE = 100;
 
 const LIST_SUBSCRIPTION_OPTIONS = gql`
-  query listEnabledSubscriptionOptionsByClubSportLocation(
-    $cslId: ID!
+  query listEnabledSubscriptionOptionsBySite(
+    $siteId: ID!
     $first: Int!
     $after: String
   ) {
-    listEnabledSubscriptionOptionsByClubSportLocation(
-      cslId: $cslId
+    listEnabledSubscriptionOptionsBySite(
+      siteId: $siteId
       first: $first
       after: $after
     ) {
@@ -39,17 +39,17 @@ export type SubscriptionOptionsProps = {
 
 export default function SubscriptionOptions(props: SubscriptionOptionsProps) {
   const { sx } = props;
-  const { id: cslId } = useParams();
+  const { id: siteId } = useParams();
 
   const { data: subscriptionOptionsData } = useQuery<
     {
-      listEnabledSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo;
+      listEnabledSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
     },
-    QueryListEnabledSubscriptionOptionsByClubSportLocationArgs
+    QueryListEnabledSubscriptionOptionsBySiteArgs
   >(LIST_SUBSCRIPTION_OPTIONS, {
-    skip: !cslId,
+    skip: !siteId,
     variables: {
-      cslId: cslId || '',
+      siteId: siteId || '',
       first: SUBSCRIPTION_OPTIONS_PAGE_SIZE,
       after: '',
     },
@@ -66,7 +66,7 @@ export default function SubscriptionOptions(props: SubscriptionOptionsProps) {
         ...sx,
       }}
     >
-      {subscriptionOptionsData?.listEnabledSubscriptionOptionsByClubSportLocation.subscriptionOptions.map(
+      {subscriptionOptionsData?.listEnabledSubscriptionOptionsBySite.subscriptionOptions.map(
         (subscriptionOption, i) => (
           <Grid key={subscriptionOption.id || i} item xs={3}>
             <SubscriptionOptionCard subscriptionOption={subscriptionOption} />

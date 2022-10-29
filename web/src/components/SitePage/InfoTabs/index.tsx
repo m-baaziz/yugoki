@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, SxProps, Tab, Tabs, Theme } from '@mui/material';
-import { ClubSportLocation } from '../../../generated/graphql';
+import { Site } from '../../../generated/graphql';
 import Activities from './Activities';
 import Team from './Team';
 import Events from './Events';
@@ -24,7 +24,7 @@ const infoSectionToShow: InfoTabValue[] = [
 ];
 
 export type InfoTabsProps = {
-  csl: ClubSportLocation;
+  site: Site;
   sx?: SxProps<Theme>;
 };
 
@@ -50,7 +50,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function InfoTabs(props: InfoTabsProps) {
-  const { sx, csl } = props;
+  const { sx, site } = props;
   const [tab, setTab] = React.useState<InfoTabValue>(InfoTabValue.Activities);
 
   const tabIndex = Math.max(
@@ -85,13 +85,13 @@ export default function InfoTabs(props: InfoTabsProps) {
         </Tabs>
       </Box>
       <TabPanel tab={tab} showOnTab={InfoTabValue.Activities}>
-        <Activities activities={csl.activities} />
+        <Activities activities={site.activities} />
       </TabPanel>
       <TabPanel tab={tab} showOnTab={InfoTabValue.Team}>
-        <Team trainers={csl.trainers} />
+        <Team trainers={site.trainers} />
       </TabPanel>
       <TabPanel tab={tab} showOnTab={InfoTabValue.Events}>
-        <Events cslId={csl.id || ''} />
+        <Events siteId={site.id || ''} />
       </TabPanel>
     </Box>
   );

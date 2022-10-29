@@ -4,13 +4,11 @@ import PaidIcon from '@mui/icons-material/Paid';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import NavigationPanel from '../../NavigationPanel';
 
-export type UserClubSportLocationProps = {
+export type UserSiteProps = {
   sx?: SxProps<Theme>;
 };
 
-export default function UserClubSportLocation(
-  props: UserClubSportLocationProps,
-) {
+export default function UserSite(props: UserSiteProps) {
   const { sx } = props;
 
   return (

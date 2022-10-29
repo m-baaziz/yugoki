@@ -11,10 +11,10 @@ import {
 import { useParams } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import {
-  QueryGetClubSportLocationArgs,
-  ClubSportLocation,
+  QueryGetSiteArgs,
+  Site,
   FileUploadResponse,
-  QueryGetClubSportLocationImagesArgs,
+  QueryGetSiteImagesArgs,
 } from '../../generated/graphql';
 
 import ContactInfos from './ContactInfos';
@@ -27,8 +27,8 @@ import SubscriptionOptions from './SubscriptionOptions';
 const ICON_SIZE = 20;
 
 const GET_CLUB_SPORT_LOCATION = gql`
-  query getClubSportLocation($id: ID!) {
-    getClubSportLocation(id: $id) {
+  query getSite($id: ID!) {
+    getSite(id: $id) {
       id
       club {
         name
@@ -63,8 +63,8 @@ const GET_CLUB_SPORT_LOCATION = gql`
 `;
 
 const GET_CLUB_SPORT_LOCATION_IMAGES = gql`
-  query getClubSportLocationImages($id: ID!) {
-    getClubSportLocationImages(id: $id) {
+  query getSiteImages($id: ID!) {
+    getSiteImages(id: $id) {
       file {
         id
         size
@@ -100,38 +100,38 @@ const Container = styled(Box)<BoxProps>(() => ({
   `,
 }));
 
-export type CslPageProps = {
+export type SitePageProps = {
   sx?: SxProps<Theme>;
 };
 
-export default function CslPage(props: CslPageProps) {
+export default function SitePage(props: SitePageProps) {
   const { sx } = props;
-  const { id: cslId } = useParams();
+  const { id: siteId } = useParams();
 
-  const { data } = useQuery<
-    { getClubSportLocation: ClubSportLocation },
-    QueryGetClubSportLocationArgs
-  >(GET_CLUB_SPORT_LOCATION, {
-    skip: !cslId,
-    variables: {
-      id: cslId || '',
+  const { data } = useQuery<{ getSite: Site }, QueryGetSiteArgs>(
+    GET_CLUB_SPORT_LOCATION,
+    {
+      skip: !siteId,
+      variables: {
+        id: siteId || '',
+      },
+      fetchPolicy: 'no-cache',
     },
-    fetchPolicy: 'no-cache',
-  });
+  );
   const { data: imagesData } = useQuery<
-    { getClubSportLocationImages: FileUploadResponse[] },
-    QueryGetClubSportLocationImagesArgs
+    { getSiteImages: FileUploadResponse[] },
+    QueryGetSiteImagesArgs
   >(GET_CLUB_SPORT_LOCATION_IMAGES, {
-    skip: !cslId,
+    skip: !siteId,
     variables: {
-      id: cslId || '',
+      id: siteId || '',
     },
     fetchPolicy: 'no-cache',
   });
 
   const images: string[] = React.useMemo(
     () =>
-      imagesData?.getClubSportLocationImages
+      imagesData?.getSiteImages
         .filter((f) => typeof f.url === 'string' && f.url.length > 0)
         .map((f) => f.url as string) || [],
     [imagesData],
@@ -139,7 +139,7 @@ export default function CslPage(props: CslPageProps) {
 
   return (
     <Container sx={{ ...sx }}>
-      {data?.getClubSportLocation ? (
+      {data?.getSite ? (
         <>
           <Box
             sx={{
@@ -151,7 +151,7 @@ export default function CslPage(props: CslPageProps) {
             }}
           >
             <IconTextCombo
-              icon={data.getClubSportLocation.club.logo || undefined}
+              icon={data.getSite.club.logo || undefined}
               size={20}
               text={
                 <Typography
@@ -162,7 +162,7 @@ export default function CslPage(props: CslPageProps) {
                     marginLeft: 1,
                   }}
                 >
-                  {data.getClubSportLocation.club.name}
+                  {data.getSite.club.name}
                 </Typography>
               }
             />
@@ -177,9 +177,9 @@ export default function CslPage(props: CslPageProps) {
             }}
           >
             <ContactInfos
-              address={data.getClubSportLocation.address}
-              phone={data.getClubSportLocation.phone}
-              web={data.getClubSportLocation.website || undefined}
+              address={data.getSite.address}
+              phone={data.getSite.phone}
+              web={data.getSite.website || undefined}
             />
           </Box>
           <Images
@@ -193,7 +193,7 @@ export default function CslPage(props: CslPageProps) {
               width: '100%',
             }}
           >
-            {data.getClubSportLocation.description}
+            {data.getSite.description}
           </Box>
           <InfoTabs
             sx={{
@@ -201,7 +201,7 @@ export default function CslPage(props: CslPageProps) {
               height: '100%',
               width: '100%',
             }}
-            csl={data.getClubSportLocation}
+            site={data.getSite}
           />
           <Box
             sx={{
@@ -212,7 +212,7 @@ export default function CslPage(props: CslPageProps) {
             }}
           >
             <Schedule
-              calendarSpans={data.getClubSportLocation.schedule}
+              calendarSpans={data.getSite.schedule}
               sx={{ margin: 'auto' }}
             />
           </Box>

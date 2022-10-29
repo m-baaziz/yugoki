@@ -6,7 +6,7 @@ import { grey } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import {
-  ClubSportLocationSearchQueryInput,
+  SiteSearchQueryInput,
   QueryListSportsArgs,
   Sport,
   SportPageInfo,
@@ -95,6 +95,10 @@ export default function SportList() {
     NodeJS.Timeout | undefined
   >(undefined);
 
+  React.useEffect(() => {
+    setSelectedSport(undefined);
+  }, [search]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
@@ -115,7 +119,7 @@ export default function SportList() {
 
   const handleSelectClick = () => {
     if (!selectedSport?.id) return;
-    const query: ClubSportLocationSearchQueryInput = {
+    const query: SiteSearchQueryInput = {
       sport: selectedSport?.id || '',
       address: DEFAULT_QUERY.address,
     };

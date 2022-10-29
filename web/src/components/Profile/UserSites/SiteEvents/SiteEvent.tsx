@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Box, styled, BoxProps } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
-import { Event, QueryGetSubscriptionArgs } from '../../../../generated/graphql';
+import { Event, QueryGetEventArgs } from '../../../../generated/graphql';
 import EventForm from './EventForm';
 import { useGetFile } from '../../../../hooks/fileUpload';
 import { FileInfo } from '../../../ImagesForm';
 
 const GET_EVENT = gql`
-  query getEvent($id: ID!) {
-    getEvent(id: $id) {
+  query getEvent($siteId: ID!, $id: ID!) {
+    getEvent(siteId: $siteId, id: $id) {
       id
       dateRFC3339
       title
@@ -32,19 +32,20 @@ const Container = styled(Box)<BoxProps>(() => ({
   ",
 }));
 
-export default function ClubSportLocationEvent() {
-  const { id } = useParams();
+export default function SiteEvent() {
+  const { siteId, id } = useParams();
 
-  const { data: eventData } = useQuery<
-    { getEvent: Event },
-    QueryGetSubscriptionArgs
-  >(GET_EVENT, {
-    skip: !id,
-    variables: {
-      id: id || '',
+  const { data: eventData } = useQuery<{ getEvent: Event }, QueryGetEventArgs>(
+    GET_EVENT,
+    {
+      skip: !id || !siteId,
+      variables: {
+        siteId: siteId || '',
+        id: id || '',
+      },
+      fetchPolicy: 'no-cache',
     },
-    fetchPolicy: 'no-cache',
-  });
+  );
   const { data: eventImageData } = useGetFile(
     eventData?.getEvent.image || undefined,
   );

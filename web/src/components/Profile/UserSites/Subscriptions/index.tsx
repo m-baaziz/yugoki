@@ -7,7 +7,7 @@ import { useQuery, gql, useMutation } from '@apollo/client';
 import {
   MutationDisableSubscriptionOptionArgs,
   MutationEnableSubscriptionOptionArgs,
-  QueryListSubscriptionOptionsByClubSportLocationArgs,
+  QueryListSubscriptionOptionsBySiteArgs,
   SubscriptionOption,
   SubscriptionOptionPageInfo,
 } from '../../../../generated/graphql';
@@ -18,13 +18,13 @@ import SubscriptionsTable from './SubscriptionsTable';
 const SUBSCRIPTION_OPTIONS_PAGE_SIZE = 100;
 
 const LIST_SUBSCRIPTION_OPTIONS = gql`
-  query listSubscriptionOptionsByClubSportLocation(
-    $cslId: ID!
+  query listSubscriptionOptionsBySite(
+    $siteId: ID!
     $first: Int!
     $after: String
   ) {
-    listSubscriptionOptionsByClubSportLocation(
-      cslId: $cslId
+    listSubscriptionOptionsBySite(
+      siteId: $siteId
       first: $first
       after: $after
     ) {
@@ -42,16 +42,16 @@ const LIST_SUBSCRIPTION_OPTIONS = gql`
 `;
 
 const ENABLE_SUBSCRIPTION_OPTION = gql`
-  mutation enableSubscriptionOption($id: ID!) {
-    enableSubscriptionOption(id: $id) {
+  mutation enableSubscriptionOption($siteId: ID!, $id: ID!) {
+    enableSubscriptionOption(siteId: $siteId, id: $id) {
       id
     }
   }
 `;
 
 const DISABLE_SUBSCRIPTION_OPTION = gql`
-  mutation disableSubscriptionOption($id: ID!) {
-    disableSubscriptionOption(id: $id) {
+  mutation disableSubscriptionOption($siteId: ID!, $id: ID!) {
+    disableSubscriptionOption(siteId: $siteId, id: $id) {
       id
     }
   }
@@ -76,16 +76,16 @@ const Container = styled(Box)<BoxProps>(() => ({
 
 export default function Subscriptions() {
   const { notify } = React.useContext(appContext);
-  const { cslId } = useParams();
+  const { siteId } = useParams();
   const navigate = useNavigate();
 
   const { data: subscriptionOptionsData, refetch } = useQuery<
-    { listSubscriptionOptionsByClubSportLocation: SubscriptionOptionPageInfo },
-    QueryListSubscriptionOptionsByClubSportLocationArgs
+    { listSubscriptionOptionsBySite: SubscriptionOptionPageInfo },
+    QueryListSubscriptionOptionsBySiteArgs
   >(LIST_SUBSCRIPTION_OPTIONS, {
-    skip: !cslId,
+    skip: !siteId,
     variables: {
-      cslId: cslId || '',
+      siteId: siteId || '',
       first: SUBSCRIPTION_OPTIONS_PAGE_SIZE,
       after: '',
     },
@@ -106,15 +106,18 @@ export default function Subscriptions() {
 
   const handleOnEnableDisableOption = async (id: string, enable: boolean) => {
     try {
+      if (!siteId) return;
       if (enable) {
         await enableSubscriptionOption({
           variables: {
+            siteId,
             id,
           },
         });
       } else {
         await disableSubscriptionOption({
           variables: {
+            siteId,
             id,
           },
         });
@@ -145,7 +148,7 @@ export default function Subscriptions() {
           width: '100%',
         }}
       >
-        {subscriptionOptionsData?.listSubscriptionOptionsByClubSportLocation.subscriptionOptions.map(
+        {subscriptionOptionsData?.listSubscriptionOptionsBySite.subscriptionOptions.map(
           (subscriptionOption, i) => (
             <Grid key={subscriptionOption.id || i} item xs={3}>
               <SubscriptionOptionCard
@@ -163,7 +166,7 @@ export default function Subscriptions() {
           height: '100%',
           width: '100%',
         }}
-        cslId={cslId || ''}
+        siteId={siteId || ''}
       />
     </Container>
   );

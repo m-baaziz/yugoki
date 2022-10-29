@@ -16,10 +16,10 @@ import { useQuery, gql, useMutation } from '@apollo/client';
 import {
   Activity,
   ActivityInput,
-  ClubSportLocation,
-  ClubSportLocationInput,
+  Site,
+  SiteInput,
   FileUploadKind,
-  MutationCreateClubSportLocationArgs,
+  MutationCreateSiteArgs,
   QueryListSportsArgs,
   QueryListTrainersByClubArgs,
   Sport,
@@ -32,9 +32,9 @@ import ScheduleForm, {
   calendarEntryToSpan,
 } from './ScheduleForm';
 import ImagesForm, { FileInfo } from '../../../ImagesForm';
-import Schedule from '../../../CslPage/Schedule';
+import Schedule from '../../../SitePage/Schedule';
 import PositionForm from './PositionForm';
-import { Position } from '../../../CslList/CslMap';
+import { Position } from '../../../SiteList/SiteMap';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -61,7 +61,7 @@ const ACTIVITIES: Activity[] = [
   },
 ];
 
-const DEFAULT_CSL_INPUT: ClubSportLocationInput = {
+const DEFAULT_CSL_INPUT: SiteInput = {
   name: '',
   sportId: '',
   address: '',
@@ -77,11 +77,8 @@ const DEFAULT_CSL_INPUT: ClubSportLocationInput = {
 };
 
 const CREATE_CLUB_SPORT_LOCATION = gql`
-  mutation createClubSportLocation(
-    $clubId: ID!
-    $input: ClubSportLocationInput!
-  ) {
-    createClubSportLocation(clubId: $clubId, input: $input) {
+  mutation createSite($clubId: ID!, $input: SiteInput!) {
+    createSite(clubId: $clubId, input: $input) {
       id
       name
     }
@@ -131,13 +128,13 @@ const Container = styled(Box)<BoxProps>(() => ({
   ",
 }));
 
-export default function ClubSportLocationForm() {
+export default function SiteForm() {
   const { notify } = React.useContext(appContext);
   const { id: clubId } = useParams();
   const navigate = useNavigate();
-  const [cslInput, setCslInput] =
-    React.useState<ClubSportLocationInput>(DEFAULT_CSL_INPUT);
-  const [cslImages, setCslImages] = React.useState<FileInfo[]>([]);
+  const [siteInput, setSiteInput] =
+    React.useState<SiteInput>(DEFAULT_CSL_INPUT);
+  const [siteImages, setSiteImages] = React.useState<FileInfo[]>([]);
 
   const { data: sportsData } = useQuery<
     { listSports: SportPageInfo },
@@ -161,87 +158,86 @@ export default function ClubSportLocationForm() {
     },
     fetchPolicy: 'no-cache',
   });
-  const [createClubSportLocation] = useMutation<
-    { createClubSportLocation: ClubSportLocation },
-    MutationCreateClubSportLocationArgs
+  const [createSite] = useMutation<
+    { createSite: Site },
+    MutationCreateSiteArgs
   >(CREATE_CLUB_SPORT_LOCATION);
   const { uploadFile } = useUploadFile();
 
   const handleTextInputChange =
-    (key: keyof ClubSportLocationInput) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setCslInput({ ...cslInput, [key]: e.target.value });
+    (key: keyof SiteInput) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSiteInput({ ...siteInput, [key]: e.target.value });
     };
   const handleSportChange = (
     _event: React.SyntheticEvent<Element, Event>,
     sport: Sport | null,
   ) => {
     if (!sport || !sport.id) return;
-    setCslInput({ ...cslInput, sportId: sport.id });
+    setSiteInput({ ...siteInput, sportId: sport.id });
   };
   const handlePositionChange = (position: Position) => {
-    setCslInput({ ...cslInput, lat: position.lat, lon: position.lon });
+    setSiteInput({ ...siteInput, lat: position.lat, lon: position.lon });
   };
   const handleImagesChange = (files: FileInfo[]) => {
-    setCslImages(files);
+    setSiteImages(files);
   };
   const handleActivitiesChange = (
     _event: React.SyntheticEvent<Element, Event>,
     activities: ActivityInput[],
   ) => {
-    setCslInput({ ...cslInput, activities });
+    setSiteInput({ ...siteInput, activities });
   };
   const handleTrainersChange = (
     _event: React.SyntheticEvent<Element, Event>,
     trainers: Trainer[],
   ) => {
-    setCslInput({
-      ...cslInput,
+    setSiteInput({
+      ...siteInput,
       trainerIds: trainers.filter((t) => t.id).map((t) => t.id || ''),
     });
   };
   const handleScheduleChange = (calendarEntries: CalendarEntry[]) => {
     const newCalendarSpans = calendarEntries.map(calendarEntryToSpan);
-    setCslInput({ ...cslInput, schedule: newCalendarSpans });
+    setSiteInput({ ...siteInput, schedule: newCalendarSpans });
   };
 
   const handleBackClick = () => {
-    navigate(`/profile/clubs/${clubId}/locations`);
+    navigate(`/profile/clubs/${clubId}/sites`);
   };
 
   const handleSubmitClick = async () => {
     try {
       if (!clubId) return;
-      const newCslInput = { ...cslInput };
-      const newCslImages = cslImages.filter((t) => t.isNew && t.file);
-      if (newCslImages.length > 0) {
+      const newSiteInput = { ...siteInput };
+      const newSiteImages = siteImages.filter((t) => t.isNew && t.file);
+      if (newSiteImages.length > 0) {
         notify({
           level: NotificationLevel.INFO,
-          message: `uploading ${newCslImages.length} images ...`,
+          message: `uploading ${newSiteImages.length} images ...`,
         });
         await Promise.all(
-          newCslImages.map((imageFileInfo) =>
+          newSiteImages.map((imageFileInfo) =>
             uploadFile(
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               imageFileInfo.file!,
-              FileUploadKind.ClubSportLocationImage,
+              FileUploadKind.SiteImage,
             ).then((fileUpload) => {
-              newCslInput.images.push(fileUpload.id || '');
+              newSiteInput.images.push(fileUpload.id || '');
             }),
           ),
         );
       }
-      const result = await createClubSportLocation({
+      const result = await createSite({
         variables: {
           clubId,
-          input: newCslInput,
+          input: newSiteInput,
         },
       });
       notify({
         level: NotificationLevel.SUCCESS,
-        message: `created ${result.data?.createClubSportLocation.name}`,
+        message: `created ${result.data?.createSite.name}`,
       });
-      navigate(`/profile/clubs/${clubId}/locations`);
+      navigate(`/profile/clubs/${clubId}/sites`);
     } catch (e) {
       notify({ level: NotificationLevel.ERROR, message: `${e}` });
     }
@@ -265,7 +261,7 @@ export default function ClubSportLocationForm() {
             label="name"
             variant="standard"
             required
-            value={cslInput.name}
+            value={siteInput.name}
             onChange={handleTextInputChange('name')}
             sx={{ flexGrow: 3 }}
           />
@@ -275,7 +271,7 @@ export default function ClubSportLocationForm() {
             getOptionLabel={(option) => option.title}
             value={
               (sportsData?.listSports.sports || []).find(
-                (s) => cslInput.sportId === s.id,
+                (s) => siteInput.sportId === s.id,
               ) || null
             }
             onChange={handleSportChange}
@@ -290,7 +286,7 @@ export default function ClubSportLocationForm() {
           label="address"
           variant="standard"
           required
-          value={cslInput.address}
+          value={siteInput.address}
           onChange={handleTextInputChange('address')}
           InputProps={{
             startAdornment: (
@@ -301,8 +297,8 @@ export default function ClubSportLocationForm() {
           }}
         />
         <PositionForm
-          address={cslInput.address}
-          position={{ lat: cslInput.lat, lon: cslInput.lon }}
+          address={siteInput.address}
+          position={{ lat: siteInput.lat, lon: siteInput.lon }}
           onChange={handlePositionChange}
         />
         <Box
@@ -317,7 +313,7 @@ export default function ClubSportLocationForm() {
             label="phone number"
             variant="standard"
             required
-            value={cslInput.phone}
+            value={siteInput.phone}
             onChange={handleTextInputChange('phone')}
             sx={{ flexGrow: 2 }}
             InputProps={{
@@ -332,7 +328,7 @@ export default function ClubSportLocationForm() {
             id="website"
             label="website"
             variant="standard"
-            value={cslInput.website || ''}
+            value={siteInput.website || ''}
             onChange={handleTextInputChange('website')}
             sx={{ flexGrow: 3 }}
             InputProps={{
@@ -347,7 +343,7 @@ export default function ClubSportLocationForm() {
         <Box>
           <ImagesForm
             multiple
-            files={cslImages}
+            files={siteImages}
             onChange={handleImagesChange}
           />
         </Box>
@@ -355,7 +351,7 @@ export default function ClubSportLocationForm() {
           id="description"
           label="description"
           variant="outlined"
-          value={cslInput.description}
+          value={siteInput.description}
           onChange={handleTextInputChange('description')}
           rows={3}
           multiline
@@ -366,7 +362,7 @@ export default function ClubSportLocationForm() {
           options={ACTIVITIES}
           getOptionLabel={(option) => option.name}
           filterSelectedOptions
-          value={cslInput.activities}
+          value={siteInput.activities}
           onChange={handleActivitiesChange}
           renderInput={(params) => (
             <TextField
@@ -382,7 +378,7 @@ export default function ClubSportLocationForm() {
           options={trainersData?.listTrainersByClub.trainers || []}
           getOptionLabel={(option) => `${option.firstname} ${option.lastname}`}
           value={(trainersData?.listTrainersByClub.trainers || []).filter(
-            (t) => t.id && cslInput.trainerIds.includes(t.id),
+            (t) => t.id && siteInput.trainerIds.includes(t.id),
           )}
           onChange={handleTrainersChange}
           filterSelectedOptions
@@ -392,7 +388,10 @@ export default function ClubSportLocationForm() {
         />
         <ScheduleForm onChange={handleScheduleChange} />
         <Box sx={{ width: '100%', display: 'flex' }}>
-          <Schedule calendarSpans={cslInput.schedule} sx={{ margin: 'auto' }} />
+          <Schedule
+            calendarSpans={siteInput.schedule}
+            sx={{ margin: 'auto' }}
+          />
         </Box>
       </Stack>
       <Button

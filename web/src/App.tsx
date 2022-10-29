@@ -13,24 +13,24 @@ import ButtonAppBar, {
   ButtonAppBarProps as AppBarProps,
 } from './components/AppBar';
 import Home from './components/Home';
-import CslList from './components/CslList';
+import SiteList from './components/SiteList';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
-import CslPage from './components/CslPage';
+import SitePage from './components/SitePage';
 import UserClubs from './components/Profile/UserClubs';
-import UserClubSportLocations from './components/Profile/UserClubSportLocations';
-import ClubSportLocationForm from './components/Profile/UserClubSportLocations/ClubSportLocationForm';
+import UserSites from './components/Profile/UserSites';
+import SiteForm from './components/Profile/UserSites/SiteForm';
 import UserClubTrainers from './components/Profile/UserClubTrainers';
 import ClubTrainerForm from './components/Profile/UserClubTrainers/ClubTrainerForm';
 import UserClub from './components/Profile/UserClubs/UserClub';
-import Subscriptions from './components/Profile/UserClubSportLocations/Subscriptions';
-import SubscriptionOptionForm from './components/Profile/UserClubSportLocations/Subscriptions/SubscriptionOptionForm';
-import UserClubSportLocation from './components/Profile/UserClubSportLocations/UserClubSportLocation';
-import Registration from './components/CslPage/Registration';
-import SubscriptionPage from './components/Profile/UserClubSportLocations/Subscriptions/SubscriptionPage';
-import ClubSportLocationEvents from './components/Profile/UserClubSportLocations/ClubSportLocationEvents';
-import ClubSportLocationEvent from './components/Profile/UserClubSportLocations/ClubSportLocationEvents/ClubSportLocationEvent';
-import NewClubSportLocationEvent from './components/Profile/UserClubSportLocations/ClubSportLocationEvents/NewClubSportLocationEvent';
+import Subscriptions from './components/Profile/UserSites/Subscriptions';
+import SubscriptionOptionForm from './components/Profile/UserSites/Subscriptions/SubscriptionOptionForm';
+import UserClubSite from './components/Profile/UserSites/UserClubSite';
+import Registration from './components/SitePage/Registration';
+import SubscriptionPage from './components/Profile/UserSites/Subscriptions/SubscriptionPage';
+import SiteEvents from './components/Profile/UserSites/SiteEvents';
+import SiteEvent from './components/Profile/UserSites/SiteEvents/SiteEvent';
+import NewSiteEvent from './components/Profile/UserSites/SiteEvents/NewSiteEvent';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -137,10 +137,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn refetchMe={refetchMe} />} />
             <Route path="/signup" element={<SignUp refetchMe={refetchMe} />} />
-            <Route path="/clubs" element={<CslList />} />
-            <Route path="/locations/:id" element={<CslPage />} />
+            <Route path="/clubs" element={<SiteList />} />
+            <Route path="/sites/:id" element={<SitePage />} />
             <Route
-              path="/locations/:cslId/registration/:subscriptionOptionId"
+              path="/sites/:siteId/registration/:subscriptionOptionId"
               element={<Registration />}
             />
             <Route path="/profile/clubs" element={withUser(<UserClubs />)} />
@@ -154,40 +154,40 @@ function App() {
               element={withUser(<ClubTrainerForm />)}
             />
             <Route
-              path="/profile/clubs/:id/locations"
-              element={withUser(<UserClubSportLocations />)}
+              path="/profile/clubs/:id/sites"
+              element={withUser(<UserSites />)}
             />
             <Route
-              path="/profile/clubs/:id/locations/new"
-              element={withUser(<ClubSportLocationForm />)}
+              path="/profile/clubs/:id/sites/new"
+              element={withUser(<SiteForm />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId"
-              element={withUser(<UserClubSportLocation />)}
+              path="/profile/clubs/:clubId/sites/:siteId"
+              element={withUser(<UserClubSite />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId/subscriptions"
+              path="/profile/clubs/:clubId/sites/:siteId/subscriptions"
               element={withUser(<Subscriptions />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId/subscriptions/:optionId/:id"
+              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/:subscriptionOptionId/:id"
               element={withUser(<SubscriptionPage />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId/subscriptions/options/new"
+              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/options/new"
               element={withUser(<SubscriptionOptionForm />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId/events"
-              element={withUser(<ClubSportLocationEvents />)}
+              path="/profile/clubs/:clubId/sites/:siteId/events"
+              element={withUser(<SiteEvents />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId/events/new"
-              element={withUser(<NewClubSportLocationEvent />)}
+              path="/profile/clubs/:clubId/sites/:siteId/events/new"
+              element={withUser(<NewSiteEvent />)}
             />
             <Route
-              path="/profile/clubs/:clubId/locations/:cslId/events/:id"
-              element={withUser(<ClubSportLocationEvent />)}
+              path="/profile/clubs/:clubId/sites/:siteId/events/:id"
+              element={withUser(<SiteEvent />)}
             />
           </Routes>
         </Content>

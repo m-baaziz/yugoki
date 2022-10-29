@@ -6,7 +6,7 @@ export function parseSport(item: Record<string, AttributeValue>): Sport {
     id: item.SportId.S,
     title: item.SportTitle.S,
     description: item.SportDescription.S,
-    tags: item.SportTags.SS,
+    tags: item.SportTags.L.map((tag) => tag.S),
   };
 }
 
@@ -15,6 +15,6 @@ export function sportToRecord(sport: Sport): Record<string, AttributeValue> {
     SportId: { S: sport.id },
     SportTitle: { S: sport.title },
     SportDescription: { S: sport.description },
-    SportTags: { SS: sport.tags },
+    SportTags: { L: sport.tags.map((tag) => ({ S: tag })) },
   };
 }

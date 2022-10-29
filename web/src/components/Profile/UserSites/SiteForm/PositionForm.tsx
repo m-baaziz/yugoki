@@ -7,7 +7,7 @@ import {
   BoxProps,
   TextField,
 } from '@mui/material';
-import CslMap, { MapQuery, Position } from '../../../CslList/CslMap';
+import SiteMap, { MapQuery, Position } from '../../../SiteList/SiteMap';
 import { useTimeout } from '../../../../hooks/timeout';
 
 const UPDATE_DELAY_MS = 1000;
@@ -79,7 +79,7 @@ export default function PositionForm(props: PositionFormProps) {
       }}
     >
       <Box sx={{ gridArea: 'map' }}>
-        <CslMap
+        <SiteMap
           positions={[position]}
           query={mapQuery}
           onClick={handleClickMap}

@@ -4,11 +4,11 @@ import { styled } from '@mui/material/styles';
 import { Box, BoxProps, Button, TextField } from '@mui/material';
 import { useQuery, gql } from '@apollo/client';
 import {
-  QuerySearchClubSportLocationsArgs,
-  ClubSportLocationPageInfo,
+  QuerySearchSitesArgs,
+  SitePageInfo,
   SearchArea,
-  ClubSportLocationSearchQueryInput,
-  ClubSportLocation,
+  SiteSearchQueryInput,
+  Site,
 } from '../../generated/graphql';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -17,20 +17,20 @@ import {
   DEFAULT_QUERY,
   encodeQuery,
 } from '../../utils/searchQuery';
-import CslCard from './CslCard';
-import CslMap, { ControlPosition, MapQuery, Position } from './CslMap';
+import SiteCard from './SiteCard';
+import SiteMap, { ControlPosition, MapQuery, Position } from './SiteMap';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 
 const CSL_PAGE_SIZE = 100;
 
 const LIST_CLUB_SPORT_LOCATIONS = gql`
-  query searchClubSportLocations(
-    $query: ClubSportLocationSearchQueryInput!
+  query searchSites(
+    $query: SiteSearchQueryInput!
     $first: Int!
     $after: String
   ) {
-    searchClubSportLocations(query: $query, first: $first, after: $after) {
-      clubSportLocations {
+    searchSites(query: $query, first: $first, after: $after) {
+      sites {
         id
         club {
           name
@@ -45,8 +45,8 @@ const LIST_CLUB_SPORT_LOCATIONS = gql`
   }
 `;
 
-const cslToLatLng = (csl: ClubSportLocation): Position => {
-  return { lat: csl.lat, lon: csl.lon };
+const siteToLatLng = (site: Site): Position => {
+  return { lat: site.lat, lon: site.lon };
 };
 
 const Container = styled(Box)<BoxProps>(() => ({
@@ -64,7 +64,7 @@ const Container = styled(Box)<BoxProps>(() => ({
   ",
 }));
 
-export default function CslList() {
+export default function SiteList() {
   const { search } = useLocation();
   const navigate = useNavigate();
   const [searchArea, setSearchArea] = React.useState<SearchArea | undefined>(
@@ -85,7 +85,7 @@ export default function CslList() {
   }, [search]);
 
   const changeQuery = React.useMemo(
-    () => (newQuery: ClubSportLocationSearchQueryInput) => {
+    () => (newQuery: SiteSearchQueryInput) => {
       const encodedQuery = encodeQuery(newQuery);
       const url = `/clubs?${QUERY_KEY}=${encodedQuery}`;
       navigate(url);
@@ -94,8 +94,8 @@ export default function CslList() {
   );
 
   const { data } = useQuery<
-    { searchClubSportLocations: ClubSportLocationPageInfo },
-    QuerySearchClubSportLocationsArgs
+    { searchSites: SitePageInfo },
+    QuerySearchSitesArgs
   >(LIST_CLUB_SPORT_LOCATIONS, {
     variables: {
       query,
@@ -154,8 +154,8 @@ export default function CslList() {
       area: undefined,
     });
   };
-  const handleCslClick = (cslId: string) => {
-    navigate(`/locations/${cslId}`);
+  const handleSiteClick = (siteId: string) => {
+    navigate(`/sites/${siteId}`);
   };
 
   const handleMyLocationClick = () => {
@@ -201,26 +201,22 @@ export default function CslList() {
         }}
       >
         <Box>
-          {data?.searchClubSportLocations.clubSportLocations
-            .filter((csl) => csl.id)
-            .map((csl) => (
-              <CslCard
-                key={csl.id!}
-                id={csl.id!}
-                name={csl.club.name}
-                address={csl.address}
-                onClick={handleCslClick}
+          {data?.searchSites.sites
+            .filter((site) => site.id)
+            .map((site) => (
+              <SiteCard
+                key={site.id!}
+                id={site.id!}
+                name={site.club.name}
+                address={site.address}
+                onClick={handleSiteClick}
                 sx={{ cursor: 'pointer' }}
               />
             ))}
         </Box>
         <Box>
-          <CslMap
-            positions={
-              data?.searchClubSportLocations.clubSportLocations.map(
-                cslToLatLng,
-              ) || []
-            }
+          <SiteMap
+            positions={data?.searchSites.sites.map(siteToLatLng) || []}
             onChange={onMapChange}
             query={mapQuery}
             centerPosition={mapCenter}

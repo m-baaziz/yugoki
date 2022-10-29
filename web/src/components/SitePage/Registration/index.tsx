@@ -28,8 +28,8 @@ const DEFAULT_SUBSCRIBER_DETAILS: SubscriberDetailsInput = {
 };
 
 const GET_SUBSCRIPTION_OPTION = gql`
-  query getSubscriptionOption($id: ID!) {
-    getSubscriptionOption(id: $id) {
+  query getSubscriptionOption($siteId: ID!, $id: ID!) {
+    getSubscriptionOption(siteId: $siteId, id: $id) {
       id
       title
       features
@@ -74,7 +74,7 @@ export default function Registration() {
   const { notify } = React.useContext(appContext);
   const [subscriberDetailsInput, setSubscriberDetailsInput] =
     React.useState<SubscriberDetailsInput>(DEFAULT_SUBSCRIBER_DETAILS);
-  const { cslId, subscriptionOptionId } = useParams();
+  const { siteId, subscriptionOptionId } = useParams();
   const navigate = useNavigate();
 
   const { data: subscriptionOptionData } = useQuery<
@@ -83,8 +83,9 @@ export default function Registration() {
     },
     QueryGetSubscriptionOptionArgs
   >(GET_SUBSCRIPTION_OPTION, {
-    skip: !cslId,
+    skip: !siteId || !subscriptionOptionId,
     variables: {
+      siteId: siteId || '',
       id: subscriptionOptionId || '',
     },
     fetchPolicy: 'no-cache',
@@ -99,14 +100,15 @@ export default function Registration() {
   };
 
   const handleBackClick = () => {
-    navigate(`/locations/${cslId}`);
+    navigate(`/sites/${siteId}`);
   };
   const handleSubmitClick = async () => {
     try {
-      if (!cslId || !subscriptionOptionId) return;
+      if (!siteId || !subscriptionOptionId) return;
       await createSubscription({
         variables: {
-          subscriptionOptionId: subscriptionOptionId,
+          siteId,
+          subscriptionOptionId,
           details: subscriberDetailsInput,
         },
       });
@@ -114,7 +116,7 @@ export default function Registration() {
         level: NotificationLevel.SUCCESS,
         message: 'Registration complete',
       });
-      navigate(`/locations/${cslId}`);
+      navigate(`/sites/${siteId}`);
     } catch (e) {
       notify({ level: NotificationLevel.ERROR, message: `${e}` });
     }

@@ -36,10 +36,10 @@ const DEFAULT_SUBSCRIPTION_OPTION: SubscriptionOptionInput = {
 
 const CREATE_SUBSCRIPTION_OPTION = gql`
   mutation createSubscriptionOption(
-    $cslId: ID!
+    $siteId: ID!
     $input: SubscriptionOptionInput!
   ) {
-    createSubscriptionOption(cslId: $cslId, input: $input) {
+    createSubscriptionOption(siteId: $siteId, input: $input) {
       id
       title
     }
@@ -66,7 +66,7 @@ export default function SubscriptionOptionForm() {
   const { notify } = React.useContext(appContext);
   const [subscriptionOptionInput, setSubscriptionOptionInput] =
     React.useState<SubscriptionOptionInput>(DEFAULT_SUBSCRIPTION_OPTION);
-  const { clubId, cslId } = useParams();
+  const { clubId, siteId } = useParams();
   const navigate = useNavigate();
   const [priceInputValue, setPriceInputValue] = React.useState(
     subscriptionOptionInput.price.toString(),
@@ -122,14 +122,14 @@ export default function SubscriptionOptionForm() {
   };
 
   const handleBackClick = () => {
-    navigate(`/profile/clubs/${clubId}/locations/${cslId}/subscriptions`);
+    navigate(`/profile/clubs/${clubId}/sites/${siteId}/subscriptions`);
   };
   const handleSubmitClick = async () => {
     try {
-      if (!cslId) return;
+      if (!siteId) return;
       const result = await createSubscriptionOption({
         variables: {
-          cslId,
+          siteId,
           input: subscriptionOptionInput,
         },
       });
@@ -137,7 +137,7 @@ export default function SubscriptionOptionForm() {
         level: NotificationLevel.SUCCESS,
         message: `created ${result.data?.createSubscriptionOption.title}`,
       });
-      navigate(`/profile/clubs/${clubId}/locations/${cslId}/subscriptions`);
+      navigate(`/profile/clubs/${clubId}/sites/${siteId}/subscriptions`);
     } catch (e) {
       notify({ level: NotificationLevel.ERROR, message: `${e}` });
     }

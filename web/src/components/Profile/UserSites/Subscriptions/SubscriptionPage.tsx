@@ -6,11 +6,15 @@ import {
   QueryGetSubscriptionArgs,
   Subscription,
 } from '../../../../generated/graphql';
-import RegistrationForm from '../../../CslPage/Registration/RegistrationForm';
+import RegistrationForm from '../../../SitePage/Registration/RegistrationForm';
 
 const GET_SUBSCRIPTION = gql`
-  query getSubscription($id: ID!) {
-    getSubscription(id: $id) {
+  query getSubscription($siteId: ID!, $subscriptionOptionId: ID!, $id: ID!) {
+    getSubscription(
+      siteId: $siteId
+      subscriptionOptionId: $subscriptionOptionId
+      id: $id
+    ) {
       id
       createdAtRFC3339
       subscriptionOption {
@@ -47,14 +51,16 @@ const Container = styled(Box)<BoxProps>(() => ({
 }));
 
 export default function SubscriptionPage() {
-  const { id } = useParams();
+  const { siteId, subscriptionOptionId, id } = useParams();
 
   const { data: subscriptionData } = useQuery<
     { getSubscription: Subscription },
     QueryGetSubscriptionArgs
   >(GET_SUBSCRIPTION, {
-    skip: !id,
+    skip: !siteId || !subscriptionOptionId || !id,
     variables: {
+      siteId: siteId || '',
+      subscriptionOptionId: subscriptionOptionId || '',
       id: id || '',
     },
     fetchPolicy: 'no-cache',

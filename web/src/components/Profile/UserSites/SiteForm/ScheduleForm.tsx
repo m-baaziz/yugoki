@@ -17,7 +17,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { CalendarSpan } from '../../../../generated/graphql';
-import { dayIndex, DAYS } from '../../../CslPage/Schedule';
+import { dayIndex, DAYS } from '../../../SitePage/Schedule';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TodayIcon from '@mui/icons-material/Today';
 import pullAt from 'lodash/pullAt';

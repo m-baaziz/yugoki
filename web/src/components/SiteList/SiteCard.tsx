@@ -4,7 +4,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { SxProps, Theme } from '@mui/material';
 
-export type CslCardProps = {
+export type SiteCardProps = {
   id: string;
   name: string;
   subtitle?: string;
@@ -13,7 +13,7 @@ export type CslCardProps = {
   sx?: SxProps<Theme>;
 };
 
-export default function CslCard(props: CslCardProps) {
+export default function SiteCard(props: SiteCardProps) {
   const { id, name, subtitle, address, onClick, sx } = props;
 
   const handleClick = () => {

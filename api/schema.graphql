@@ -35,7 +35,11 @@ type Query {
     first: Int!
     after: String
   ): SubscriptionPageInfo!
-  getSubscription(siteId: ID!, id: ID!): Subscription!
+  getSubscription(
+    siteId: ID!
+    subscriptionOptionId: ID!
+    id: ID!
+  ): Subscription!
   listTrainersByClub(clubId: ID!, first: Int!, after: String): TrainerPageInfo!
   getFileUpload(id: ID!): FileUploadResponse!
 }
@@ -85,7 +89,7 @@ type User {
   email: String!
 }
 
-type SportInput {
+input SportInput {
   title: String!
   description: String!
   tags: [String!]!

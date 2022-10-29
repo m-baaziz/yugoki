@@ -284,6 +284,7 @@ export type QueryGetSiteImagesArgs = {
 export type QueryGetSubscriptionArgs = {
   id: Scalars['ID'];
   siteId: Scalars['ID'];
+  subscriptionOptionId: Scalars['ID'];
 };
 
 
@@ -423,7 +424,6 @@ export type Sport = {
 };
 
 export type SportInput = {
-  __typename?: 'SportInput';
   description: Scalars['String'];
   tags: Array<Scalars['String']>;
   title: Scalars['String'];
@@ -623,7 +623,7 @@ export type ResolversTypes = {
   SitePageInfo: ResolverTypeWrapper<SitePageInfo>;
   SiteSearchQueryInput: SiteSearchQueryInput;
   Sport: ResolverTypeWrapper<Sport>;
-  SportInput: ResolverTypeWrapper<SportInput>;
+  SportInput: SportInput;
   SportPageInfo: ResolverTypeWrapper<SportPageInfo>;
   String: ResolverTypeWrapper<Scalars['String']>;
   SubscriberDetails: ResolverTypeWrapper<SubscriberDetails>;
@@ -768,7 +768,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<QueryGetFileUploadArgs, 'id'>>;
   getSite?: Resolver<ResolversTypes['Site'], ParentType, ContextType, RequireFields<QueryGetSiteArgs, 'id'>>;
   getSiteImages?: Resolver<Array<ResolversTypes['FileUploadResponse']>, ParentType, ContextType, RequireFields<QueryGetSiteImagesArgs, 'id'>>;
-  getSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<QueryGetSubscriptionArgs, 'id' | 'siteId'>>;
+  getSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<QueryGetSubscriptionArgs, 'id' | 'siteId' | 'subscriptionOptionId'>>;
   getSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<QueryGetSubscriptionOptionArgs, 'id' | 'siteId'>>;
   listEnabledSubscriptionOptionsBySite?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListEnabledSubscriptionOptionsBySiteArgs, 'first' | 'siteId'>>;
   listSiteEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListSiteEventsArgs, 'first' | 'siteId'>>;
@@ -811,13 +811,6 @@ export type SitePageInfoResolvers<ContextType = any, ParentType extends Resolver
 export type SportResolvers<ContextType = any, ParentType extends ResolversParentTypes['Sport'] = ResolversParentTypes['Sport']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type SportInputResolvers<ContextType = any, ParentType extends ResolversParentTypes['SportInput'] = ResolversParentTypes['SportInput']> = {
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -911,7 +904,6 @@ export type Resolvers<ContextType = any> = {
   Site?: SiteResolvers<ContextType>;
   SitePageInfo?: SitePageInfoResolvers<ContextType>;
   Sport?: SportResolvers<ContextType>;
-  SportInput?: SportInputResolvers<ContextType>;
   SportPageInfo?: SportPageInfoResolvers<ContextType>;
   SubscriberDetails?: SubscriberDetailsResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;

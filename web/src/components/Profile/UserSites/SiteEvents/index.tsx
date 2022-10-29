@@ -7,7 +7,7 @@ import appContext, { NotificationLevel } from '../../../../context';
 import {
   EventPageInfo,
   MutationDeleteEventArgs,
-  QueryListClubSportLocationEventsArgs,
+  QueryListSiteEventsArgs,
 } from '../../../../generated/graphql';
 import { useNavigate, useParams } from 'react-router-dom';
 import EventCard from './EventCard';
@@ -16,8 +16,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 const EVENT_PAGE_SIZE = 10000;
 
 const LIST_EVENTS = gql`
-  query listClubSportLocationEvents($cslId: ID!, $first: Int!, $after: String) {
-    listClubSportLocationEvents(cslId: $cslId, first: $first, after: $after) {
+  query listSiteEvents($siteId: ID!, $first: Int!, $after: String) {
+    listSiteEvents(siteId: $siteId, first: $first, after: $after) {
       events {
         id
         dateRFC3339
@@ -32,8 +32,8 @@ const LIST_EVENTS = gql`
 `;
 
 const DELETE_EVENT = gql`
-  mutation deleteEvent($id: ID!) {
-    deleteEvent(id: $id)
+  mutation deleteEvent($siteId: ID!, $id: ID!) {
+    deleteEvent(siteId: $siteId, id: $id)
   }
 `;
 
@@ -52,18 +52,18 @@ const Container = styled(Box)<BoxProps>(() => ({
   ",
 }));
 
-export default function ClubSportLocationEvents() {
+export default function SiteEvents() {
   const { notify } = React.useContext(appContext);
-  const { clubId, cslId } = useParams();
+  const { clubId, siteId } = useParams();
   const navigate = useNavigate();
 
   const { data, refetch } = useQuery<
-    { listClubSportLocationEvents: EventPageInfo },
-    QueryListClubSportLocationEventsArgs
+    { listSiteEvents: EventPageInfo },
+    QueryListSiteEventsArgs
   >(LIST_EVENTS, {
-    skip: !cslId,
+    skip: !siteId,
     variables: {
-      cslId: cslId || '',
+      siteId: siteId || '',
       first: EVENT_PAGE_SIZE,
       after: '',
     },
@@ -75,9 +75,11 @@ export default function ClubSportLocationEvents() {
   >(DELETE_EVENT);
 
   const handleDelete = async (id: string): Promise<void> => {
+    if (!siteId) return;
     try {
       await deleteEvent({
         variables: {
+          siteId,
           id,
         },
       });
@@ -88,7 +90,7 @@ export default function ClubSportLocationEvents() {
   };
 
   const handleBackClick = () => {
-    navigate(`/profile/clubs/${clubId}/locations/${cslId}`);
+    navigate(`/profile/clubs/${clubId}/sites/${siteId}`);
   };
   const handleAddClick = () => {
     navigate('new');
@@ -105,7 +107,7 @@ export default function ClubSportLocationEvents() {
           width: '100%',
         }}
       >
-        {data?.listClubSportLocationEvents.events.map((clubEvent, i) => (
+        {data?.listSiteEvents.events.map((clubEvent, i) => (
           <Grid key={clubEvent.id || i} item xs={6}>
             <EventCard clubEvent={clubEvent} onDelete={handleDelete} />
           </Grid>

@@ -48,13 +48,17 @@ export default class SubscriptionAPI extends DataSource {
 
   async findSubscriptionById(
     siteId: string,
+    subscriptionOptionId: string,
     id: string,
   ): Promise<Subscription> {
     try {
       const result = await this.dynamodbClient.send(
         new GetItemCommand({
           TableName: TABLE_NAME,
-          Key: { SiteId: { S: siteId }, SubscriptionId: { S: id } },
+          Key: {
+            SiteId: { S: siteId },
+            Sk1: { S: sk1(subscriptionOptionId, id) },
+          },
         }),
       );
       const item = result.Item;

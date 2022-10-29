@@ -132,23 +132,19 @@ export default class UserAPI extends DataSource {
   async insertUser(email: string, passwordHash: string): Promise<User> {
     // use cognito for signup ... (get id from cognito result)
     try {
-      const existingUsers = await this.dynamodbClient.send(
-        new QueryCommand({
+      // trick to guarantee unique emails (needs to be deleted along with the user)
+      await this.dynamodbClient.send(
+        new PutItemCommand({
           TableName: TABLE_NAME,
-          IndexName: EMAIL_INDEX_NAME,
-          KeyConditionExpression: '#email = :email',
+          ConditionExpression: 'attribute_not_exists(#id)',
           ExpressionAttributeNames: {
-            '#email': 'UserEmail',
+            '#id': 'UserId',
           },
-          ExpressionAttributeValues: {
-            ':email': { S: email },
+          Item: {
+            UserId: { S: email },
           },
-          Limit: 1,
         }),
       );
-      if (existingUsers.Items.length > 0) {
-        return Promise.reject(`User with email ${email} already exists`);
-      }
       const id = uuidv4();
       const item: User = {
         id,

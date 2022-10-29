@@ -16,7 +16,7 @@ export default function UserClub(props: UserClubProps) {
       sx={{ width: '100%', height: '100%', ...sx }}
       links={[
         { to: 'trainers', label: 'Trainers', icon: <GroupsIcon /> },
-        { to: 'locations', label: 'Sites', icon: <HomeIcon /> },
+        { to: 'sites', label: 'Sites', icon: <HomeIcon /> },
       ]}
     />
   );

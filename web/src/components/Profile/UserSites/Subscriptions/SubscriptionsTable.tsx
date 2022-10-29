@@ -16,7 +16,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import {
-  QueryListSubscriptionsByClubSportLocationArgs,
+  QueryListSubscriptionsBySiteArgs,
   SubscriptionPageInfo,
 } from '../../../../generated/graphql';
 import dayjs from 'dayjs';
@@ -24,16 +24,8 @@ import dayjs from 'dayjs';
 const SUBSCRIPTION_PAGE_SIZE = 10000;
 
 const LIST_SUBSCRIPTIONS = gql`
-  query listSubscriptionsByClubSportLocation(
-    $cslId: ID!
-    $first: Int!
-    $after: String
-  ) {
-    listSubscriptionsByClubSportLocation(
-      cslId: $cslId
-      first: $first
-      after: $after
-    ) {
+  query listSubscriptionsBySite($siteId: ID!, $first: Int!, $after: String) {
+    listSubscriptionsBySite(siteId: $siteId, first: $first, after: $after) {
       subscriptions {
         id
         createdAtRFC3339
@@ -56,7 +48,7 @@ const LIST_SUBSCRIPTIONS = gql`
 `;
 
 export type SubscriptionsTableProps = {
-  cslId: string;
+  siteId: string;
   sx?: SxProps<Theme>;
 };
 
@@ -86,15 +78,15 @@ const formatDateOfBirth = (isoDate: string) => {
 };
 
 export default function SubscriptionsTable(props: SubscriptionsTableProps) {
-  const { cslId, sx } = props;
+  const { siteId, sx } = props;
 
   const { data: subscriptionsData } = useQuery<
-    { listSubscriptionsByClubSportLocation: SubscriptionPageInfo },
-    QueryListSubscriptionsByClubSportLocationArgs
+    { listSubscriptionsBySite: SubscriptionPageInfo },
+    QueryListSubscriptionsBySiteArgs
   >(LIST_SUBSCRIPTIONS, {
-    skip: !cslId,
+    skip: !siteId,
     variables: {
-      cslId: cslId || '',
+      siteId: siteId || '',
       first: SUBSCRIPTION_PAGE_SIZE,
       after: '',
     },
@@ -117,7 +109,7 @@ export default function SubscriptionsTable(props: SubscriptionsTableProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {subscriptionsData?.listSubscriptionsByClubSportLocation.subscriptions.map(
+            {subscriptionsData?.listSubscriptionsBySite.subscriptions.map(
               (subscription, i) => (
                 <StyledTableRow key={subscription.id || i}>
                   <StyledTableCell component="th" scope="row">

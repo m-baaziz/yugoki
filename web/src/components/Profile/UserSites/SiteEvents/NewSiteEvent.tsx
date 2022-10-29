@@ -24,8 +24,8 @@ const DEFAULT_EVENT_INFO: EventInput = {
 };
 
 const CREATE_EVENT = gql`
-  mutation createEvent($cslId: ID!, $input: EventInput!) {
-    createEvent(cslId: $cslId, input: $input) {
+  mutation createEvent($siteId: ID!, $input: EventInput!) {
+    createEvent(siteId: $siteId, input: $input) {
       id
       title
     }
@@ -48,9 +48,9 @@ const Container = styled(Box)<BoxProps>(() => ({
   ",
 }));
 
-export default function NewClubSportLocationEvent() {
+export default function NewSiteEvent() {
   const { notify } = React.useContext(appContext);
-  const { clubId, cslId } = useParams();
+  const { clubId, siteId } = useParams();
   const navigate = useNavigate();
   const [eventInput, setEventInput] =
     React.useState<EventInput>(DEFAULT_EVENT_INFO);
@@ -70,11 +70,11 @@ export default function NewClubSportLocationEvent() {
   };
 
   const handleBackClick = () => {
-    navigate(`/profile/clubs/${clubId}/locations/${cslId}/events`);
+    navigate(`/profile/clubs/${clubId}/sites/${siteId}/events`);
   };
   const handleSubmitClick = async () => {
     try {
-      if (!cslId) return;
+      if (!siteId) return;
       const newEventInput = { ...eventInput };
       const newEventImages = eventImages.filter((t) => t.isNew && t.file);
       if (newEventImages.length > 0) {
@@ -92,7 +92,7 @@ export default function NewClubSportLocationEvent() {
       }
       const newEvent = await createEvent({
         variables: {
-          cslId,
+          siteId,
           input: newEventInput,
         },
       });
@@ -100,7 +100,7 @@ export default function NewClubSportLocationEvent() {
         level: NotificationLevel.SUCCESS,
         message: `created ${newEvent.data?.createEvent.title}`,
       });
-      navigate(`/profile/clubs/${clubId}/locations/${cslId}/events`);
+      navigate(`/profile/clubs/${clubId}/sites/${siteId}/events`);
     } catch (e) {
       notify({ level: NotificationLevel.ERROR, message: `${e}` });
     }
