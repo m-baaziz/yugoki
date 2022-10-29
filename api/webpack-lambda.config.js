@@ -23,7 +23,7 @@ module.exports = {
   },
   output: {
     filename: 'handler.js',
-    path: path.resolve(__dirname, 'lambda'),
+    path: path.resolve(__dirname, 'deploy/lambda'),
   },
   externals: [nodeExternals()],
   plugins: [
