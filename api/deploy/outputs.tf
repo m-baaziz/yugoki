@@ -13,3 +13,7 @@ output "grahql-url" {
 
   value = aws_apigatewayv2_stage.graphql_dev.invoke_url
 }
+
+output "cloudfront_domain_name" {
+  value = aws_cloudfront_distribution.web.domain_name
+}

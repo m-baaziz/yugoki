@@ -140,11 +140,10 @@ resource "aws_apigatewayv2_api" "graphql_gw" {
   name          = "graphql_lambda_gw"
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins     = ["http://localhost:3000"]
-    allow_methods     = ["*"]
-    allow_headers     = ["*"]
-    allow_credentials = true
-    max_age           = 300
+    allow_origins = ["*"]
+    allow_methods = ["*"]
+    allow_headers = ["*"]
+    max_age       = 300
   }
 }
 
