@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Trainer, TrainerInput, TrainerPageInfo } from '../generated/graphql';
 import { logger } from '../logger';
 import FileUploadAPI from './fileUpload';
-import { batchGet } from './helpers';
+import { batchGet, parseCursor, serializeKey } from './helpers';
 import { parseTrainer, trainerToRecord } from '../utils/trainer';
 
 export const TRAINERS_LIST_LIMIT = 1000;
@@ -92,6 +92,7 @@ export default class TrainerAPI extends DataSource {
     after?: string,
   ): Promise<TrainerPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -106,14 +107,24 @@ export default class TrainerAPI extends DataSource {
             ':sortKeySubstr': { S: sk1(clubId, '') },
           },
           Limit: first,
-          ExclusiveStartKey: after
-            ? { ClubId: { S: clubId }, Sk1: { S: after } }
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 1
+              ? {
+                  ClubId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.ClubId.S,
+            result.LastEvaluatedKey.Sk1.S,
+          ])
+        : undefined;
       const pageInfo: TrainerPageInfo = {
         trainers: result.Items.map(parseTrainer),
-        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

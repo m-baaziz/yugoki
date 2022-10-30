@@ -18,6 +18,7 @@ import {
   parseSubscriptionOption,
   subscriptionOptionToRecord,
 } from '../utils/subscriptionOption';
+import { parseCursor, serializeKey } from './helpers';
 
 const TABLE_NAME = 'Site';
 
@@ -64,6 +65,7 @@ export default class SubscriptionOptionAPI extends DataSource {
     after?: string,
   ): Promise<SubscriptionOptionPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -78,14 +80,24 @@ export default class SubscriptionOptionAPI extends DataSource {
             ':sortKeySubstr': { S: sk1(siteId, '') },
           },
           Limit: first,
-          ExclusiveStartKey: after
-            ? { SiteId: { S: siteId }, Sk1: { S: after } }
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 1
+              ? {
+                  SiteId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.SiteId.S,
+            result.LastEvaluatedKey.Sk1.S,
+          ])
+        : undefined;
       const pageInfo: SubscriptionOptionPageInfo = {
         subscriptionOptions: result.Items.map(parseSubscriptionOption),
-        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);
@@ -100,6 +112,7 @@ export default class SubscriptionOptionAPI extends DataSource {
     after?: string,
   ): Promise<SubscriptionOptionPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -117,14 +130,24 @@ export default class SubscriptionOptionAPI extends DataSource {
             ':enabled': { BOOL: true },
           },
           Limit: first,
-          ExclusiveStartKey: after
-            ? { SiteId: { S: siteId }, Sk1: { S: after } }
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 1
+              ? {
+                  SiteId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.SiteId.S,
+            result.LastEvaluatedKey.Sk1.S,
+          ])
+        : undefined;
       const pageInfo: SubscriptionOptionPageInfo = {
         subscriptionOptions: result.Items.map(parseSubscriptionOption),
-        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

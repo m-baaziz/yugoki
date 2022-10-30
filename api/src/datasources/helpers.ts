@@ -91,5 +91,13 @@ export async function batchDelete(
   } catch (e) {
     return Promise.reject(e);
   }
-  return 0;
+}
+
+export function parseCursor(cursor?: string): string[] {
+  if (!cursor) return [];
+  return Buffer.from(cursor, 'base64').toString().split(':');
+}
+
+export function serializeKey(values: string[]): string {
+  return Buffer.from(values.join(':')).toString('base64');
 }

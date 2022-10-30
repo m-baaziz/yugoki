@@ -19,7 +19,7 @@ import {
 import { logger } from '../logger';
 import EventAPI from './event';
 import FileUploadAPI from './fileUpload';
-import { batchDelete } from './helpers';
+import { batchDelete, parseCursor, serializeKey } from './helpers';
 import SubscriptionOptionAPI from './subscriptionOption';
 import {
   computeAreaGeohash,
@@ -90,6 +90,7 @@ export default class SiteAPI extends DataSource {
     after?: string,
   ): Promise<SitePageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -102,14 +103,26 @@ export default class SiteAPI extends DataSource {
             ':clubId': { S: clubId },
           },
           Limit: first,
-          ExclusiveStartKey: after
-            ? { ClubId: { S: clubId }, Sk1: { S: after } }
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 2
+              ? {
+                  SiteId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                  ClubId: { S: cursor[2] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.SiteId.S,
+            result.LastEvaluatedKey.Sk1.S,
+            result.LastEvaluatedKey.ClubId.S,
+          ])
+        : undefined;
       const pageInfo: SitePageInfo = {
         sites: result.Items.map(parseSite),
-        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);
@@ -125,6 +138,7 @@ export default class SiteAPI extends DataSource {
     after?: string,
   ): Promise<SitePageInfo> {
     try {
+      const cursor = parseCursor(after);
       const geohash = computeAreaGeohash(searchArea);
       const query = {
         TableName: TABLE_NAME,
@@ -148,14 +162,28 @@ export default class SiteAPI extends DataSource {
           ':bottomRightLon': { N: searchArea.bottomRightLon.toString() },
         },
         Limit: first,
-        ExclusiveStartKey: after
-          ? { SportId: { S: sportId }, Sk2: { S: after } }
-          : undefined,
+        ExclusiveStartKey:
+          cursor.length > 3
+            ? {
+                SiteId: { S: cursor[0] },
+                Sk1: { S: cursor[1] },
+                Sk2: { S: cursor[2] },
+                SportId: { S: cursor[3] },
+              }
+            : undefined,
       };
       const result = await this.dynamodbClient.send(new QueryCommand(query));
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.SiteId.S,
+            result.LastEvaluatedKey.Sk1.S,
+            result.LastEvaluatedKey.Sk2.S,
+            result.LastEvaluatedKey.SportId.S,
+          ])
+        : undefined;
       const pageInfo: SitePageInfo = {
         sites: result.Items.map(parseSite),
-        endCursor: result.LastEvaluatedKey?.Sk2.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

@@ -14,7 +14,7 @@ import SiteAPI from './site';
 import FileUploadAPI from './fileUpload';
 import TrainerAPI from './trainer';
 import { clubToRecord, parseClub } from '../utils/club';
-import { batchDelete } from './helpers';
+import { batchDelete, parseCursor, serializeKey } from './helpers';
 
 const TABLE_NAME = 'Club';
 const OWNER_INDEX_NAME = 'ClubOwnerIndex';
@@ -69,6 +69,7 @@ export default class ClubAPI extends DataSource {
     after?: string,
   ): Promise<ClubPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -81,14 +82,26 @@ export default class ClubAPI extends DataSource {
             ':userId': { S: userId },
           },
           Limit: first,
-          ExclusiveStartKey: after
-            ? { ClubId: { S: userId }, Sk1: { S: after } } // TODO: implement locally serializeKey and and parseKey to put exclusiveKey in after as one string, and make change in other datasources
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 2
+              ? {
+                  ClubId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                  ClubOwner: { S: cursor[2] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.ClubId.S,
+            result.LastEvaluatedKey.Sk1.S,
+            result.LastEvaluatedKey.ClubOwner.S,
+          ])
+        : undefined;
       const pageInfo: ClubPageInfo = {
         clubs: result.Items.map(parseClub),
-        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

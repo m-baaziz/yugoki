@@ -13,6 +13,7 @@ import { Event, EventInput, EventPageInfo } from '../generated/graphql';
 import { logger } from '../logger';
 import FileUploadAPI from './fileUpload';
 import { eventToRecord, parseEvent } from '../utils/event';
+import { parseCursor, serializeKey } from './helpers';
 
 const TABLE_NAME = 'Site';
 
@@ -58,6 +59,7 @@ export default class EventAPI extends DataSource {
     after?: string,
   ): Promise<EventPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -72,14 +74,24 @@ export default class EventAPI extends DataSource {
             ':sortKeySubstr': { S: sk1(siteId, '') },
           },
           Limit: first,
-          ExclusiveStartKey: after
-            ? { SiteId: { S: siteId }, Sk1: { S: after } }
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 1
+              ? {
+                  SiteId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.SiteId.S,
+            result.LastEvaluatedKey.Sk1.S,
+          ])
+        : undefined;
       const pageInfo: EventPageInfo = {
         events: result.Items.map(parseEvent),
-        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

@@ -10,6 +10,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { Sport, SportInput, SportPageInfo } from '../generated/graphql';
 import { parseSport, sportToRecord } from '../utils/sport';
+import { parseCursor, serializeKey } from './helpers';
 
 const TABLE_NAME = 'Sport';
 
@@ -46,16 +47,21 @@ export default class SportAPI extends DataSource {
 
   async listSports(first: number, after?: string): Promise<SportPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new ScanCommand({
           TableName: TABLE_NAME,
           Limit: first,
-          ExclusiveStartKey: after ? { SportId: { S: after } } : undefined,
+          ExclusiveStartKey:
+            cursor.length > 0 ? { SportId: { S: cursor[0] } } : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([result.LastEvaluatedKey.SportId.S])
+        : undefined;
       const pageInfo: SportPageInfo = {
         sports: result.Items.map(parseSport),
-        endCursor: result.LastEvaluatedKey?.SportId.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

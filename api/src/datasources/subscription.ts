@@ -15,6 +15,7 @@ import {
 } from '../generated/graphql';
 import SubscriptionOptionAPI from './subscriptionOption';
 import { parseSubscription, subscriptionToRecord } from '../utils/subscription';
+import { parseCursor, serializeKey } from './helpers';
 
 const TABLE_NAME = 'Subscription';
 const DATE_INDEX_NAME = 'DateIndex';
@@ -78,6 +79,7 @@ export default class SubscriptionAPI extends DataSource {
     after?: string,
   ): Promise<SubscriptionPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -92,14 +94,24 @@ export default class SubscriptionAPI extends DataSource {
             ':sk1': { S: sk1(subscriptionOptionId, '') },
           },
           Limit: first,
-          ExclusiveStartKey: after
-            ? { SiteId: { S: siteId }, Sk1: { S: after } }
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 1
+              ? {
+                  SiteId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.SiteId.S,
+            result.LastEvaluatedKey.Sk1.S,
+          ])
+        : undefined;
       const pageInfo: SubscriptionPageInfo = {
         subscriptions: result.Items.map(parseSubscription),
-        endCursor: result.LastEvaluatedKey?.Sk1.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);
@@ -114,6 +126,7 @@ export default class SubscriptionAPI extends DataSource {
     after?: string,
   ): Promise<SubscriptionPageInfo> {
     try {
+      const cursor = parseCursor(after);
       const result = await this.dynamodbClient.send(
         new QueryCommand({
           TableName: TABLE_NAME,
@@ -127,14 +140,26 @@ export default class SubscriptionAPI extends DataSource {
           },
           ScanIndexForward: true,
           Limit: first,
-          ExclusiveStartKey: after
-            ? { SiteId: { S: siteId }, Sk2: { S: after } }
-            : undefined,
+          ExclusiveStartKey:
+            cursor.length > 2
+              ? {
+                  SiteId: { S: cursor[0] },
+                  Sk1: { S: cursor[1] },
+                  Sk2: { S: cursor[1] },
+                }
+              : undefined,
         }),
       );
+      const endCursor = result.LastEvaluatedKey
+        ? serializeKey([
+            result.LastEvaluatedKey.SiteId.S,
+            result.LastEvaluatedKey.Sk1.S,
+            result.LastEvaluatedKey.Sk2.S,
+          ])
+        : undefined;
       const pageInfo: SubscriptionPageInfo = {
         subscriptions: result.Items.map(parseSubscription),
-        endCursor: result.LastEvaluatedKey?.Sk2.S,
+        endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);
