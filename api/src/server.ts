@@ -1,15 +1,12 @@
 import 'dotenv/config';
 import { readFileSync } from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { ApolloServer } from 'apollo-server';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 import resolvers from './resolvers';
-import { logger } from './logger';
 import UserAPI from './datasources/user';
 import { DataSources } from './datasources';
-import authenticationMiddleware from './middlewares/context';
 import ClubAPI from './datasources/club';
 import SportAPI from './datasources/sport';
 import SiteAPI from './datasources/site';
@@ -18,12 +15,19 @@ import EventAPI from './datasources/event';
 import SubscriptionAPI from './datasources/subscription';
 import SubscriptionOptionAPI from './datasources/subscriptionOption';
 import FileUploadAPI, { S3Config } from './datasources/fileUpload';
+import { GraphQLSchema } from 'graphql';
 
-export function createApolloServer(schemaPath: string): ApolloServer {
+export function getSchema(schemaPath: string): GraphQLSchema {
+  const typeDefs = readFileSync(schemaPath).toString('utf-8');
+  return makeExecutableSchema({
+    typeDefs: [typeDefs],
+    resolvers,
+  });
+}
+
+export function getDatasources(): DataSources {
   const JWT_SECRET = process.env.JWT_SECRET;
   const JWT_VALIDITY_SEC = parseInt(process.env.JWT_VALIDITY_SEC, 10);
-
-  const typeDefs = readFileSync(schemaPath).toString('utf-8');
 
   const s3Config: S3Config = {
     bucket: process.env.FILES_BUCKET,
@@ -39,11 +43,6 @@ export function createApolloServer(schemaPath: string): ApolloServer {
     ...awsConfig,
   });
   const dynamodbClient = new DynamoDBClient({ ...awsConfig });
-
-  const schema = makeExecutableSchema({
-    typeDefs: [typeDefs],
-    resolvers,
-  });
 
   const fileUploadAPI = new FileUploadAPI(dynamodbClient, s3Client, s3Config);
   const userAPI = new UserAPI(
@@ -75,21 +74,15 @@ export function createApolloServer(schemaPath: string): ApolloServer {
   );
   const sportAPI = new SportAPI(dynamodbClient);
 
-  const server = new ApolloServer({
-    schema,
-    dataSources: (): DataSources => ({
-      userAPI,
-      clubAPI,
-      sportAPI,
-      siteAPI,
-      trainerAPI,
-      eventAPI,
-      subscriptionOptionAPI,
-      subscriptionAPI,
-      fileUploadAPI,
-    }),
-    context: authenticationMiddleware(userAPI),
-    logger,
-  });
-  return server;
+  return {
+    userAPI,
+    clubAPI,
+    sportAPI,
+    siteAPI,
+    trainerAPI,
+    eventAPI,
+    subscriptionOptionAPI,
+    subscriptionAPI,
+    fileUploadAPI,
+  };
 }

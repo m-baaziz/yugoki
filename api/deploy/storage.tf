@@ -1,3 +1,15 @@
+resource "aws_s3_bucket" "lambdas" {
+  bucket = "${local.app_name}-lambdas"
+  tags = {
+    Environment = "dev"
+  }
+}
+
+resource "aws_s3_bucket_acl" "lambdas" {
+  bucket = aws_s3_bucket.lambdas.id
+  acl    = "private"
+}
+
 resource "aws_s3_bucket" "files" {
   bucket = "${local.app_name}-files"
   tags = {

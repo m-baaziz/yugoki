@@ -1,4 +1,4 @@
-// const bcrypt = require('bcrypt');
+// const bcrypt = require('bcryptjs');
 // const { ObjectID } = require('bson');
 
 // const DEFAULT_PASSWORD = 'password';

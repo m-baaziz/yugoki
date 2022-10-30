@@ -1,23 +1,22 @@
 import 'dotenv/config';
 import path from 'path';
+import { ApolloServer } from 'apollo-server-lambda';
+
+import { getDatasources, getSchema } from './server';
+import authenticationMiddleware from './middlewares/context';
 import { logger } from './logger';
-import { createApolloServer } from './server';
 
-async function main() {
-  const SERVER_PORT = parseInt(process.env.SERVER_PORT, 10) || 4000;
-  const SCHEMA_PATH = path.join(__dirname, './schema.graphql');
-  const server = createApolloServer(SCHEMA_PATH);
+const SCHEMA_PATH = path.join(__dirname, './schema.graphql');
+const schema = getSchema(SCHEMA_PATH);
+const dataSources = getDatasources();
 
-  const serverInfo = await server.listen({
-    port: SERVER_PORT,
-    logger,
-  });
+const server = new ApolloServer({
+  schema,
+  dataSources: () => dataSources,
+  context: ({ express }) =>
+    authenticationMiddleware(dataSources.userAPI)(express),
+  logger,
+  persistedQueries: false,
+});
 
-  console.log(`Apollo Server is running! Listening on ${serverInfo.url}`);
-}
-
-try {
-  main();
-} catch (e) {
-  console.error(e);
-}
+module.exports.graphqlHandler = server.createHandler();

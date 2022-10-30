@@ -82,13 +82,13 @@ export default class ClubAPI extends DataSource {
           },
           Limit: first,
           ExclusiveStartKey: after
-            ? { ClubOwner: { S: userId }, ClubId: { S: after } }
+            ? { ClubId: { S: userId }, Sk1: { S: after } } // TODO: implement locally serializeKey and and parseKey to put exclusiveKey in after as one string, and make change in other datasources
             : undefined,
         }),
       );
       const pageInfo: ClubPageInfo = {
         clubs: result.Items.map(parseClub),
-        endCursor: result.LastEvaluatedKey?.ClubId.S,
+        endCursor: result.LastEvaluatedKey?.Sk1.S,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
       return Promise.resolve(pageInfo);

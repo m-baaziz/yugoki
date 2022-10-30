@@ -1,12 +1,22 @@
 import 'dotenv/config';
 import path from 'path';
+import { ApolloServer } from 'apollo-server';
 import { logger } from './logger';
-import { createApolloServer } from './server';
+import authenticationMiddleware from './middlewares/context';
+import { getDatasources, getSchema } from './server';
 
 async function main() {
   const SERVER_PORT = parseInt(process.env.SERVER_PORT, 10) || 4000;
   const SCHEMA_PATH = path.join(__dirname, '../schema.graphql');
-  const server = createApolloServer(SCHEMA_PATH);
+  const schema = getSchema(SCHEMA_PATH);
+  const dataSources = getDatasources();
+
+  const server = new ApolloServer({
+    schema,
+    dataSources: () => dataSources,
+    context: authenticationMiddleware(dataSources.userAPI),
+    logger,
+  });
 
   const serverInfo = await server.listen({
     port: SERVER_PORT,
