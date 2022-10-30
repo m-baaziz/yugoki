@@ -16,7 +16,15 @@ const server = new ApolloServer({
   context: ({ express }) =>
     authenticationMiddleware(dataSources.userAPI)(express),
   logger,
-  persistedQueries: false,
+  cache: 'bounded',
+  csrfPrevention: true,
 });
 
-module.exports.graphqlHandler = server.createHandler();
+module.exports.graphqlHandler = server.createHandler({
+  expressGetMiddlewareOptions: {
+    cors: {
+      origin: '*',
+      credentials: true,
+    },
+  },
+});

@@ -54,7 +54,7 @@ resource "aws_cloudwatch_log_group" "graphql" {
 // ------- IAM ---------
 
 resource "aws_iam_role" "lambda_exec" {
-  name = "serverless_lambda"
+  name = "graphql_lambda"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -111,11 +111,41 @@ resource "aws_iam_role_policy" "graphql_dynamodb" {
   })
 }
 
+resource "aws_iam_role_policy" "graphql_s3" {
+  role = aws_iam_role.lambda_exec.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:ListBucket",
+        ]
+        Effect   = "Allow"
+        Resource = ["${aws_s3_bucket.files.arn}"]
+      },
+      {
+        Action = [
+          "s3:*Object",
+        ]
+        Effect   = "Allow"
+        Resource = ["${aws_s3_bucket.files.arn}/*"]
+      },
+    ]
+  })
+}
+
 // ------- API GATEWAY ---------
 
 resource "aws_apigatewayv2_api" "graphql_gw" {
   name          = "graphql_lambda_gw"
   protocol_type = "HTTP"
+  cors_configuration {
+    allow_origins     = ["http://localhost:3000"]
+    allow_methods     = ["*"]
+    allow_headers     = ["*"]
+    allow_credentials = true
+    max_age           = 300
+  }
 }
 
 resource "aws_apigatewayv2_stage" "graphql_dev" {
