@@ -9,6 +9,8 @@ import EventAPI from './event';
 import SubscriptionAPI from './subscription';
 import SubscriptionOptionAPI from './subscriptionOption';
 import FileUploadAPI from './fileUpload';
+import SiteChatRoomAPI from './siteChatRoom';
+import SiteChatMessageAPI from './siteChatMessage';
 
 export type DataSources = {
   userAPI: UserAPI;
@@ -20,6 +22,8 @@ export type DataSources = {
   subscriptionOptionAPI: SubscriptionOptionAPI;
   subscriptionAPI: SubscriptionAPI;
   fileUploadAPI: FileUploadAPI;
+  siteChatRoomAPI: SiteChatRoomAPI;
+  siteChatMessageAPI: SiteChatMessageAPI;
 };
 
 export type ContextWithDataSources = Context<AuthenticationContext> & {

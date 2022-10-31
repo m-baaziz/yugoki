@@ -27,6 +27,17 @@ import {
 } from './subscription';
 import { listTrainersByClub, createTrainer, deleteTrainer } from './trainer';
 import { getFileUpload, createFileUpload } from './fileUpload';
+import {
+  listSiteChatRooms,
+  listUserSiteChatRooms,
+  createSiteChatRoom,
+  deleteSiteChatRoom,
+} from './siteChatRoom';
+import {
+  listSiteChatMessages,
+  createSiteChatMessage,
+  deleteSiteChatMessage,
+} from './siteChatMessage';
 
 const resolvers: Resolvers = {
   Query: {
@@ -48,6 +59,9 @@ const resolvers: Resolvers = {
     getSubscription,
     listTrainersByClub,
     getFileUpload,
+    listSiteChatRooms,
+    listUserSiteChatRooms,
+    listSiteChatMessages,
   },
   Mutation: {
     signIn,
@@ -67,6 +81,10 @@ const resolvers: Resolvers = {
     createFileUpload,
     createSport,
     deleteSport,
+    createSiteChatRoom,
+    deleteSiteChatRoom,
+    createSiteChatMessage,
+    deleteSiteChatMessage,
   },
 };
 

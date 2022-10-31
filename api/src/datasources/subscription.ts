@@ -138,7 +138,7 @@ export default class SubscriptionAPI extends DataSource {
           ExpressionAttributeValues: {
             ':siteId': { S: siteId },
           },
-          ScanIndexForward: true,
+          ScanIndexForward: false,
           Limit: first,
           ExclusiveStartKey:
             cursor.length > 2

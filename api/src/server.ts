@@ -16,6 +16,8 @@ import SubscriptionAPI from './datasources/subscription';
 import SubscriptionOptionAPI from './datasources/subscriptionOption';
 import FileUploadAPI, { S3Config } from './datasources/fileUpload';
 import { GraphQLSchema } from 'graphql';
+import SiteChatRoomAPI from './datasources/siteChatRoom';
+import SiteChatMessageAPI from './datasources/siteChatMessage';
 
 export function getSchema(schemaPath: string): GraphQLSchema {
   const typeDefs = readFileSync(schemaPath).toString('utf-8');
@@ -73,6 +75,8 @@ export function getDatasources(): DataSources {
     fileUploadAPI,
   );
   const sportAPI = new SportAPI(dynamodbClient);
+  const siteChatRoomAPI = new SiteChatRoomAPI(dynamodbClient);
+  const siteChatMessageAPI = new SiteChatMessageAPI(dynamodbClient);
 
   return {
     userAPI,
@@ -84,5 +88,7 @@ export function getDatasources(): DataSources {
     subscriptionOptionAPI,
     subscriptionAPI,
     fileUploadAPI,
+    siteChatRoomAPI,
+    siteChatMessageAPI,
   };
 }

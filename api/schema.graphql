@@ -42,6 +42,17 @@ type Query {
   ): Subscription!
   listTrainersByClub(clubId: ID!, first: Int!, after: String): TrainerPageInfo!
   getFileUpload(id: ID!): FileUploadResponse!
+  listSiteChatRooms(
+    siteId: ID!
+    first: Int!
+    after: String
+  ): SiteChatRoomPageInfo!
+  listUserSiteChatRooms(first: Int!, after: String): SiteChatRoomPageInfo!
+  listSiteChatMessages(
+    roomId: ID!
+    first: Int!
+    after: String
+  ): SiteChatMessagePageInfo!
 }
 
 type Mutation {
@@ -69,6 +80,13 @@ type Mutation {
   createEvent(siteId: ID!, input: EventInput!): Event!
   deleteEvent(siteId: ID!, id: ID!): Boolean!
   createFileUpload(input: FileUploadInput!): FileUploadResponse!
+  createSiteChatRoom(siteId: ID!): SiteChatRoom!
+  deleteSiteChatRoom(id: ID!): Boolean!
+  createSiteChatMessage(
+    roomId: ID!
+    input: SiteChatMessageInput!
+  ): SiteChatMessage!
+  deleteSiteChatMessage(roomId: ID!, id: ID!): Boolean!
 }
 
 input SearchArea {
@@ -318,4 +336,37 @@ type FileUpload {
 type FileUploadResponse {
   file: FileUpload!
   url: String # s3 pre-signed url (GET or PUT)
+}
+
+type SiteChatRoom {
+  id: ID!
+  site: String!
+  userId: String!
+  createdAtRFC3339: String!
+}
+
+type SiteChatRoomPageInfo {
+  siteChatRooms: [SiteChatRoom!]!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+input SiteChatMessageInput {
+  room: String!
+  from: String!
+  text: String!
+}
+
+type SiteChatMessage {
+  id: ID!
+  room: String!
+  from: String!
+  text: String!
+  dateRFC3339: String!
+}
+
+type SiteChatMessagePageInfo {
+  siteChatMessages: [SiteChatMessage!]!
+  hasNextPage: Boolean!
+  endCursor: String
 }

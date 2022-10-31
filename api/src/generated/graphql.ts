@@ -120,6 +120,8 @@ export type Mutation = {
   createEvent: Event;
   createFileUpload: FileUploadResponse;
   createSite?: Maybe<Site>;
+  createSiteChatMessage: SiteChatMessage;
+  createSiteChatRoom: SiteChatRoom;
   createSport: Sport;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
@@ -127,6 +129,8 @@ export type Mutation = {
   deleteClub: Scalars['Boolean'];
   deleteEvent: Scalars['Boolean'];
   deleteSite: Scalars['Boolean'];
+  deleteSiteChatMessage: Scalars['Boolean'];
+  deleteSiteChatRoom: Scalars['Boolean'];
   deleteSport: Scalars['Boolean'];
   deleteTrainer: Scalars['Boolean'];
   disableSubscriptionOption: SubscriptionOption;
@@ -155,6 +159,17 @@ export type MutationCreateFileUploadArgs = {
 export type MutationCreateSiteArgs = {
   clubId: Scalars['ID'];
   input: SiteInput;
+};
+
+
+export type MutationCreateSiteChatMessageArgs = {
+  input: SiteChatMessageInput;
+  roomId: Scalars['ID'];
+};
+
+
+export type MutationCreateSiteChatRoomArgs = {
+  siteId: Scalars['ID'];
 };
 
 
@@ -194,6 +209,17 @@ export type MutationDeleteEventArgs = {
 
 
 export type MutationDeleteSiteArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteSiteChatMessageArgs = {
+  id: Scalars['ID'];
+  roomId: Scalars['ID'];
+};
+
+
+export type MutationDeleteSiteChatRoomArgs = {
   id: Scalars['ID'];
 };
 
@@ -242,6 +268,8 @@ export type Query = {
   getSubscription: Subscription;
   getSubscriptionOption: SubscriptionOption;
   listEnabledSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
+  listSiteChatMessages: SiteChatMessagePageInfo;
+  listSiteChatRooms: SiteChatRoomPageInfo;
   listSiteEvents: EventPageInfo;
   listSitesByClub: SitePageInfo;
   listSports: SportPageInfo;
@@ -250,6 +278,7 @@ export type Query = {
   listSubscriptionsBySubscriptionOption: SubscriptionPageInfo;
   listTrainersByClub: TrainerPageInfo;
   listUserClubs: ClubPageInfo;
+  listUserSiteChatRooms: SiteChatRoomPageInfo;
   me: User;
   searchSites: SitePageInfo;
 };
@@ -295,6 +324,20 @@ export type QueryGetSubscriptionOptionArgs = {
 
 
 export type QueryListEnabledSubscriptionOptionsBySiteArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  siteId: Scalars['ID'];
+};
+
+
+export type QueryListSiteChatMessagesArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  roomId: Scalars['ID'];
+};
+
+
+export type QueryListSiteChatRoomsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
   siteId: Scalars['ID'];
@@ -356,6 +399,12 @@ export type QueryListUserClubsArgs = {
 };
 
 
+export type QueryListUserSiteChatRoomsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+};
+
+
 export type QuerySearchSitesArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
@@ -385,6 +434,43 @@ export type Site = {
   sport: Sport;
   trainers: Array<Trainer>;
   website?: Maybe<Scalars['String']>;
+};
+
+export type SiteChatMessage = {
+  __typename?: 'SiteChatMessage';
+  dateRFC3339: Scalars['String'];
+  from: Scalars['String'];
+  id: Scalars['ID'];
+  room: Scalars['String'];
+  text: Scalars['String'];
+};
+
+export type SiteChatMessageInput = {
+  from: Scalars['String'];
+  room: Scalars['String'];
+  text: Scalars['String'];
+};
+
+export type SiteChatMessagePageInfo = {
+  __typename?: 'SiteChatMessagePageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  siteChatMessages: Array<SiteChatMessage>;
+};
+
+export type SiteChatRoom = {
+  __typename?: 'SiteChatRoom';
+  createdAtRFC3339: Scalars['String'];
+  id: Scalars['ID'];
+  site: Scalars['String'];
+  userId: Scalars['String'];
+};
+
+export type SiteChatRoomPageInfo = {
+  __typename?: 'SiteChatRoomPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  siteChatRooms: Array<SiteChatRoom>;
 };
 
 export type SiteInput = {
@@ -619,6 +705,11 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   SearchArea: SearchArea;
   Site: ResolverTypeWrapper<Site>;
+  SiteChatMessage: ResolverTypeWrapper<SiteChatMessage>;
+  SiteChatMessageInput: SiteChatMessageInput;
+  SiteChatMessagePageInfo: ResolverTypeWrapper<SiteChatMessagePageInfo>;
+  SiteChatRoom: ResolverTypeWrapper<SiteChatRoom>;
+  SiteChatRoomPageInfo: ResolverTypeWrapper<SiteChatRoomPageInfo>;
   SiteInput: SiteInput;
   SitePageInfo: ResolverTypeWrapper<SitePageInfo>;
   SiteSearchQueryInput: SiteSearchQueryInput;
@@ -661,6 +752,11 @@ export type ResolversParentTypes = {
   Query: {};
   SearchArea: SearchArea;
   Site: Site;
+  SiteChatMessage: SiteChatMessage;
+  SiteChatMessageInput: SiteChatMessageInput;
+  SiteChatMessagePageInfo: SiteChatMessagePageInfo;
+  SiteChatRoom: SiteChatRoom;
+  SiteChatRoomPageInfo: SiteChatRoomPageInfo;
   SiteInput: SiteInput;
   SitePageInfo: SitePageInfo;
   SiteSearchQueryInput: SiteSearchQueryInput;
@@ -747,6 +843,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'input' | 'siteId'>>;
   createFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<MutationCreateFileUploadArgs, 'input'>>;
   createSite?: Resolver<Maybe<ResolversTypes['Site']>, ParentType, ContextType, RequireFields<MutationCreateSiteArgs, 'clubId' | 'input'>>;
+  createSiteChatMessage?: Resolver<ResolversTypes['SiteChatMessage'], ParentType, ContextType, RequireFields<MutationCreateSiteChatMessageArgs, 'input' | 'roomId'>>;
+  createSiteChatRoom?: Resolver<ResolversTypes['SiteChatRoom'], ParentType, ContextType, RequireFields<MutationCreateSiteChatRoomArgs, 'siteId'>>;
   createSport?: Resolver<ResolversTypes['Sport'], ParentType, ContextType, RequireFields<MutationCreateSportArgs, 'input'>>;
   createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'siteId' | 'subscriptionOptionId'>>;
   createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'input' | 'siteId'>>;
@@ -754,6 +852,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteClub?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClubArgs, 'id'>>;
   deleteEvent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'id' | 'siteId'>>;
   deleteSite?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSiteArgs, 'id'>>;
+  deleteSiteChatMessage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSiteChatMessageArgs, 'id' | 'roomId'>>;
+  deleteSiteChatRoom?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSiteChatRoomArgs, 'id'>>;
   deleteSport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSportArgs, 'id'>>;
   deleteTrainer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainerArgs, 'clubId' | 'id'>>;
   disableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationDisableSubscriptionOptionArgs, 'id' | 'siteId'>>;
@@ -771,6 +871,8 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<QueryGetSubscriptionArgs, 'id' | 'siteId' | 'subscriptionOptionId'>>;
   getSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<QueryGetSubscriptionOptionArgs, 'id' | 'siteId'>>;
   listEnabledSubscriptionOptionsBySite?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListEnabledSubscriptionOptionsBySiteArgs, 'first' | 'siteId'>>;
+  listSiteChatMessages?: Resolver<ResolversTypes['SiteChatMessagePageInfo'], ParentType, ContextType, RequireFields<QueryListSiteChatMessagesArgs, 'first' | 'roomId'>>;
+  listSiteChatRooms?: Resolver<ResolversTypes['SiteChatRoomPageInfo'], ParentType, ContextType, RequireFields<QueryListSiteChatRoomsArgs, 'first' | 'siteId'>>;
   listSiteEvents?: Resolver<ResolversTypes['EventPageInfo'], ParentType, ContextType, RequireFields<QueryListSiteEventsArgs, 'first' | 'siteId'>>;
   listSitesByClub?: Resolver<ResolversTypes['SitePageInfo'], ParentType, ContextType, RequireFields<QueryListSitesByClubArgs, 'clubId' | 'first'>>;
   listSports?: Resolver<ResolversTypes['SportPageInfo'], ParentType, ContextType, RequireFields<QueryListSportsArgs, 'first'>>;
@@ -779,6 +881,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   listSubscriptionsBySubscriptionOption?: Resolver<ResolversTypes['SubscriptionPageInfo'], ParentType, ContextType, RequireFields<QueryListSubscriptionsBySubscriptionOptionArgs, 'first' | 'siteId' | 'subscriptionOptionId'>>;
   listTrainersByClub?: Resolver<ResolversTypes['TrainerPageInfo'], ParentType, ContextType, RequireFields<QueryListTrainersByClubArgs, 'clubId' | 'first'>>;
   listUserClubs?: Resolver<ResolversTypes['ClubPageInfo'], ParentType, ContextType, RequireFields<QueryListUserClubsArgs, 'first'>>;
+  listUserSiteChatRooms?: Resolver<ResolversTypes['SiteChatRoomPageInfo'], ParentType, ContextType, RequireFields<QueryListUserSiteChatRoomsArgs, 'first'>>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   searchSites?: Resolver<ResolversTypes['SitePageInfo'], ParentType, ContextType, RequireFields<QuerySearchSitesArgs, 'first' | 'query'>>;
 };
@@ -798,6 +901,37 @@ export type SiteResolvers<ContextType = any, ParentType extends ResolversParentT
   sport?: Resolver<ResolversTypes['Sport'], ParentType, ContextType>;
   trainers?: Resolver<Array<ResolversTypes['Trainer']>, ParentType, ContextType>;
   website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SiteChatMessageResolvers<ContextType = any, ParentType extends ResolversParentTypes['SiteChatMessage'] = ResolversParentTypes['SiteChatMessage']> = {
+  dateRFC3339?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  room?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SiteChatMessagePageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SiteChatMessagePageInfo'] = ResolversParentTypes['SiteChatMessagePageInfo']> = {
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  siteChatMessages?: Resolver<Array<ResolversTypes['SiteChatMessage']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SiteChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['SiteChatRoom'] = ResolversParentTypes['SiteChatRoom']> = {
+  createdAtRFC3339?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  site?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SiteChatRoomPageInfoResolvers<ContextType = any, ParentType extends ResolversParentTypes['SiteChatRoomPageInfo'] = ResolversParentTypes['SiteChatRoomPageInfo']> = {
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  siteChatRooms?: Resolver<Array<ResolversTypes['SiteChatRoom']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -902,6 +1036,10 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Site?: SiteResolvers<ContextType>;
+  SiteChatMessage?: SiteChatMessageResolvers<ContextType>;
+  SiteChatMessagePageInfo?: SiteChatMessagePageInfoResolvers<ContextType>;
+  SiteChatRoom?: SiteChatRoomResolvers<ContextType>;
+  SiteChatRoomPageInfo?: SiteChatRoomPageInfoResolvers<ContextType>;
   SitePageInfo?: SitePageInfoResolvers<ContextType>;
   Sport?: SportResolvers<ContextType>;
   SportPageInfo?: SportPageInfoResolvers<ContextType>;

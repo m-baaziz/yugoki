@@ -188,3 +188,74 @@ resource "aws_dynamodb_table" "subscription" {
     Environment = "dev"
   }
 }
+
+resource "aws_dynamodb_table" "site_chat" {
+  name           = "SiteChat"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "RoomId"
+  range_key      = "Sk1"
+
+  attribute {
+    name = "RoomId"
+    type = "S"
+  }
+
+  attribute {
+    name = "SiteId"
+    type = "S"
+  }
+
+  attribute {
+    name = "RoomUserId"
+    type = "S"
+  }
+
+  attribute {
+    name = "Sk1" # ROOM#... | ROOM#...#MESSAGE#...
+    type = "S"
+  }
+
+  attribute {
+    name = "Sk2" # ROOMDATE#...#ROOMID#...
+    type = "S"
+  }
+
+  attribute {
+    name = "Sk3" # MESSAGEDATE#...#MESSAGEID#...
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "SiteIndex"
+    hash_key        = "SiteId"
+    range_key       = "Sk2"
+    write_capacity  = 1
+    read_capacity   = 1
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "UserIndex"
+    hash_key        = "RoomUserId"
+    range_key       = "Sk2"
+    write_capacity  = 1
+    read_capacity   = 1
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "MessageIndex"
+    hash_key        = "RoomId"
+    range_key       = "Sk3"
+    write_capacity  = 1
+    read_capacity   = 1
+    projection_type = "ALL"
+  }
+
+  tags = {
+    AppName     = local.app_name
+    Environment = "dev"
+  }
+}
