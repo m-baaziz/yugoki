@@ -35,7 +35,7 @@ export async function listSiteChatMessages(
 
 export async function createSiteChatMessage(
   _parent: unknown,
-  { roomId, input }: MutationCreateSiteChatMessageArgs,
+  { roomId, text }: MutationCreateSiteChatMessageArgs,
   {
     user,
     dataSources: { siteAPI, clubAPI, siteChatRoomAPI, siteChatMessageAPI },
@@ -50,7 +50,11 @@ export async function createSiteChatMessage(
         return Promise.reject('Unauthorized');
       }
     }
-    return await siteChatMessageAPI.createSiteChatMessage(roomId, input);
+    return await siteChatMessageAPI.createSiteChatMessage(
+      roomId,
+      user.id,
+      text,
+    );
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

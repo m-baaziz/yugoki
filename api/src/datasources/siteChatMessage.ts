@@ -8,11 +8,7 @@ import {
   DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  SiteChatMessage,
-  SiteChatMessageInput,
-  SiteChatMessagePageInfo,
-} from '../generated/graphql';
+import { SiteChatMessage, SiteChatMessagePageInfo } from '../generated/graphql';
 import { parseCursor, serializeKey } from './helpers';
 import {
   parseSiteChatMessage,
@@ -111,15 +107,17 @@ export default class SiteChatMessageAPI extends DataSource {
 
   async createSiteChatMessage(
     roomId: string,
-    input: SiteChatMessageInput,
+    userId: string,
+    text: string,
   ): Promise<SiteChatMessage> {
     try {
       const id = uuidv4();
       const now = new Date().toISOString();
       const item: SiteChatMessage = {
-        ...input,
         id,
         room: roomId,
+        from: userId,
+        text,
         dateRFC3339: now,
       };
       await this.dynamodbClient.send(

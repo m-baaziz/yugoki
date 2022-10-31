@@ -163,8 +163,8 @@ export type MutationCreateSiteArgs = {
 
 
 export type MutationCreateSiteChatMessageArgs = {
-  input: SiteChatMessageInput;
   roomId: Scalars['ID'];
+  text: Scalars['String'];
 };
 
 
@@ -445,12 +445,6 @@ export type SiteChatMessage = {
   text: Scalars['String'];
 };
 
-export type SiteChatMessageInput = {
-  from: Scalars['String'];
-  room: Scalars['String'];
-  text: Scalars['String'];
-};
-
 export type SiteChatMessagePageInfo = {
   __typename?: 'SiteChatMessagePageInfo';
   endCursor?: Maybe<Scalars['String']>;
@@ -706,7 +700,6 @@ export type ResolversTypes = {
   SearchArea: SearchArea;
   Site: ResolverTypeWrapper<Site>;
   SiteChatMessage: ResolverTypeWrapper<SiteChatMessage>;
-  SiteChatMessageInput: SiteChatMessageInput;
   SiteChatMessagePageInfo: ResolverTypeWrapper<SiteChatMessagePageInfo>;
   SiteChatRoom: ResolverTypeWrapper<SiteChatRoom>;
   SiteChatRoomPageInfo: ResolverTypeWrapper<SiteChatRoomPageInfo>;
@@ -753,7 +746,6 @@ export type ResolversParentTypes = {
   SearchArea: SearchArea;
   Site: Site;
   SiteChatMessage: SiteChatMessage;
-  SiteChatMessageInput: SiteChatMessageInput;
   SiteChatMessagePageInfo: SiteChatMessagePageInfo;
   SiteChatRoom: SiteChatRoom;
   SiteChatRoomPageInfo: SiteChatRoomPageInfo;
@@ -843,7 +835,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'input' | 'siteId'>>;
   createFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<MutationCreateFileUploadArgs, 'input'>>;
   createSite?: Resolver<Maybe<ResolversTypes['Site']>, ParentType, ContextType, RequireFields<MutationCreateSiteArgs, 'clubId' | 'input'>>;
-  createSiteChatMessage?: Resolver<ResolversTypes['SiteChatMessage'], ParentType, ContextType, RequireFields<MutationCreateSiteChatMessageArgs, 'input' | 'roomId'>>;
+  createSiteChatMessage?: Resolver<ResolversTypes['SiteChatMessage'], ParentType, ContextType, RequireFields<MutationCreateSiteChatMessageArgs, 'roomId' | 'text'>>;
   createSiteChatRoom?: Resolver<ResolversTypes['SiteChatRoom'], ParentType, ContextType, RequireFields<MutationCreateSiteChatRoomArgs, 'siteId'>>;
   createSport?: Resolver<ResolversTypes['Sport'], ParentType, ContextType, RequireFields<MutationCreateSportArgs, 'input'>>;
   createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'siteId' | 'subscriptionOptionId'>>;

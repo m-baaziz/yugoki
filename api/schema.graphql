@@ -82,10 +82,7 @@ type Mutation {
   createFileUpload(input: FileUploadInput!): FileUploadResponse!
   createSiteChatRoom(siteId: ID!): SiteChatRoom!
   deleteSiteChatRoom(id: ID!): Boolean!
-  createSiteChatMessage(
-    roomId: ID!
-    input: SiteChatMessageInput!
-  ): SiteChatMessage!
+  createSiteChatMessage(roomId: ID!, text: String!): SiteChatMessage!
   deleteSiteChatMessage(roomId: ID!, id: ID!): Boolean!
 }
 
@@ -349,12 +346,6 @@ type SiteChatRoomPageInfo {
   siteChatRooms: [SiteChatRoom!]!
   hasNextPage: Boolean!
   endCursor: String
-}
-
-input SiteChatMessageInput {
-  room: String!
-  from: String!
-  text: String!
 }
 
 type SiteChatMessage {
