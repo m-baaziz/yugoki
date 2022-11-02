@@ -32,6 +32,7 @@ import SiteEvents from './components/Profile/UserSites/SiteEvents';
 import SiteEvent from './components/Profile/UserSites/SiteEvents/SiteEvent';
 import NewSiteEvent from './components/Profile/UserSites/SiteEvents/NewSiteEvent';
 import Wip from './components/Wip';
+import Messages from './components/Messages';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -138,7 +139,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn refetchMe={refetchMe} />} />
             <Route path="/signup" element={<SignUp refetchMe={refetchMe} />} />
-            <Route path="/clubs" element={<SiteList />} />
+            <Route path="/messages" element={withUser(<Messages />)} />
+            <Route path="/sites" element={<SiteList />} />
             <Route path="/sites/:id" element={<SitePage />} />
             <Route
               path="/sites/:siteId/registration/:subscriptionOptionId"

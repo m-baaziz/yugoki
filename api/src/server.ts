@@ -75,7 +75,7 @@ export function getDatasources(): DataSources {
     fileUploadAPI,
   );
   const sportAPI = new SportAPI(dynamodbClient);
-  const siteChatRoomAPI = new SiteChatRoomAPI(dynamodbClient);
+  const siteChatRoomAPI = new SiteChatRoomAPI(dynamodbClient, siteAPI);
   const siteChatMessageAPI = new SiteChatMessageAPI(dynamodbClient);
 
   return {

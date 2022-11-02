@@ -456,7 +456,7 @@ export type SiteChatRoom = {
   __typename?: 'SiteChatRoom';
   createdAtRFC3339: Scalars['String'];
   id: Scalars['ID'];
-  site: Scalars['String'];
+  site: Site;
   userId: Scalars['String'];
 };
 
@@ -915,7 +915,7 @@ export type SiteChatMessagePageInfoResolvers<ContextType = any, ParentType exten
 export type SiteChatRoomResolvers<ContextType = any, ParentType extends ResolversParentTypes['SiteChatRoom'] = ResolversParentTypes['SiteChatRoom']> = {
   createdAtRFC3339?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  site?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  site?: Resolver<ResolversTypes['Site'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

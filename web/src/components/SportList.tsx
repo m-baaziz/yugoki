@@ -124,7 +124,7 @@ export default function SportList() {
       address: DEFAULT_QUERY.address,
     };
     const encodedQuery = encodeQuery(query);
-    const url = `/clubs?${QUERY_KEY}=${encodedQuery}`;
+    const url = `/sites?${QUERY_KEY}=${encodedQuery}`;
     navigate(url);
   };
 

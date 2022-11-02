@@ -118,6 +118,8 @@ export type Mutation = {
   createEvent: Event;
   createFileUpload: FileUploadResponse;
   createSite?: Maybe<Site>;
+  createSiteChatMessage: SiteChatMessage;
+  createSiteChatRoom: SiteChatRoom;
   createSport: Sport;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
@@ -125,6 +127,8 @@ export type Mutation = {
   deleteClub: Scalars['Boolean'];
   deleteEvent: Scalars['Boolean'];
   deleteSite: Scalars['Boolean'];
+  deleteSiteChatMessage: Scalars['Boolean'];
+  deleteSiteChatRoom: Scalars['Boolean'];
   deleteSport: Scalars['Boolean'];
   deleteTrainer: Scalars['Boolean'];
   disableSubscriptionOption: SubscriptionOption;
@@ -153,6 +157,17 @@ export type MutationCreateFileUploadArgs = {
 export type MutationCreateSiteArgs = {
   clubId: Scalars['ID'];
   input: SiteInput;
+};
+
+
+export type MutationCreateSiteChatMessageArgs = {
+  roomId: Scalars['ID'];
+  text: Scalars['String'];
+};
+
+
+export type MutationCreateSiteChatRoomArgs = {
+  siteId: Scalars['ID'];
 };
 
 
@@ -192,6 +207,17 @@ export type MutationDeleteEventArgs = {
 
 
 export type MutationDeleteSiteArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteSiteChatMessageArgs = {
+  id: Scalars['ID'];
+  roomId: Scalars['ID'];
+};
+
+
+export type MutationDeleteSiteChatRoomArgs = {
   id: Scalars['ID'];
 };
 
@@ -240,6 +266,8 @@ export type Query = {
   getSubscription: Subscription;
   getSubscriptionOption: SubscriptionOption;
   listEnabledSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
+  listSiteChatMessages: SiteChatMessagePageInfo;
+  listSiteChatRooms: SiteChatRoomPageInfo;
   listSiteEvents: EventPageInfo;
   listSitesByClub: SitePageInfo;
   listSports: SportPageInfo;
@@ -248,6 +276,7 @@ export type Query = {
   listSubscriptionsBySubscriptionOption: SubscriptionPageInfo;
   listTrainersByClub: TrainerPageInfo;
   listUserClubs: ClubPageInfo;
+  listUserSiteChatRooms: SiteChatRoomPageInfo;
   me: User;
   searchSites: SitePageInfo;
 };
@@ -293,6 +322,20 @@ export type QueryGetSubscriptionOptionArgs = {
 
 
 export type QueryListEnabledSubscriptionOptionsBySiteArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  siteId: Scalars['ID'];
+};
+
+
+export type QueryListSiteChatMessagesArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+  roomId: Scalars['ID'];
+};
+
+
+export type QueryListSiteChatRoomsArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
   siteId: Scalars['ID'];
@@ -354,6 +397,12 @@ export type QueryListUserClubsArgs = {
 };
 
 
+export type QueryListUserSiteChatRoomsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first: Scalars['Int'];
+};
+
+
 export type QuerySearchSitesArgs = {
   after?: InputMaybe<Scalars['String']>;
   first: Scalars['Int'];
@@ -383,6 +432,37 @@ export type Site = {
   sport: Sport;
   trainers: Array<Trainer>;
   website?: Maybe<Scalars['String']>;
+};
+
+export type SiteChatMessage = {
+  __typename?: 'SiteChatMessage';
+  dateRFC3339: Scalars['String'];
+  from: Scalars['String'];
+  id: Scalars['ID'];
+  room: Scalars['String'];
+  text: Scalars['String'];
+};
+
+export type SiteChatMessagePageInfo = {
+  __typename?: 'SiteChatMessagePageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  siteChatMessages: Array<SiteChatMessage>;
+};
+
+export type SiteChatRoom = {
+  __typename?: 'SiteChatRoom';
+  createdAtRFC3339: Scalars['String'];
+  id: Scalars['ID'];
+  site: Site;
+  userId: Scalars['String'];
+};
+
+export type SiteChatRoomPageInfo = {
+  __typename?: 'SiteChatRoomPageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage: Scalars['Boolean'];
+  siteChatRooms: Array<SiteChatRoom>;
 };
 
 export type SiteInput = {
@@ -422,7 +502,6 @@ export type Sport = {
 };
 
 export type SportInput = {
-  __typename?: 'SportInput';
   description: Scalars['String'];
   tags: Array<Scalars['String']>;
   title: Scalars['String'];

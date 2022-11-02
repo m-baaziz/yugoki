@@ -337,7 +337,7 @@ type FileUploadResponse {
 
 type SiteChatRoom {
   id: ID!
-  site: String!
+  site: Site!
   userId: String!
   createdAtRFC3339: String!
 }

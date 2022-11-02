@@ -71,19 +71,15 @@ export async function createSiteChatRoom(
 export async function deleteSiteChatRoom(
   _parent: unknown,
   { id }: MutationDeleteSiteChatRoomArgs,
-  {
-    user,
-    dataSources: { siteAPI, clubAPI, siteChatRoomAPI },
-  }: ContextWithDataSources,
+  { user, dataSources: { siteAPI, siteChatRoomAPI } }: ContextWithDataSources,
 ): Promise<boolean> {
   try {
     if (!user) {
       return Promise.reject('Unauthorized');
     }
     const chatRoom = await siteChatRoomAPI.findSiteChatRoomById(id);
-    const site = await siteAPI.findSiteById(chatRoom.site);
-    const club = await clubAPI.findClubById(site.club.id);
-    if (!isUserAuthorized(club, user)) {
+    const site = await siteAPI.findSiteById(chatRoom.site.id);
+    if (!isUserAuthorized(site.club, user)) {
       return Promise.reject('Unauthorized');
     }
     return await siteChatRoomAPI.deleteSiteChatRoom(id);

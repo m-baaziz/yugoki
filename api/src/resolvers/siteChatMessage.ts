@@ -14,15 +14,14 @@ export async function listSiteChatMessages(
   { roomId, first, after }: QueryListSiteChatMessagesArgs,
   {
     user,
-    dataSources: { siteAPI, clubAPI, siteChatRoomAPI, siteChatMessageAPI },
+    dataSources: { siteAPI, siteChatRoomAPI, siteChatMessageAPI },
   }: ContextWithDataSources,
 ): Promise<SiteChatMessagePageInfo> {
   try {
     const room = await siteChatRoomAPI.findSiteChatRoomById(roomId);
     if (room.userId !== user.id) {
-      const site = await siteAPI.findSiteById(room.site);
-      const club = await clubAPI.findClubById(site.club.id);
-      if (!isUserAuthorized(club, user)) {
+      const site = await siteAPI.findSiteById(room.site.id);
+      if (!isUserAuthorized(site.club, user)) {
         return Promise.reject('Unauthorized');
       }
     }
@@ -38,15 +37,14 @@ export async function createSiteChatMessage(
   { roomId, text }: MutationCreateSiteChatMessageArgs,
   {
     user,
-    dataSources: { siteAPI, clubAPI, siteChatRoomAPI, siteChatMessageAPI },
+    dataSources: { siteAPI, siteChatRoomAPI, siteChatMessageAPI },
   }: ContextWithDataSources,
 ): Promise<SiteChatMessage> {
   try {
     const room = await siteChatRoomAPI.findSiteChatRoomById(roomId);
     if (room.userId !== user.id) {
-      const site = await siteAPI.findSiteById(room.site);
-      const club = await clubAPI.findClubById(site.club.id);
-      if (!isUserAuthorized(club, user)) {
+      const site = await siteAPI.findSiteById(room.site.id);
+      if (!isUserAuthorized(site.club, user)) {
         return Promise.reject('Unauthorized');
       }
     }

@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SiteChatRoom, SiteChatRoomPageInfo } from '../generated/graphql';
 import { parseCursor, serializeKey } from './helpers';
 import { parseSiteChatRoom, siteChatRoomToRecord } from '../utils/siteChatRoom';
+import SiteAPI from './site';
 
 const TABLE_NAME = 'SiteChat';
 const SITE_INDEX_NAME = 'SiteIndex';
@@ -23,10 +24,12 @@ const sk2 = (roomDate: string, roomId: string) =>
 export default class SiteChatRoomAPI extends DataSource {
   dynamodbClient: DynamoDBClient;
   context: any;
+  siteAPI: SiteAPI;
 
-  constructor(dynamodbClient: DynamoDBClient) {
+  constructor(dynamodbClient: DynamoDBClient, siteAPI: SiteAPI) {
     super();
     this.dynamodbClient = dynamodbClient;
+    this.siteAPI = siteAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -45,7 +48,8 @@ export default class SiteChatRoomAPI extends DataSource {
       if (!item) {
         return Promise.reject(`Site chat room with id ${id} not found`);
       }
-      return Promise.resolve(parseSiteChatRoom(item));
+      const site = await this.siteAPI.findSiteById(item.SiteId.S);
+      return Promise.resolve(parseSiteChatRoom(item, site));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -90,8 +94,15 @@ export default class SiteChatRoomAPI extends DataSource {
             result.LastEvaluatedKey.Sk2.S,
           ])
         : undefined;
+      const siteChatRooms = await Promise.all(
+        result.Items.map((item) =>
+          this.siteAPI
+            .findSiteById(item.SiteId.S)
+            .then((site) => parseSiteChatRoom(item, site)),
+        ),
+      );
       const pageInfo: SiteChatRoomPageInfo = {
-        siteChatRooms: result.Items.map(parseSiteChatRoom),
+        siteChatRooms,
         endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
@@ -140,8 +151,15 @@ export default class SiteChatRoomAPI extends DataSource {
             result.LastEvaluatedKey.Sk2.S,
           ])
         : undefined;
+      const siteChatRooms = await Promise.all(
+        result.Items.map((item) =>
+          this.siteAPI
+            .findSiteById(item.SiteId.S)
+            .then((site) => parseSiteChatRoom(item, site)),
+        ),
+      );
       const pageInfo: SiteChatRoomPageInfo = {
-        siteChatRooms: result.Items.map(parseSiteChatRoom),
+        siteChatRooms,
         endCursor,
         hasNextPage: result.LastEvaluatedKey !== undefined,
       };
@@ -158,9 +176,10 @@ export default class SiteChatRoomAPI extends DataSource {
     try {
       const id = uuidv4();
       const now = new Date().toISOString();
+      const site = await this.siteAPI.findSiteById(siteId);
       const item: SiteChatRoom = {
         id,
-        site: siteId,
+        site,
         userId,
         createdAtRFC3339: now,
       };

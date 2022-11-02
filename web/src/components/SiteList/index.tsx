@@ -87,7 +87,7 @@ export default function SiteList() {
   const changeQuery = React.useMemo(
     () => (newQuery: SiteSearchQueryInput) => {
       const encodedQuery = encodeQuery(newQuery);
-      const url = `/clubs?${QUERY_KEY}=${encodedQuery}`;
+      const url = `/sites?${QUERY_KEY}=${encodedQuery}`;
       navigate(url);
     },
     [navigate],
