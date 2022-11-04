@@ -120,6 +120,7 @@ export type Mutation = {
   createSite?: Maybe<Site>;
   createSiteChatMessage: SiteChatMessage;
   createSiteChatRoom: SiteChatRoom;
+  createSiteChatRoomAndMessage: SiteChatRoom;
   createSport: Sport;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
@@ -168,6 +169,12 @@ export type MutationCreateSiteChatMessageArgs = {
 
 export type MutationCreateSiteChatRoomArgs = {
   siteId: Scalars['ID'];
+};
+
+
+export type MutationCreateSiteChatRoomAndMessageArgs = {
+  siteId: Scalars['ID'];
+  text: Scalars['String'];
 };
 
 
@@ -464,7 +471,7 @@ export type SiteChatRoom = {
   createdAtRFC3339: Scalars['String'];
   id: Scalars['ID'];
   site: Site;
-  userId: Scalars['String'];
+  user: User;
 };
 
 export type SiteChatRoomPageInfo = {

@@ -61,7 +61,7 @@ export async function createSiteChatRoom(
     if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
-    return await siteChatRoomAPI.createSiteChatRoom(siteId, user.id);
+    return await siteChatRoomAPI.createSiteChatRoom(siteId, user);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

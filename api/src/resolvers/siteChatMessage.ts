@@ -5,6 +5,8 @@ import {
   MutationCreateSiteChatMessageArgs,
   SiteChatMessage,
   MutationDeleteSiteChatMessageArgs,
+  MutationCreateSiteChatRoomAndMessageArgs,
+  SiteChatRoom,
 } from '../generated/graphql';
 import { isUserAuthorized } from '../utils/club';
 import { logger } from '../logger';
@@ -19,7 +21,7 @@ export async function listSiteChatMessages(
 ): Promise<SiteChatMessagePageInfo> {
   try {
     const room = await siteChatRoomAPI.findSiteChatRoomById(roomId);
-    if (room.userId !== user.id) {
+    if (room.user.id !== user.id) {
       const site = await siteAPI.findSiteById(room.site.id);
       if (!isUserAuthorized(site.club, user)) {
         return Promise.reject('Unauthorized');
@@ -42,7 +44,7 @@ export async function createSiteChatMessage(
 ): Promise<SiteChatMessage> {
   try {
     const room = await siteChatRoomAPI.findSiteChatRoomById(roomId);
-    if (room.userId !== user.id) {
+    if (room.user.id !== user.id) {
       const site = await siteAPI.findSiteById(room.site.id);
       if (!isUserAuthorized(site.club, user)) {
         return Promise.reject('Unauthorized');
@@ -53,6 +55,37 @@ export async function createSiteChatMessage(
       user.id,
       text,
     );
+  } catch (e) {
+    logger.error(e.toString());
+    return Promise.reject(e);
+  }
+}
+
+export async function createSiteChatRoomAndMessage(
+  _parent: unknown,
+  { siteId, text }: MutationCreateSiteChatRoomAndMessageArgs,
+  {
+    user,
+    dataSources: { siteAPI, siteChatRoomAPI, siteChatMessageAPI },
+  }: ContextWithDataSources,
+): Promise<SiteChatRoom> {
+  try {
+    const existingRooms = await siteChatRoomAPI.listUserSiteChatRooms(
+      user.id,
+      1,
+    );
+    const room =
+      existingRooms.siteChatRooms.length > 0
+        ? existingRooms.siteChatRooms[0]
+        : await siteChatRoomAPI.createSiteChatRoom(siteId, user);
+    if (room.user.id !== user.id) {
+      const site = await siteAPI.findSiteById(room.site.id);
+      if (!isUserAuthorized(site.club, user)) {
+        return Promise.reject('Unauthorized');
+      }
+    }
+    await siteChatMessageAPI.createSiteChatMessage(room.id, user.id, text);
+    return Promise.resolve(room);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

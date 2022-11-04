@@ -1,14 +1,15 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { Site, SiteChatRoom } from '../generated/graphql';
+import { Site, User, SiteChatRoom } from '../generated/graphql';
 
 export function parseSiteChatRoom(
   item: Record<string, AttributeValue>,
   site: Site,
+  user: User,
 ): SiteChatRoom {
   return {
     id: item.RoomId.S,
     site,
-    userId: item.RoomUserId.S,
+    user,
     createdAtRFC3339: item.RoomDate.S,
   };
 }
@@ -19,7 +20,7 @@ export function siteChatRoomToRecord(
   return {
     RoomId: { S: room.id },
     SiteId: { S: room.site.id },
-    RoomUserId: { S: room.userId },
+    RoomUserId: { S: room.user.id },
     RoomDate: { S: room.createdAtRFC3339 },
   };
 }

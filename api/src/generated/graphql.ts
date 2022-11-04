@@ -122,6 +122,7 @@ export type Mutation = {
   createSite?: Maybe<Site>;
   createSiteChatMessage: SiteChatMessage;
   createSiteChatRoom: SiteChatRoom;
+  createSiteChatRoomAndMessage: SiteChatRoom;
   createSport: Sport;
   createSubscription: Subscription;
   createSubscriptionOption: SubscriptionOption;
@@ -170,6 +171,12 @@ export type MutationCreateSiteChatMessageArgs = {
 
 export type MutationCreateSiteChatRoomArgs = {
   siteId: Scalars['ID'];
+};
+
+
+export type MutationCreateSiteChatRoomAndMessageArgs = {
+  siteId: Scalars['ID'];
+  text: Scalars['String'];
 };
 
 
@@ -466,7 +473,7 @@ export type SiteChatRoom = {
   createdAtRFC3339: Scalars['String'];
   id: Scalars['ID'];
   site: Site;
-  userId: Scalars['String'];
+  user: User;
 };
 
 export type SiteChatRoomPageInfo = {
@@ -859,6 +866,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createSite?: Resolver<Maybe<ResolversTypes['Site']>, ParentType, ContextType, RequireFields<MutationCreateSiteArgs, 'clubId' | 'input'>>;
   createSiteChatMessage?: Resolver<ResolversTypes['SiteChatMessage'], ParentType, ContextType, RequireFields<MutationCreateSiteChatMessageArgs, 'roomId' | 'text'>>;
   createSiteChatRoom?: Resolver<ResolversTypes['SiteChatRoom'], ParentType, ContextType, RequireFields<MutationCreateSiteChatRoomArgs, 'siteId'>>;
+  createSiteChatRoomAndMessage?: Resolver<ResolversTypes['SiteChatRoom'], ParentType, ContextType, RequireFields<MutationCreateSiteChatRoomAndMessageArgs, 'siteId' | 'text'>>;
   createSport?: Resolver<ResolversTypes['Sport'], ParentType, ContextType, RequireFields<MutationCreateSportArgs, 'input'>>;
   createSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionArgs, 'details' | 'siteId' | 'subscriptionOptionId'>>;
   createSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationCreateSubscriptionOptionArgs, 'input' | 'siteId'>>;
@@ -947,7 +955,7 @@ export type SiteChatRoomResolvers<ContextType = any, ParentType extends Resolver
   createdAtRFC3339?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   site?: Resolver<ResolversTypes['Site'], ParentType, ContextType>;
-  userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

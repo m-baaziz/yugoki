@@ -8,10 +8,11 @@ import {
   DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { SiteChatRoom, SiteChatRoomPageInfo } from '../generated/graphql';
+import { SiteChatRoom, SiteChatRoomPageInfo, User } from '../generated/graphql';
 import { parseCursor, serializeKey } from './helpers';
 import { parseSiteChatRoom, siteChatRoomToRecord } from '../utils/siteChatRoom';
 import SiteAPI from './site';
+import UserAPI from './user';
 
 const TABLE_NAME = 'SiteChat';
 const SITE_INDEX_NAME = 'SiteIndex';
@@ -25,11 +26,17 @@ export default class SiteChatRoomAPI extends DataSource {
   dynamodbClient: DynamoDBClient;
   context: any;
   siteAPI: SiteAPI;
+  userAPI: UserAPI;
 
-  constructor(dynamodbClient: DynamoDBClient, siteAPI: SiteAPI) {
+  constructor(
+    dynamodbClient: DynamoDBClient,
+    siteAPI: SiteAPI,
+    userAPI: UserAPI,
+  ) {
     super();
     this.dynamodbClient = dynamodbClient;
     this.siteAPI = siteAPI;
+    this.userAPI = userAPI;
   }
 
   initialize(config: DataSourceConfig<any>): void | Promise<void> {
@@ -49,7 +56,8 @@ export default class SiteChatRoomAPI extends DataSource {
         return Promise.reject(`Site chat room with id ${id} not found`);
       }
       const site = await this.siteAPI.findSiteById(item.SiteId.S);
-      return Promise.resolve(parseSiteChatRoom(item, site));
+      const user = await this.userAPI.findUserById(item.RoomUserId.S);
+      return Promise.resolve(parseSiteChatRoom(item, site, user));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -98,7 +106,11 @@ export default class SiteChatRoomAPI extends DataSource {
         result.Items.map((item) =>
           this.siteAPI
             .findSiteById(item.SiteId.S)
-            .then((site) => parseSiteChatRoom(item, site)),
+            .then((site) =>
+              this.userAPI
+                .findUserById(item.RoomUserId.S)
+                .then((user) => parseSiteChatRoom(item, site, user)),
+            ),
         ),
       );
       const pageInfo: SiteChatRoomPageInfo = {
@@ -155,7 +167,11 @@ export default class SiteChatRoomAPI extends DataSource {
         result.Items.map((item) =>
           this.siteAPI
             .findSiteById(item.SiteId.S)
-            .then((site) => parseSiteChatRoom(item, site)),
+            .then((site) =>
+              this.userAPI
+                .findUserById(item.RoomUserId.S)
+                .then((user) => parseSiteChatRoom(item, site, user)),
+            ),
         ),
       );
       const pageInfo: SiteChatRoomPageInfo = {
@@ -169,10 +185,7 @@ export default class SiteChatRoomAPI extends DataSource {
     }
   }
 
-  async createSiteChatRoom(
-    siteId: string,
-    userId: string,
-  ): Promise<SiteChatRoom> {
+  async createSiteChatRoom(siteId: string, user: User): Promise<SiteChatRoom> {
     try {
       const id = uuidv4();
       const now = new Date().toISOString();
@@ -180,7 +193,7 @@ export default class SiteChatRoomAPI extends DataSource {
       const item: SiteChatRoom = {
         id,
         site,
-        userId,
+        user,
         createdAtRFC3339: now,
       };
       await this.dynamodbClient.send(

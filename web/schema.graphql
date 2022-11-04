@@ -83,6 +83,7 @@ type Mutation {
   createSiteChatRoom(siteId: ID!): SiteChatRoom!
   deleteSiteChatRoom(id: ID!): Boolean!
   createSiteChatMessage(roomId: ID!, text: String!): SiteChatMessage!
+  createSiteChatRoomAndMessage(siteId: ID!, text: String!): SiteChatRoom!
   deleteSiteChatMessage(roomId: ID!, id: ID!): Boolean!
 }
 
@@ -354,7 +355,7 @@ type FileUploadResponse {
 type SiteChatRoom {
   id: ID!
   site: Site!
-  userId: String!
+  user: User!
   createdAtRFC3339: String!
 }
 

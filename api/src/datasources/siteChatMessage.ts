@@ -75,7 +75,7 @@ export default class SiteChatMessageAPI extends DataSource {
           ExpressionAttributeValues: {
             ':roomId': { S: roomId },
           },
-          ScanIndexForward: false,
+          ScanIndexForward: true,
           Limit: first,
           ExclusiveStartKey:
             cursor.length > 2

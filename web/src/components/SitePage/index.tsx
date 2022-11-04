@@ -7,14 +7,19 @@ import {
   Typography,
   SxProps,
   Theme,
+  Button,
+  TextField,
 } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import { useParams } from 'react-router-dom';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, useMutation } from '@apollo/client';
 import {
   QueryGetSiteArgs,
   Site,
   FileUploadResponse,
   QueryGetSiteImagesArgs,
+  SiteChatRoom,
+  MutationCreateSiteChatRoomAndMessageArgs,
 } from '../../generated/graphql';
 
 import ContactInfos from './ContactInfos';
@@ -23,6 +28,7 @@ import InfoTabs from './InfoTabs';
 import Images from './Images';
 import Schedule from './Schedule';
 import SubscriptionOptions from './SubscriptionOptions';
+import appContext, { NotificationLevel } from '../../context';
 
 const ICON_SIZE = 20;
 
@@ -76,6 +82,15 @@ const GET_CLUB_SPORT_LOCATION_IMAGES = gql`
   }
 `;
 
+const CREATE_MESSAGE = gql`
+  mutation createSiteChatRoomAndMessage($siteId: ID!, $text: String!) {
+    createSiteChatRoomAndMessage(siteId: $siteId, text: $text) {
+      id
+      createdAtRFC3339
+    }
+  }
+`;
+
 const Container = styled(Box)<BoxProps>(() => ({
   display: 'grid',
   width: '100%',
@@ -95,6 +110,8 @@ const Container = styled(Box)<BoxProps>(() => ({
     '   .        schedule          .    '  1fr   \
     '   .           .              .    '  2em   \
     '   .      registration        .    '  auto   \
+    '   .           .              .    '  2em   \
+    '   .        message           .    '  auto   \
     '   .           .              .    '  1em   \
     /   5%         1fr             5%            \
   `,
@@ -107,6 +124,8 @@ export type SitePageProps = {
 export default function SitePage(props: SitePageProps) {
   const { sx } = props;
   const { id: siteId } = useParams();
+  const { notify } = React.useContext(appContext);
+  const [messageText, setMessageText] = React.useState('');
 
   const { data } = useQuery<{ getSite: Site }, QueryGetSiteArgs>(
     GET_CLUB_SPORT_LOCATION,
@@ -128,6 +147,10 @@ export default function SitePage(props: SitePageProps) {
     },
     fetchPolicy: 'no-cache',
   });
+  const [createSiteChatRoomAndMessage] = useMutation<
+    { createSiteChatRoomAndMessage: SiteChatRoom },
+    MutationCreateSiteChatRoomAndMessageArgs
+  >(CREATE_MESSAGE);
 
   const images: string[] = React.useMemo(
     () =>
@@ -136,6 +159,28 @@ export default function SitePage(props: SitePageProps) {
         .map((f) => f.url as string) || [],
     [imagesData],
   );
+
+  const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMessageText(event.target.value);
+  };
+
+  const handleSendMessageClick = async () => {
+    try {
+      if (!messageText || !siteId) return;
+      await createSiteChatRoomAndMessage({
+        variables: {
+          siteId: siteId,
+          text: messageText,
+        },
+      });
+      notify({
+        level: NotificationLevel.SUCCESS,
+        message: 'message sent successfully',
+      });
+    } catch (e) {
+      notify({ level: NotificationLevel.ERROR, message: `${e}` });
+    }
+  };
 
   return (
     <Container sx={{ ...sx }}>
@@ -225,6 +270,35 @@ export default function SitePage(props: SitePageProps) {
             }}
           >
             <SubscriptionOptions sx={{ margin: 'auto' }} />
+          </Box>
+          <Box
+            sx={{
+              gridArea: 'message',
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+            }}
+          >
+            <TextField
+              id="message"
+              label="Message"
+              variant="outlined"
+              value={messageText}
+              onChange={handleMessageChange}
+              rows={5}
+              multiline
+            />
+            <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+              <Button
+                variant="contained"
+                endIcon={<SendIcon />}
+                onClick={handleSendMessageClick}
+              >
+                Send
+              </Button>
+            </Box>
           </Box>
         </>
       ) : (

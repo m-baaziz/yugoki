@@ -33,6 +33,12 @@ export default function ButtonAppBar(props: ButtonAppBarProps) {
               {user ? (
                 <Box>
                   <Link
+                    to="/messages"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    <Button color="inherit">messages</Button>
+                  </Link>
+                  <Link
                     to="/profile/clubs"
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >

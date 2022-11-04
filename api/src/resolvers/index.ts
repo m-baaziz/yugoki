@@ -36,6 +36,7 @@ import {
 import {
   listSiteChatMessages,
   createSiteChatMessage,
+  createSiteChatRoomAndMessage,
   deleteSiteChatMessage,
 } from './siteChatMessage';
 
@@ -84,6 +85,7 @@ const resolvers: Resolvers = {
     createSiteChatRoom,
     deleteSiteChatRoom,
     createSiteChatMessage,
+    createSiteChatRoomAndMessage,
     deleteSiteChatMessage,
   },
 };
