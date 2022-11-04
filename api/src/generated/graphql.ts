@@ -258,6 +258,15 @@ export type MutationSignUpArgs = {
   password: Scalars['String'];
 };
 
+export type ProUserProfile = {
+  __typename?: 'ProUserProfile';
+  address: Scalars['String'];
+  birthdate: Scalars['String'];
+  firstname: Scalars['String'];
+  iban: Scalars['String'];
+  lastname: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   getClub: Club;
@@ -606,6 +615,15 @@ export type User = {
   __typename?: 'User';
   email: Scalars['String'];
   id: Scalars['ID'];
+  isPro: Scalars['Boolean'];
+};
+
+export type UserProfile = {
+  __typename?: 'UserProfile';
+  address: Scalars['String'];
+  birthdate: Scalars['String'];
+  firstname: Scalars['String'];
+  lastname: Scalars['String'];
 };
 
 
@@ -696,6 +714,7 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
+  ProUserProfile: ResolverTypeWrapper<ProUserProfile>;
   Query: ResolverTypeWrapper<{}>;
   SearchArea: SearchArea;
   Site: ResolverTypeWrapper<Site>;
@@ -721,6 +740,7 @@ export type ResolversTypes = {
   TrainerInput: TrainerInput;
   TrainerPageInfo: ResolverTypeWrapper<TrainerPageInfo>;
   User: ResolverTypeWrapper<User>;
+  UserProfile: ResolverTypeWrapper<UserProfile>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -742,6 +762,7 @@ export type ResolversParentTypes = {
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Mutation: {};
+  ProUserProfile: ProUserProfile;
   Query: {};
   SearchArea: SearchArea;
   Site: Site;
@@ -767,6 +788,7 @@ export type ResolversParentTypes = {
   TrainerInput: TrainerInput;
   TrainerPageInfo: TrainerPageInfo;
   User: User;
+  UserProfile: UserProfile;
 };
 
 export type ActivityResolvers<ContextType = any, ParentType extends ResolversParentTypes['Activity'] = ResolversParentTypes['Activity']> = {
@@ -852,6 +874,15 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   enableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationEnableSubscriptionOptionArgs, 'id' | 'siteId'>>;
   signIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
   signUp?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+};
+
+export type ProUserProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProUserProfile'] = ResolversParentTypes['ProUserProfile']> = {
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  birthdate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  iban?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -1013,6 +1044,15 @@ export type TrainerPageInfoResolvers<ContextType = any, ParentType extends Resol
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isPro?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserProfile'] = ResolversParentTypes['UserProfile']> = {
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  birthdate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1026,6 +1066,7 @@ export type Resolvers<ContextType = any> = {
   FileUpload?: FileUploadResolvers<ContextType>;
   FileUploadResponse?: FileUploadResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  ProUserProfile?: ProUserProfileResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Site?: SiteResolvers<ContextType>;
   SiteChatMessage?: SiteChatMessageResolvers<ContextType>;
@@ -1043,5 +1084,6 @@ export type Resolvers<ContextType = any> = {
   Trainer?: TrainerResolvers<ContextType>;
   TrainerPageInfo?: TrainerPageInfoResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserProfile?: UserProfileResolvers<ContextType>;
 };
 

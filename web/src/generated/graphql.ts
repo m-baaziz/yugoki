@@ -256,6 +256,15 @@ export type MutationSignUpArgs = {
   password: Scalars['String'];
 };
 
+export type ProUserProfile = {
+  __typename?: 'ProUserProfile';
+  address: Scalars['String'];
+  birthdate: Scalars['String'];
+  firstname: Scalars['String'];
+  iban: Scalars['String'];
+  lastname: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   getClub: Club;
@@ -604,4 +613,13 @@ export type User = {
   __typename?: 'User';
   email: Scalars['String'];
   id: Scalars['ID'];
+  isPro: Scalars['Boolean'];
+};
+
+export type UserProfile = {
+  __typename?: 'UserProfile';
+  address: Scalars['String'];
+  birthdate: Scalars['String'];
+  firstname: Scalars['String'];
+  lastname: Scalars['String'];
 };

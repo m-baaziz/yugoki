@@ -102,6 +102,22 @@ input SiteSearchQueryInput {
 type User {
   id: ID!
   email: String!
+  isPro: Boolean!
+}
+
+type UserProfile {
+  firstname: String!
+  lastname: String!
+  birthdate: String!
+  address: String!
+}
+
+type ProUserProfile {
+  firstname: String!
+  lastname: String!
+  birthdate: String!
+  address: String!
+  iban: String!
 }
 
 input SportInput {

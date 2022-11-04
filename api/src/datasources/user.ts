@@ -149,6 +149,7 @@ export default class UserAPI extends DataSource {
       const item: User = {
         id,
         email,
+        isPro: true,
       };
       await this.dynamodbClient.send(
         new PutItemCommand({

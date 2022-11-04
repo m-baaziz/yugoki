@@ -12,6 +12,7 @@ export function userToRecord(
   return {
     UserId: { S: user.id },
     UserEmail: { S: user.email },
+    IsPro: { BOOL: user.isPro },
     UserPasswordHash: { S: passwordHash },
   };
 }
@@ -20,6 +21,7 @@ export function parseUser(item: Record<string, AttributeValue>): User {
   return {
     id: item.UserId.S,
     email: item.UserEmail.S,
+    isPro: item.IsPro.BOOL,
   };
 }
 
@@ -29,6 +31,7 @@ export function parseUserWithPasswordHard(
   return {
     id: item.UserId.S,
     email: item.UserEmail.S,
+    isPro: item.IsPro.BOOL,
     passwordHash: item.UserPasswordHash.S,
   };
 }
