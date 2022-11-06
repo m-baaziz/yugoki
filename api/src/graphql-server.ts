@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { ApiGatewayManagementApiClient } from '@aws-sdk/client-apigatewaymanagementapi';
 
 import resolvers from './resolvers';
 import UserAPI from './datasources/user';
@@ -18,6 +19,7 @@ import FileUploadAPI, { S3Config } from './datasources/fileUpload';
 import { GraphQLSchema } from 'graphql';
 import SiteChatRoomAPI from './datasources/siteChatRoom';
 import SiteChatMessageAPI from './datasources/siteChatMessage';
+import WsConnectionAPI from './datasources/wsConnection';
 
 export function getSchema(schemaPath: string): GraphQLSchema {
   const typeDefs = readFileSync(schemaPath).toString('utf-8');
@@ -45,7 +47,15 @@ export function getDatasources(): DataSources {
     ...awsConfig,
   });
   const dynamodbClient = new DynamoDBClient({ ...awsConfig });
+  const apiGatewayManagementClient = new ApiGatewayManagementApiClient({
+    ...awsConfig,
+    endpoint: `https://${process.env.WS_API_ID}.execute-api.${process.env.S3_REGION}.amazonaws.com/${process.env.WS_API_STAGE}`,
+  });
 
+  const wsConnectionAPI = new WsConnectionAPI(
+    dynamodbClient,
+    apiGatewayManagementClient,
+  );
   const fileUploadAPI = new FileUploadAPI(dynamodbClient, s3Client, s3Config);
   const userAPI = new UserAPI(
     {
@@ -90,5 +100,6 @@ export function getDatasources(): DataSources {
     fileUploadAPI,
     siteChatRoomAPI,
     siteChatMessageAPI,
+    wsConnectionAPI,
   };
 }

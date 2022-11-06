@@ -3,8 +3,8 @@
 data "archive_file" "graphql" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda"
-  output_path = "${path.module}/lambda.zip"
+  source_dir  = "${path.module}/graphql-lambda"
+  output_path = "${path.module}/graphql-lambda.zip"
 }
 
 resource "aws_s3_object" "lambda_grapqhl" {
@@ -33,12 +33,14 @@ resource "aws_lambda_function" "graphql" {
 
   environment {
     variables = {
-      JWT_SECRET                               = "xxxxxxxxxx"
-      JWT_VALIDITY_SEC                         = "86400"
+      JWT_SECRET                               = "${local.jwt_secret}"
+      JWT_VALIDITY_SEC                         = "${local.jwt_validity_sec}"
       S3_REGION                                = "eu-west-3"
       FILES_BUCKET                             = "${aws_s3_bucket.files.id}"
       FILES_PRESIGNED_URLS_VALIDITY_PERIOD_GET = "3600"
       FILES_PRESIGNED_URLS_VALIDITY_PERIOD_PUT = "3600"
+      WS_API_ID                                = "${aws_apigatewayv2_stage.ws_dev.api_id}"
+      WS_API_STAGE                             = "${aws_apigatewayv2_stage.ws_dev.name}"
     }
   }
 }
@@ -104,7 +106,11 @@ resource "aws_iam_role_policy" "graphql_dynamodb" {
           "${aws_dynamodb_table.sport.arn}",
           "${aws_dynamodb_table.sport.arn}/index/*",
           "${aws_dynamodb_table.subscription.arn}",
-          "${aws_dynamodb_table.subscription.arn}/index/*"
+          "${aws_dynamodb_table.subscription.arn}/index/*",
+          "${aws_dynamodb_table.site_chat.arn}",
+          "${aws_dynamodb_table.site_chat.arn}/index/*",
+          "${aws_dynamodb_table.ws_connection.arn}",
+          "${aws_dynamodb_table.ws_connection.arn}/index/*"
         ]
       },
     ]
@@ -201,4 +207,3 @@ resource "aws_lambda_permission" "graphql_gw" {
 
   source_arn = "${aws_apigatewayv2_api.graphql_gw.execution_arn}/*/*"
 }
-

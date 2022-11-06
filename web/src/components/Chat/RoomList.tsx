@@ -132,8 +132,6 @@ export default function RoomList(props: RoomListProps) {
     [siteId, siteChatRooms, userChatRooms],
   );
 
-  console.log('rooms = ', rooms);
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', ...sx }}>
       <List

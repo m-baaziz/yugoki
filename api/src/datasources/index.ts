@@ -11,6 +11,7 @@ import SubscriptionOptionAPI from './subscriptionOption';
 import FileUploadAPI from './fileUpload';
 import SiteChatRoomAPI from './siteChatRoom';
 import SiteChatMessageAPI from './siteChatMessage';
+import WsConnectionAPI from './wsConnection';
 
 export type DataSources = {
   userAPI: UserAPI;
@@ -24,6 +25,7 @@ export type DataSources = {
   fileUploadAPI: FileUploadAPI;
   siteChatRoomAPI: SiteChatRoomAPI;
   siteChatMessageAPI: SiteChatMessageAPI;
+  wsConnectionAPI: WsConnectionAPI;
 };
 
 export type ContextWithDataSources = Context<AuthenticationContext> & {

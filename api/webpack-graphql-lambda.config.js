@@ -3,7 +3,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'production',
-  entry: './src/lambda.ts',
+  entry: './src/graphql-lambda.ts',
   devtool: 'inline-source-map',
   target: 'node',
   module: {
@@ -23,7 +23,7 @@ module.exports = {
   },
   output: {
     filename: 'handler.js',
-    path: path.resolve(__dirname, 'deploy/lambda'),
+    path: path.resolve(__dirname, 'deploy/graphql-lambda'),
     libraryTarget: 'commonjs2',
   },
   plugins: [

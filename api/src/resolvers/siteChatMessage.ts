@@ -39,7 +39,12 @@ export async function createSiteChatMessage(
   { roomId, text }: MutationCreateSiteChatMessageArgs,
   {
     user,
-    dataSources: { siteAPI, siteChatRoomAPI, siteChatMessageAPI },
+    dataSources: {
+      siteAPI,
+      siteChatRoomAPI,
+      siteChatMessageAPI,
+      wsConnectionAPI,
+    },
   }: ContextWithDataSources,
 ): Promise<SiteChatMessage> {
   try {
@@ -50,11 +55,34 @@ export async function createSiteChatMessage(
         return Promise.reject('Unauthorized');
       }
     }
-    return await siteChatMessageAPI.createSiteChatMessage(
+    const newMessage = await siteChatMessageAPI.createSiteChatMessage(
       roomId,
       user.id,
       text,
     );
+    logger.info('Sending messages via websocket');
+    try {
+      const userConnectionId = await wsConnectionAPI.findWsConnectionByUserId(
+        room.user.id,
+      );
+      await wsConnectionAPI.sendPayload(
+        userConnectionId.connectionId,
+        newMessage,
+      );
+    } catch (e) {
+      logger.error(e.toString());
+    }
+    try {
+      const clubOwnerConnectionId =
+        await wsConnectionAPI.findWsConnectionByUserId(room.site.club.owner);
+      await wsConnectionAPI.sendPayload(
+        clubOwnerConnectionId.connectionId,
+        newMessage,
+      );
+    } catch (e) {
+      logger.error(e.toString());
+    }
+    return Promise.resolve(newMessage);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);
@@ -66,7 +94,12 @@ export async function createSiteChatRoomAndMessage(
   { siteId, text }: MutationCreateSiteChatRoomAndMessageArgs,
   {
     user,
-    dataSources: { siteAPI, siteChatRoomAPI, siteChatMessageAPI },
+    dataSources: {
+      siteAPI,
+      siteChatRoomAPI,
+      siteChatMessageAPI,
+      wsConnectionAPI,
+    },
   }: ContextWithDataSources,
 ): Promise<SiteChatRoom> {
   try {
@@ -84,7 +117,33 @@ export async function createSiteChatRoomAndMessage(
         return Promise.reject('Unauthorized');
       }
     }
-    await siteChatMessageAPI.createSiteChatMessage(room.id, user.id, text);
+    const newMessage = await siteChatMessageAPI.createSiteChatMessage(
+      room.id,
+      user.id,
+      text,
+    );
+    logger.info('Sending messages via websocket');
+    try {
+      const userConnectionId = await wsConnectionAPI.findWsConnectionByUserId(
+        room.user.id,
+      );
+      await wsConnectionAPI.sendPayload(
+        userConnectionId.connectionId,
+        newMessage,
+      );
+    } catch (e) {
+      logger.error(e.toString());
+    }
+    try {
+      const clubOwnerConnectionId =
+        await wsConnectionAPI.findWsConnectionByUserId(room.site.club.owner);
+      await wsConnectionAPI.sendPayload(
+        clubOwnerConnectionId.connectionId,
+        newMessage,
+      );
+    } catch (e) {
+      logger.error(e.toString());
+    }
     return Promise.resolve(room);
   } catch (e) {
     logger.error(e.toString());

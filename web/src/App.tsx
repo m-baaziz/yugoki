@@ -7,7 +7,9 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useQuery, gql } from '@apollo/client';
 
 import './App.css';
-import AppContext, { LOCAL_STORAGE_TOKEN_KEY, Notification } from './context';
+import AppContext, { Notification } from './context';
+import config from './config';
+import { useWsHandlers } from './hooks/ws';
 import { User } from './generated/graphql';
 import ButtonAppBar, {
   ButtonAppBarProps as AppBarProps,
@@ -78,10 +80,18 @@ function App() {
     fetchPolicy: 'no-cache',
   });
   const navigate = useNavigate();
+  const {
+    connect: connectWs,
+    disconnect: disconnectWs,
+    setNewMessageHandler,
+  } = useWsHandlers();
 
   React.useEffect(() => {
     if (meData?.me) {
       setUser(meData.me);
+      connectWs();
+    } else {
+      disconnectWs();
     }
   }, [meData]);
 
@@ -96,7 +106,7 @@ function App() {
   };
 
   const handleLogOut = () => {
-    localStorage.removeItem(LOCAL_STORAGE_TOKEN_KEY);
+    localStorage.removeItem(config.tokenCacheKey);
     setUser(undefined);
     navigate('/');
   };
@@ -117,6 +127,7 @@ function App() {
       value={{
         user,
         notify: setNotification,
+        setNewMessageHandler,
       }}
     >
       <Container>

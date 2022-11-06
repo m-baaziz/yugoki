@@ -14,6 +14,30 @@ output "grahql-url" {
   value = aws_apigatewayv2_stage.graphql_dev.invoke_url
 }
 
-output "cloudfront_domain_name" {
+output "ws-lambda" {
+  description = "Name of the WS Lambda function."
+
+  value = aws_lambda_function.ws.function_name
+}
+
+output "ws-url" {
+  description = "Base URL for WS API Gateway stage."
+
+  value = aws_apigatewayv2_stage.ws_dev.invoke_url
+}
+
+output "ws-api-id" {
+  description = "Endpoint url for WS API Gateway stage."
+
+  value = aws_apigatewayv2_stage.ws_dev.api_id
+}
+
+output "ws-api-stage" {
+  description = "Stage of the WS API Gateway."
+
+  value = aws_apigatewayv2_stage.ws_dev.name
+}
+
+output "cloudfront-domain-name" {
   value = aws_cloudfront_distribution.web.domain_name
 }

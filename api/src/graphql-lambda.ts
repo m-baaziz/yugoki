@@ -2,7 +2,7 @@ import 'dotenv/config';
 import path from 'path';
 import { ApolloServer } from 'apollo-server-lambda';
 
-import { getDatasources, getSchema } from './server';
+import { getDatasources, getSchema } from './graphql-server';
 import authenticationMiddleware from './middlewares/context';
 import { logger } from './logger';
 

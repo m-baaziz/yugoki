@@ -77,8 +77,6 @@ export default function Chat(props: ChatProps) {
     MutationCreateSiteChatMessageArgs
   >(CREATE_MESSAGE);
 
-  console.log('selected room = ', selectedRoom);
-
   const handleSelectRoom = (room: SiteChatRoom) => {
     setSelectedRoom({ ...room });
   };

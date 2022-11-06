@@ -4,10 +4,8 @@ import { Box, BoxProps, Button } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { useMutation, gql } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
-import appContext, {
-  LOCAL_STORAGE_TOKEN_KEY,
-  NotificationLevel,
-} from '../context';
+import appContext, { NotificationLevel } from '../context';
+import config from '../config';
 
 const Container = styled(Box)<BoxProps>(() => ({
   display: 'grid',
@@ -73,7 +71,7 @@ export default function SignUp(props: SignUpProps) {
 
   React.useEffect(() => {
     if (signUpResult?.signUp) {
-      localStorage.setItem(LOCAL_STORAGE_TOKEN_KEY, signUpResult.signUp);
+      localStorage.setItem(config.tokenCacheKey, signUpResult.signUp);
       refetchMe();
       navigate('/');
     }

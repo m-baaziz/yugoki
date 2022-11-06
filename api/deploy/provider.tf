@@ -12,5 +12,7 @@ provider "aws" {
 }
 
 locals {
-  app_name = "klubzz"
+  app_name         = "klubzz"
+  jwt_secret       = "xxxxxxxxxx"
+  jwt_validity_sec = "86400"
 }

@@ -259,3 +259,38 @@ resource "aws_dynamodb_table" "site_chat" {
     Environment = "dev"
   }
 }
+
+resource "aws_dynamodb_table" "ws_connection" {
+  name           = "WsConnection"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "UserId"
+  ttl {
+    attribute_name = "Ttl"
+    enabled        = true
+  }
+
+  attribute {
+    name = "UserId"
+    type = "S"
+  }
+
+  attribute {
+    name = "ConnectionId"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "ConnectionIdIndex"
+    hash_key        = "ConnectionId"
+    write_capacity  = 1
+    read_capacity   = 1
+    projection_type = "ALL"
+  }
+
+  tags = {
+    AppName     = local.app_name
+    Environment = "dev"
+  }
+}

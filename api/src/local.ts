@@ -3,7 +3,7 @@ import path from 'path';
 import { ApolloServer } from 'apollo-server';
 import { logger } from './logger';
 import authenticationMiddleware from './middlewares/context';
-import { getDatasources, getSchema } from './server';
+import { getDatasources, getSchema } from './graphql-server';
 
 async function main() {
   const SERVER_PORT = parseInt(process.env.SERVER_PORT, 10) || 4000;

@@ -1,7 +1,6 @@
 import React from 'react';
 import { User } from './generated/graphql';
-
-export const LOCAL_STORAGE_TOKEN_KEY = 'token';
+import { MessageHandler } from './hooks/ws';
 
 export enum NotificationLevel {
   ERROR = 'error',
@@ -18,11 +17,15 @@ export type Notification = {
 type AppContext = {
   user: User | undefined;
   notify: (notification: Notification) => void;
+  setNewMessageHandler: (handler: MessageHandler) => void;
 };
 
 const appContext = React.createContext<AppContext>({
   user: undefined,
   notify: () => {
+    return;
+  },
+  setNewMessageHandler: () => {
     return;
   },
 });

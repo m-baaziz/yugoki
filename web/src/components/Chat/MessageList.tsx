@@ -83,9 +83,9 @@ function MessageItem({ message, userId }: MessageItemProps) {
 
 export default function MessageList(props: MessageListProps) {
   const { sx, roomId } = props;
-  const { user } = React.useContext(appContext);
+  const { user, setNewMessageHandler } = React.useContext(appContext);
 
-  const { data } = useQuery<
+  const { data, refetch } = useQuery<
     { listSiteChatMessages: SiteChatMessagePageInfo },
     QueryListSiteChatMessagesArgs
   >(LIST_SITE_ROOMS, {
@@ -97,6 +97,14 @@ export default function MessageList(props: MessageListProps) {
     },
     fetchPolicy: 'no-cache',
   });
+
+  React.useEffect(() => {
+    setNewMessageHandler({
+      handler() {
+        refetch();
+      },
+    });
+  }, [setNewMessageHandler]);
 
   return (
     <Box sx={{ ...sx }}>
