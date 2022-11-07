@@ -84,6 +84,7 @@ function MessageItem({ message, userId }: MessageItemProps) {
 export default function MessageList(props: MessageListProps) {
   const { sx, roomId } = props;
   const { user, setNewMessageHandler } = React.useContext(appContext);
+  const bottomRef = React.useRef<HTMLDivElement>(null);
 
   const { data, refetch } = useQuery<
     { listSiteChatMessages: SiteChatMessagePageInfo },
@@ -106,10 +107,19 @@ export default function MessageList(props: MessageListProps) {
     });
   }, [setNewMessageHandler]);
 
+  React.useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [data]);
+
   return (
     <Box sx={{ ...sx }}>
       <List
-        sx={{ width: '100%', bgcolor: 'background.paper' }}
+        sx={{
+          width: '100%',
+          bgcolor: 'background.paper',
+          maxHeight: '60vh',
+          overflow: 'scroll',
+        }}
         aria-label="messages"
       >
         {data?.listSiteChatMessages.siteChatMessages.map((message, i) => (
@@ -119,6 +129,7 @@ export default function MessageList(props: MessageListProps) {
             userId={user?.id || ''}
           />
         ))}
+        <div ref={bottomRef} />
       </List>
     </Box>
   );

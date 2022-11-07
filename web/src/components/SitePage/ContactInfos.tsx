@@ -23,7 +23,6 @@ export default function ContactInfos(props: ContactInfosProps) {
         flexWrap: 'wrap',
         gap: '20px',
         width: '100%',
-        height: '100%',
         ...sx,
       }}
     >

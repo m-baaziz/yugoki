@@ -13,8 +13,6 @@ const SiteInfosContainer = styled(Box)<BoxProps>(() => ({
     "  \
     '   .     .     .    '  1em  \
     '   .   email   .    '  1fr  \
-    '   .     .     .    '  2em  \
-    '   .    id     .    '  1fr  \
     '   .     .     .    '  1em  \
     /  1em   1fr   1em           \
   ",
@@ -28,9 +26,6 @@ const renderSiteInfos = (room: SiteChatRoom) => (
   <SiteInfosContainer>
     <Typography variant="h5" sx={{ gridArea: 'email' }}>
       {room.user.email}
-    </Typography>
-    <Typography variant="body2" sx={{ gridArea: 'id' }}>
-      {room.user.id}
     </Typography>
   </SiteInfosContainer>
 );

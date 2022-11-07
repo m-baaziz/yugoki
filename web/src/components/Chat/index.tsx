@@ -51,10 +51,13 @@ const ChatCard = styled(Card)<CardProps>(() => ({
   height: '100%',
   gridTemplate:
     "  \
-    '   rooms   vdevider1   messages      vdevider2   infos   '  1fr   \
-    '   rooms   vdevider1   hdevider      vdevider2   infos   '  auto  \
-    '   rooms   vdevider1   messageInput  vdevider2   infos   '  auto  \
-    /   150px     auto         1fr          auto      150px           \
+    '   rooms   vdevider1   infos          '  auto  \
+    '   rooms   vdevider1   hdevider1      '  auto  \
+    '   rooms   vdevider1      .           '  1fr   \
+    '   rooms   vdevider1   messages       '  auto  \
+    '   rooms   vdevider1   hdevider2      '  auto  \
+    '   rooms   vdevider1   messageInput   '  auto  \
+    /   auto     auto         1fr                   \
   ",
 }));
 
@@ -113,19 +116,19 @@ export default function Chat(props: ChatProps) {
             siteId={siteId}
           />
           <Divider orientation="vertical" sx={{ gridArea: 'vdevider1' }} />
+          <Box sx={{ gridArea: 'infos' }}>
+            {selectedRoom ? renderInfos(selectedRoom) : null}
+          </Box>
+          <Divider orientation="horizontal" sx={{ gridArea: 'hdevider1' }} />
           <MessageList
             sx={{ gridArea: 'messages' }}
             roomId={selectedRoom?.id}
           />
-          <Divider orientation="horizontal" sx={{ gridArea: 'hdevider' }} />
+          <Divider orientation="horizontal" sx={{ gridArea: 'hdevider2' }} />
           <MessageInput
             sx={{ gridArea: 'messageInput' }}
             onSubmit={handleMessageSubmit}
           />
-          <Divider orientation="vertical" sx={{ gridArea: 'vdevider2' }} />
-          <Box sx={{ gridArea: 'infos' }}>
-            {selectedRoom ? renderInfos(selectedRoom) : null}
-          </Box>
         </ChatCard>
       </Box>
     </Container>

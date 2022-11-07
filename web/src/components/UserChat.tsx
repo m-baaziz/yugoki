@@ -12,22 +12,15 @@ import { Link } from 'react-router-dom';
 import { SiteChatRoom } from '../generated/graphql';
 
 import Chat from './Chat';
+import ContactInfos from './SitePage/ContactInfos';
 
 const SiteInfosContainer = styled(Box)<BoxProps>(() => ({
-  display: 'grid',
   width: '100%',
   height: '100%',
-  gridTemplate:
-    "  \
-    '   .        .         .       .    '  1em  \
-    '   .     clubName  clubName   .    '  1fr  \
-    '   .        .         .       .    '  2em  \
-    '   .     address   address    .    '  1fr  \
-    '   .        .         .       .    '  1em  \
-    '   .     phone     website    .    '  1fr  \
-    '   .        .         .       .    '  1em  \
-    /  1em      1fr       1fr     1em           \
-  ",
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '10px',
+  padding: 20,
 }));
 
 const renderRoomListItem = (room: SiteChatRoom) => (
@@ -51,15 +44,11 @@ const renderSiteInfos = (room: SiteChatRoom) => (
         {room.site.club.name}
       </Typography>
     </Link>
-    <Typography variant="body2" sx={{ gridArea: 'address' }}>
-      {room.site.address}
-    </Typography>
-    <Typography variant="body2" sx={{ gridArea: 'phone' }}>
-      {room.site.phone}
-    </Typography>
-    <Typography variant="body2" sx={{ gridArea: 'website' }}>
-      {room.site.website}
-    </Typography>
+    <ContactInfos
+      address={room.site.address}
+      phone={room.site.phone}
+      web={room.site.website || undefined}
+    />
   </SiteInfosContainer>
 );
 
