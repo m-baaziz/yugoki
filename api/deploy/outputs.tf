@@ -38,6 +38,12 @@ output "ws-api-stage" {
   value = aws_apigatewayv2_stage.ws_dev.name
 }
 
+output "ws-api-execution-arn" {
+  description = "Execution ARN of the WS API."
+
+  value = aws_apigatewayv2_stage.ws_dev.execution_arn
+}
+
 output "cloudfront-domain-name" {
   value = aws_cloudfront_distribution.web.domain_name
 }

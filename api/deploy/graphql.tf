@@ -140,6 +140,22 @@ resource "aws_iam_role_policy" "graphql_s3" {
   })
 }
 
+resource "aws_iam_role_policy" "graphql_execute_api" {
+  role = aws_iam_role.lambda_exec.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "execute-api:*"
+        ]
+        Effect   = "Allow"
+        Resource = ["${aws_apigatewayv2_stage.ws_dev.execution_arn}/*"]
+      }
+    ]
+  })
+}
+
 // ------- API GATEWAY ---------
 
 resource "aws_apigatewayv2_api" "graphql_gw" {
