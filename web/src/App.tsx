@@ -131,7 +131,7 @@ function App() {
       }}
     >
       <Container>
-        <AppBar title="Yugoki" onLogOut={handleLogOut} />
+        <AppBar title="Limbz" onLogOut={handleLogOut} />
         <Snackbar
           open={!!notification}
           autoHideDuration={6000}

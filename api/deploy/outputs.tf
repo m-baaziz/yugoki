@@ -47,3 +47,7 @@ output "ws-api-execution-arn" {
 output "cloudfront-domain-name" {
   value = aws_cloudfront_distribution.web.domain_name
 }
+
+output "limbz-io-certificate-arn" {
+  value = data.aws_acm_certificate.root_cert.arn
+}

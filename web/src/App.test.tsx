@@ -4,6 +4,6 @@ import App from './App';
 
 test.skip('renders learn react link', () => {
   render(<App />);
-  const titleElement = screen.getByText(/Yugoki/i);
+  const titleElement = screen.getByText(/Limbz/i);
   expect(titleElement).toBeInTheDocument();
 });

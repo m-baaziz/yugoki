@@ -112,7 +112,7 @@ const Container = styled(Box)<BoxProps>(() => ({
     '   .      registration        .    '  auto   \
     '   .           .              .    '  2em   \
     '   .        message           .    '  auto   \
-    '   .           .              .    '  1em   \
+    '   .           .              .    '  3em   \
     /   5%         1fr             5%            \
   `,
 }));
@@ -124,7 +124,7 @@ export type SitePageProps = {
 export default function SitePage(props: SitePageProps) {
   const { sx } = props;
   const { id: siteId } = useParams();
-  const { notify } = React.useContext(appContext);
+  const { user, notify } = React.useContext(appContext);
   const [messageText, setMessageText] = React.useState('');
 
   const { data } = useQuery<{ getSite: Site }, QueryGetSiteArgs>(
@@ -271,35 +271,37 @@ export default function SitePage(props: SitePageProps) {
           >
             <SubscriptionOptions sx={{ margin: 'auto' }} />
           </Box>
-          <Box
-            sx={{
-              gridArea: 'message',
-              height: '100%',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-            }}
-          >
-            <TextField
-              id="message"
-              label="Message"
-              variant="outlined"
-              value={messageText}
-              onChange={handleMessageChange}
-              rows={5}
-              multiline
-            />
-            <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-              <Button
-                variant="contained"
-                endIcon={<SendIcon />}
-                onClick={handleSendMessageClick}
-              >
-                Send
-              </Button>
+          {user ? (
+            <Box
+              sx={{
+                gridArea: 'message',
+                height: '100%',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px',
+              }}
+            >
+              <TextField
+                id="message"
+                label="Message"
+                variant="outlined"
+                value={messageText}
+                onChange={handleMessageChange}
+                rows={5}
+                multiline
+              />
+              <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
+                <Button
+                  variant="contained"
+                  endIcon={<SendIcon />}
+                  onClick={handleSendMessageClick}
+                >
+                  Send
+                </Button>
+              </Box>
             </Box>
-          </Box>
+          ) : null}
         </>
       ) : (
         <CircularProgress />

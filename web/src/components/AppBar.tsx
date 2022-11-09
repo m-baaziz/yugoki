@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { AppBar, Box, Toolbar, Button, Typography } from '@mui/material';
+import { blueGrey } from '@mui/material/colors';
 import { Link } from 'react-router-dom';
 import appContext from '../context';
 
@@ -14,7 +15,7 @@ export default function ButtonAppBar(props: ButtonAppBarProps) {
 
   return (
     <Box>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ backgroundColor: blueGrey[600] }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
