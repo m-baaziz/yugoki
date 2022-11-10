@@ -4,6 +4,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { ApiGatewayManagementApiClient } from '@aws-sdk/client-apigatewaymanagementapi';
+import { SESv2Client } from '@aws-sdk/client-sesv2';
 
 import resolvers from './resolvers';
 import UserAPI from './datasources/user';
@@ -20,6 +21,7 @@ import { GraphQLSchema } from 'graphql';
 import SiteChatRoomAPI from './datasources/siteChatRoom';
 import SiteChatMessageAPI from './datasources/siteChatMessage';
 import WsConnectionAPI from './datasources/wsConnection';
+import EmailAPI from './datasources/email';
 
 export function getSchema(schemaPath: string): GraphQLSchema {
   const typeDefs = readFileSync(schemaPath).toString('utf-8');
@@ -51,6 +53,7 @@ export function getDatasources(): DataSources {
     ...awsConfig,
     endpoint: `https://${process.env.WS_API_ID}.execute-api.${process.env.S3_REGION}.amazonaws.com/${process.env.WS_API_STAGE}`,
   });
+  const sesClient = new SESv2Client({ ...awsConfig });
 
   const wsConnectionAPI = new WsConnectionAPI(
     dynamodbClient,
@@ -87,6 +90,7 @@ export function getDatasources(): DataSources {
   const sportAPI = new SportAPI(dynamodbClient);
   const siteChatRoomAPI = new SiteChatRoomAPI(dynamodbClient, siteAPI, userAPI);
   const siteChatMessageAPI = new SiteChatMessageAPI(dynamodbClient);
+  const emailAPI = new EmailAPI(sesClient);
 
   return {
     userAPI,
@@ -101,5 +105,6 @@ export function getDatasources(): DataSources {
     siteChatRoomAPI,
     siteChatMessageAPI,
     wsConnectionAPI,
+    emailAPI,
   };
 }

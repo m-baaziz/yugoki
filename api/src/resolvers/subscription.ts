@@ -9,6 +9,10 @@ import {
 } from '../generated/graphql';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
+import {
+  generateOwnerSubscriptionEmail,
+  generateUserSubscriptionEmail,
+} from '../utils/subscription';
 
 export async function getSubscription(
   _parent: unknown,
@@ -103,6 +107,7 @@ export async function createSubscription(
       siteAPI,
       clubAPI,
       userAPI,
+      emailAPI,
     },
   }: ContextWithDataSources,
 ): Promise<Subscription> {
@@ -129,6 +134,17 @@ export async function createSubscription(
       `Sending email to club owner ${owner.email} and customer ${details.email}`,
     );
     // send emails
+    const ownerEmail = generateOwnerSubscriptionEmail(subscription, club.id);
+    const userEmail = await generateUserSubscriptionEmail(
+      subscription,
+      club.id,
+    );
+    console.log(ownerEmail, userEmail);
+
+    const ownerEmailId = await emailAPI.sendEmail(owner.email, ownerEmail);
+    logger.info(`Email sent to club owner (message id = ${ownerEmailId})`);
+    const userEmailId = await emailAPI.sendEmail(details.email, userEmail);
+    logger.info(`Email sent to user (message id = ${userEmailId})`);
     return subscription;
   } catch (e) {
     logger.error(e.toString());

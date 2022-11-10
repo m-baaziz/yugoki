@@ -1,4 +1,6 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
+import QRCode from 'qrcode';
+import { APP_DOMAIN, EmailContent } from '../datasources/email';
 import { Gender, SubscriberDetails, Subscription } from '../generated/graphql';
 import {
   parseSubscriptionOption,
@@ -65,5 +67,56 @@ export function subscriptionToRecord(
     SubscriptionOption: {
       M: subscriptionOptionToRecord(subscription.subscriptionOption),
     },
+  };
+}
+
+export function generateOwnerSubscriptionEmail(
+  subscription: Subscription,
+  clubId: string,
+): EmailContent {
+  const { firstname, lastname } = subscription.subscriberDetails;
+  const {
+    title,
+    price,
+    id: subscriptionOptionId,
+    site: siteId,
+  } = subscription.subscriptionOption;
+  const link = `https://www.${APP_DOMAIN}/profile/clubs/${clubId}/sites/${siteId}/subscriptions/options/${subscriptionOptionId}/${subscription.id}`;
+  return {
+    subject: `${firstname} ${lastname} signed up for ${title}`,
+    html: `\
+    <html>
+      <body>
+        <div style="margin-bottom: 20px">${firstname} ${lastname} has signed up for ${title} at $ ${price}.</div>
+        <div>You can view the details <a href="${link}">here</a>.</div>
+      </body>
+    </html>`,
+  };
+}
+
+export async function generateUserSubscriptionEmail(
+  subscription: Subscription,
+  clubId: string,
+): Promise<EmailContent> {
+  const {
+    title,
+    price,
+    id: subscriptionOptionId,
+    site: siteId,
+  } = subscription.subscriptionOption;
+  const link = `https://www.${APP_DOMAIN}/profile/clubs/${clubId}/sites/${siteId}/subscriptions/options/${subscriptionOptionId}/${subscription.id}`;
+  const qrcodeData = await QRCode.toDataURL(link);
+  return {
+    subject: `You signed up for ${title}`,
+    html: `\
+    <html>
+      <body>
+        <div style="margin-bottom: 10px">Congratualtions on signing up for ${title} at $ ${price}.</div>
+        <div style="margin-bottom: 20px">Show this QR code to the club manager to share you subscription details.</div>
+        <div style="display: flex">
+          <div style="margin:auto"><img src="${qrcodeData}" width="200" height="200"/></div>
+        </div>
+      </body>
+    </html>`,
   };
 }

@@ -12,6 +12,7 @@ import FileUploadAPI from './fileUpload';
 import SiteChatRoomAPI from './siteChatRoom';
 import SiteChatMessageAPI from './siteChatMessage';
 import WsConnectionAPI from './wsConnection';
+import EmailAPI from './email';
 
 export type DataSources = {
   userAPI: UserAPI;
@@ -26,6 +27,7 @@ export type DataSources = {
   siteChatRoomAPI: SiteChatRoomAPI;
   siteChatMessageAPI: SiteChatMessageAPI;
   wsConnectionAPI: WsConnectionAPI;
+  emailAPI: EmailAPI;
 };
 
 export type ContextWithDataSources = Context<AuthenticationContext> & {
