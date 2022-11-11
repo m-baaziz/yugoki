@@ -12,6 +12,7 @@ import {
 import { setContext } from '@apollo/client/link/context';
 
 import config from './config';
+import { createTheme, ThemeProvider } from '@mui/material';
 
 const httpLink = createHttpLink({
   uri: config.grapqlEndpoint,
@@ -32,11 +33,23 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const theme = createTheme({
+  components: {
+    MuiTextField: {
+      defaultProps: {
+        autoComplete: 'off',
+      },
+    },
+  },
+});
+
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <ApolloProvider client={client}>
-        <App />
+        <ThemeProvider theme={theme}>
+          <App />
+        </ThemeProvider>
       </ApolloProvider>
     </BrowserRouter>
   </React.StrictMode>,

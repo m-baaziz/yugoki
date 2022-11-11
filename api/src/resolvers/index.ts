@@ -10,7 +10,7 @@ import {
 } from './site';
 import { getEvent, listSiteEvents, createEvent, deleteEvent } from './event';
 import { listSports, createSport, deleteSport } from './sport';
-import { signIn, signUp, me } from './user';
+import { signIn, signUp, verify, me } from './user';
 import {
   getSubscriptionOption,
   listSubscriptionOptionsBySite,
@@ -67,6 +67,7 @@ const resolvers: Resolvers = {
   Mutation: {
     signIn,
     signUp,
+    verify,
     createClub,
     deleteClub,
     createTrainer,

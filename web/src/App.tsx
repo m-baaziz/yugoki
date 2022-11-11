@@ -1,13 +1,23 @@
 import React, { ReactElement } from 'react';
 import { Box, BoxProps, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useQuery, gql } from '@apollo/client';
 
 import './App.css';
-import AppContext, { Notification } from './context';
+import AppContext, {
+  NavigationState,
+  Notification,
+  NotificationLevel,
+} from './context';
 import config from './config';
 import { useWsHandlers } from './hooks/ws';
 import { User } from './generated/graphql';
@@ -36,6 +46,9 @@ import NewSiteEvent from './components/Profile/UserSites/SiteEvents/NewSiteEvent
 import Wip from './components/Wip';
 import UserChat from './components/UserChat';
 import SiteChat from './components/Profile/UserSites/SiteChat';
+import AccountVerification, {
+  PATH_NAME as ACCOUNT_VERIF_PATH_NAME,
+} from './components/AccountVerification';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -61,6 +74,7 @@ const ME = gql`
     me {
       id
       email
+      isVerified
     }
   }
 `;
@@ -80,6 +94,7 @@ function App() {
     fetchPolicy: 'no-cache',
   });
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     connect: connectWs,
     disconnect: disconnectWs,
@@ -90,6 +105,16 @@ function App() {
     if (meData?.me) {
       setUser(meData.me);
       connectWs();
+      if (
+        !meData.me.isVerified &&
+        location.pathname !== ACCOUNT_VERIF_PATH_NAME
+      ) {
+        setNotification({
+          level: NotificationLevel.WARNING,
+          message:
+            'Your account is not verified yet. Please check your e-mails.',
+        });
+      }
     } else {
       disconnectWs();
     }
@@ -111,15 +136,28 @@ function App() {
     navigate('/');
   };
 
-  const withUser = (component: ReactElement): ReactElement => {
-    if (userFetchCalled && !userFetchLoading && !meData?.me)
-      return <Navigate replace to="/signin" />;
-    if (meData?.me) return component;
-    return (
-      <Box sx={{ display: 'flex', width: '100%', height: '100%' }}>
-        <CircularProgress sx={{ margin: 'auto' }} />
-      </Box>
-    );
+  const withUser = (
+    path: string,
+    element: ReactElement,
+  ): { path: string; element: ReactElement } => {
+    if (userFetchCalled && !userFetchLoading && !meData?.me) {
+      const navState: NavigationState = {
+        nextRoute: `${location.pathname}${location.search}`,
+      };
+      return {
+        path,
+        element: <Navigate replace to="/signin" state={navState} />,
+      };
+    }
+    if (meData?.me) return { path, element };
+    return {
+      path,
+      element: (
+        <Box sx={{ display: 'flex', width: '100%', height: '100%' }}>
+          <CircularProgress sx={{ margin: 'auto' }} />
+        </Box>
+      ),
+    };
   };
 
   return (
@@ -151,70 +189,90 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn refetchMe={refetchMe} />} />
             <Route path="/signup" element={<SignUp refetchMe={refetchMe} />} />
-            <Route path="/messages" element={withUser(<UserChat />)} />
+            <Route
+              {...withUser(
+                ACCOUNT_VERIF_PATH_NAME,
+                <AccountVerification refetchMe={refetchMe} />,
+              )}
+            />
+            <Route {...withUser('/messages', <UserChat />)} />
             <Route path="/sites" element={<SiteList />} />
             <Route path="/sites/:id" element={<SitePage />} />
             <Route
               path="/sites/:siteId/registration/:subscriptionOptionId"
               element={<Registration />}
             />
-            <Route path="/profile/clubs" element={withUser(<UserClubs />)} />
-            <Route path="/profile/clubs/:id" element={withUser(<UserClub />)} />
+            <Route {...withUser('/profile/clubs', <UserClubs />)} />
+            <Route {...withUser('/profile/clubs/:id', <UserClub />)} />
             <Route
-              path="/profile/clubs/:id/trainers"
-              element={withUser(<UserClubTrainers />)}
+              {...withUser('/profile/clubs/:id/trainers', <UserClubTrainers />)}
             />
             <Route
-              path="/profile/clubs/:id/trainers/:trainerId"
-              element={withUser(<Wip />)}
+              {...withUser('/profile/clubs/:id/trainers/:trainerId', <Wip />)}
             />
             <Route
-              path="/profile/clubs/:id/trainers/new"
-              element={withUser(<ClubTrainerForm />)}
+              {...withUser(
+                '/profile/clubs/:id/trainers/new',
+                <ClubTrainerForm />,
+              )}
+            />
+            <Route {...withUser('/profile/clubs/:id/sites', <UserSites />)} />
+            <Route
+              {...withUser('/profile/clubs/:id/sites/new', <SiteForm />)}
             />
             <Route
-              path="/profile/clubs/:id/sites"
-              element={withUser(<UserSites />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId',
+                <UserClubSite />,
+              )}
             />
             <Route
-              path="/profile/clubs/:id/sites/new"
-              element={withUser(<SiteForm />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/subscriptions',
+                <Subscriptions />,
+              )}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId"
-              element={withUser(<UserClubSite />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/subscriptions/options/:subscriptionOptionId',
+                <Wip />,
+              )}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId/subscriptions"
-              element={withUser(<Subscriptions />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/subscriptions/options/new',
+                <SubscriptionOptionForm />,
+              )}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/options/:subscriptionOptionId"
-              element={withUser(<Wip />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/subscriptions/options/:subscriptionOptionId/:id',
+                <SubscriptionPage />,
+              )}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/options/new"
-              element={withUser(<SubscriptionOptionForm />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/events',
+                <SiteEvents />,
+              )}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId/subscriptions/options/:subscriptionOptionId/:id"
-              element={withUser(<SubscriptionPage />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/events/new',
+                <NewSiteEvent />,
+              )}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId/events"
-              element={withUser(<SiteEvents />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/events/:id',
+                <SiteEvent />,
+              )}
             />
             <Route
-              path="/profile/clubs/:clubId/sites/:siteId/events/new"
-              element={withUser(<NewSiteEvent />)}
-            />
-            <Route
-              path="/profile/clubs/:clubId/sites/:siteId/events/:id"
-              element={withUser(<SiteEvent />)}
-            />
-            <Route
-              path="/profile/clubs/:clubId/sites/:siteId/messages"
-              element={withUser(<SiteChat />)}
+              {...withUser(
+                '/profile/clubs/:clubId/sites/:siteId/messages',
+                <SiteChat />,
+              )}
             />
           </Routes>
         </Content>

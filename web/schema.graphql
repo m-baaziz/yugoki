@@ -56,8 +56,9 @@ type Query {
 }
 
 type Mutation {
-  signIn(email: String!, password: String!): String! # returns token
-  signUp(email: String!, password: String!): String! # returns token
+  signIn(email: String!, password: String!): String!
+  signUp(email: String!, password: String!): String!
+  verify(token: String!): User!
   createSport(input: SportInput!): Sport!
   deleteSport(id: ID!): Boolean!
   createClub(name: String!): Club!
@@ -104,6 +105,7 @@ type User {
   id: ID!
   email: String!
   isPro: Boolean!
+  isVerified: Boolean!
 }
 
 type UserProfile {

@@ -4,8 +4,8 @@ import { Box, BoxProps, Button, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
 import { useMutation, gql } from '@apollo/client';
-import { useNavigate } from 'react-router-dom';
-import appContext, { NotificationLevel } from '../context';
+import { useNavigate, useLocation } from 'react-router-dom';
+import appContext, { NavigationState, NotificationLevel } from '../context';
 import config from '../config';
 
 const Container = styled(Box)<BoxProps>(() => ({
@@ -58,6 +58,7 @@ export default function SignIn(props: SignInProps) {
     variables: { email, password },
   });
   const navigate = useNavigate();
+  const { state: locationState } = useLocation();
 
   React.useEffect(() => {
     if (signInError?.message) {
@@ -72,7 +73,9 @@ export default function SignIn(props: SignInProps) {
     if (signInResult?.signIn) {
       localStorage.setItem(config.tokenCacheKey, signInResult.signIn);
       refetchMe();
-      navigate('/');
+      const navState = locationState as NavigationState;
+      const nextRoute = navState?.nextRoute ? navState.nextRoute : '/';
+      navigate(nextRoute);
     }
   }, [signInResult]);
 
@@ -86,12 +89,12 @@ export default function SignIn(props: SignInProps) {
 
   const handleSubmit = (e: React.ChangeEvent<HTMLDivElement>) => {
     e.preventDefault();
-    signIn();
+    signIn().catch(console.error);
   };
 
   const handleSignInClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    signIn();
+    signIn().catch(console.error);
   };
 
   return (

@@ -136,6 +136,7 @@ export type Mutation = {
   enableSubscriptionOption: SubscriptionOption;
   signIn: Scalars['String'];
   signUp: Scalars['String'];
+  verify: User;
 };
 
 
@@ -261,6 +262,11 @@ export type MutationSignInArgs = {
 export type MutationSignUpArgs = {
   email: Scalars['String'];
   password: Scalars['String'];
+};
+
+
+export type MutationVerifyArgs = {
+  token: Scalars['String'];
 };
 
 export type ProUserProfile = {
@@ -621,6 +627,7 @@ export type User = {
   email: Scalars['String'];
   id: Scalars['ID'];
   isPro: Scalars['Boolean'];
+  isVerified: Scalars['Boolean'];
 };
 
 export type UserProfile = {

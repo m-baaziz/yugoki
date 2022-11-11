@@ -14,6 +14,10 @@ export type Notification = {
   message: string;
 };
 
+export type NavigationState = {
+  nextRoute?: string;
+};
+
 type AppContext = {
   user: User | undefined;
   notify: (notification: Notification) => void;

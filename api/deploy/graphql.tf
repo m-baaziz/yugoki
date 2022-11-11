@@ -156,6 +156,27 @@ resource "aws_iam_role_policy" "graphql_execute_api" {
   })
 }
 
+data "aws_ses_domain_identity" "limbz_io" {
+  domain = "limbz.io"
+}
+
+resource "aws_iam_role_policy" "graphql_ses" {
+  role = aws_iam_role.lambda_exec.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        Effect   = "Allow"
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
 // ------- API GATEWAY ---------
 
 resource "aws_apigatewayv2_api" "graphql_gw" {

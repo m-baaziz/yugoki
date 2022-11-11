@@ -2,19 +2,14 @@
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import {
+  APP_DOMAIN,
+  EmailContent,
   generateMimeEmail,
   generateMimeEmailWithPng,
   PngInfo,
 } from '../utils/email';
 
-export const APP_DOMAIN = 'limbz.io';
-
 const NO_REPLY_EMAIL = `no-reply@${APP_DOMAIN}`;
-
-export type EmailContent = {
-  subject: string;
-  html: string;
-};
 
 export default class EmailAPI extends DataSource {
   sesClient: SESv2Client;
@@ -45,12 +40,7 @@ export default class EmailAPI extends DataSource {
           Content: {
             Raw: {
               Data: this.textEncoder.encode(
-                generateMimeEmail(
-                  NO_REPLY_EMAIL,
-                  to,
-                  content.subject,
-                  content.html,
-                ),
+                generateMimeEmail(NO_REPLY_EMAIL, to, content),
               ),
             },
           },
@@ -77,13 +67,7 @@ export default class EmailAPI extends DataSource {
           Content: {
             Raw: {
               Data: this.textEncoder.encode(
-                generateMimeEmailWithPng(
-                  NO_REPLY_EMAIL,
-                  to,
-                  content.subject,
-                  content.html,
-                  pngInfo,
-                ),
+                generateMimeEmailWithPng(NO_REPLY_EMAIL, to, content, pngInfo),
               ),
             },
           },

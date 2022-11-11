@@ -134,7 +134,6 @@ export async function createSubscription(
     logger.info(
       `Sending email to club owner ${owner.email} and customer ${details.email}`,
     );
-    // send emails
     const ownerEmail = generateOwnerSubscriptionEmail(subscription, club.id);
     const qrCodeContentId = uuidv4();
     const [userEmail, qrCodeBase64] = await generateUserSubscriptionEmail(

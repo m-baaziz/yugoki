@@ -5,6 +5,7 @@ import {
   GetItemCommand,
   QueryCommand,
   PutItemCommand,
+  UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
@@ -130,7 +131,6 @@ export default class UserAPI extends DataSource {
   }
 
   async insertUser(email: string, passwordHash: string): Promise<User> {
-    // use cognito for signup ... (get id from cognito result)
     try {
       // trick to guarantee unique emails (needs to be deleted along with the user)
       await this.dynamodbClient.send(
@@ -150,6 +150,7 @@ export default class UserAPI extends DataSource {
         id,
         email,
         isPro: true,
+        isVerified: false,
       };
       await this.dynamodbClient.send(
         new PutItemCommand({
@@ -165,6 +166,27 @@ export default class UserAPI extends DataSource {
       );
 
       return Promise.resolve(item);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  async verifyUser(id: string): Promise<boolean> {
+    try {
+      await this.dynamodbClient.send(
+        new UpdateItemCommand({
+          TableName: TABLE_NAME,
+          Key: { UserId: { S: id } },
+          UpdateExpression: 'SET #verified = :verified',
+          ExpressionAttributeNames: {
+            '#verified': 'IsVerified',
+          },
+          ExpressionAttributeValues: {
+            ':verified': { BOOL: true },
+          },
+        }),
+      );
+      return Promise.resolve(true);
     } catch (e) {
       return Promise.reject(e);
     }

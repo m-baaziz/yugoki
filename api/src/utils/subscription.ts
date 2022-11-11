@@ -1,7 +1,7 @@
 import { AttributeValue } from '@aws-sdk/client-dynamodb';
 import QRCode from 'qrcode';
-import { APP_DOMAIN, EmailContent } from '../datasources/email';
 import { Gender, SubscriberDetails, Subscription } from '../generated/graphql';
+import { APP_DOMAIN, EmailContent } from './email';
 import {
   parseSubscriptionOption,
   subscriptionOptionToRecord,

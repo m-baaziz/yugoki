@@ -138,6 +138,7 @@ export type Mutation = {
   enableSubscriptionOption: SubscriptionOption;
   signIn: Scalars['String'];
   signUp: Scalars['String'];
+  verify: User;
 };
 
 
@@ -263,6 +264,11 @@ export type MutationSignInArgs = {
 export type MutationSignUpArgs = {
   email: Scalars['String'];
   password: Scalars['String'];
+};
+
+
+export type MutationVerifyArgs = {
+  token: Scalars['String'];
 };
 
 export type ProUserProfile = {
@@ -623,6 +629,7 @@ export type User = {
   email: Scalars['String'];
   id: Scalars['ID'];
   isPro: Scalars['Boolean'];
+  isVerified: Scalars['Boolean'];
 };
 
 export type UserProfile = {
@@ -882,6 +889,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   enableSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<MutationEnableSubscriptionOptionArgs, 'id' | 'siteId'>>;
   signIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
   signUp?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+  verify?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationVerifyArgs, 'token'>>;
 };
 
 export type ProUserProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProUserProfile'] = ResolversParentTypes['ProUserProfile']> = {
@@ -1053,6 +1061,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isPro?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

@@ -99,7 +99,7 @@ export default function SignUp(props: SignUpProps) {
       });
       return;
     }
-    signUp();
+    signUp().catch(console.error);
   };
 
   const handleSubmit = (e: React.ChangeEvent<HTMLDivElement>) => {
