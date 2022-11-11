@@ -97,7 +97,8 @@ export function generateOwnerSubscriptionEmail(
 export async function generateUserSubscriptionEmail(
   subscription: Subscription,
   clubId: string,
-): Promise<EmailContent> {
+  qrCodeContentId: string,
+): Promise<[EmailContent, string]> {
   const {
     title,
     price,
@@ -105,18 +106,21 @@ export async function generateUserSubscriptionEmail(
     site: siteId,
   } = subscription.subscriptionOption;
   const link = `https://www.${APP_DOMAIN}/profile/clubs/${clubId}/sites/${siteId}/subscriptions/options/${subscriptionOptionId}/${subscription.id}`;
-  const qrcodeData = await QRCode.toDataURL(link);
-  return {
-    subject: `You signed up for ${title}`,
-    html: `\
+  const qrCode = QRCode.toBuffer(link);
+  return [
+    {
+      subject: `You signed up for ${title}`,
+      html: `\
     <html>
       <body>
         <div style="margin-bottom: 10px">Congratualtions on signing up for ${title} at $ ${price}.</div>
-        <div style="margin-bottom: 20px">Show this QR code to the club manager to share you subscription details.</div>
+        <div style="margin-bottom: 20px">Show this QR code to the club manager to share your subscription details.</div>
         <div style="display: flex">
-          <div style="margin:auto"><img src="${qrcodeData}" width="200" height="200"/></div>
+          <div style="margin:auto"><img src="cid:${qrCodeContentId}" width="200" height="200"/></div>
         </div>
       </body>
     </html>`,
-  };
+    },
+    (await qrCode).toString('base64'),
+  ];
 }

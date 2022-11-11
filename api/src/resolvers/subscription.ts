@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { ContextWithDataSources } from '../datasources';
 import {
   QueryListSubscriptionsBySubscriptionOptionArgs,
@@ -135,15 +136,25 @@ export async function createSubscription(
     );
     // send emails
     const ownerEmail = generateOwnerSubscriptionEmail(subscription, club.id);
-    const userEmail = await generateUserSubscriptionEmail(
+    const qrCodeContentId = uuidv4();
+    const [userEmail, qrCodeBase64] = await generateUserSubscriptionEmail(
       subscription,
       club.id,
+      qrCodeContentId,
     );
     console.log(ownerEmail, userEmail);
 
     const ownerEmailId = await emailAPI.sendEmail(owner.email, ownerEmail);
     logger.info(`Email sent to club owner (message id = ${ownerEmailId})`);
-    const userEmailId = await emailAPI.sendEmail(details.email, userEmail);
+    const userEmailId = await emailAPI.sendEmailWithPng(
+      details.email,
+      userEmail,
+      {
+        name: `subscription_${site.id}`,
+        contentId: qrCodeContentId,
+        base64: qrCodeBase64,
+      },
+    );
     logger.info(`Email sent to user (message id = ${userEmailId})`);
     return subscription;
   } catch (e) {
