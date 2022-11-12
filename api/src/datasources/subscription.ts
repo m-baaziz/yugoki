@@ -181,6 +181,12 @@ export default class SubscriptionAPI extends DataSource {
           siteId,
           subscriptionOptionId,
         );
+      if (
+        subscriptionOption.formEntries.length !==
+        subscriberDetails.formEntriesValues.length
+      ) {
+        return Promise.reject('Invalid number of form entries');
+      }
       const subscription: Subscription = {
         id,
         site: siteId,

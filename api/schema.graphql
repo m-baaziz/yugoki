@@ -265,10 +265,26 @@ type SitePageInfo {
   endCursor: String
 }
 
+enum FormEntryKind {
+  Text
+  File
+}
+
+input FormEntryInput {
+  label: String!
+  kind: FormEntryKind!
+}
+
+type FormEntry {
+  label: String!
+  kind: FormEntryKind!
+}
+
 input SubscriptionOptionInput {
   title: String!
   features: [String!]!
   price: Float!
+  formEntries: [FormEntryInput!]!
 }
 
 type SubscriptionOption {
@@ -278,6 +294,7 @@ type SubscriptionOption {
   features: [String!]!
   price: Float!
   enabled: Boolean!
+  formEntries: [FormEntry!]!
 }
 
 type SubscriptionOptionPageInfo {
@@ -300,6 +317,7 @@ input SubscriberDetailsInput {
   address: String!
   phone: String!
   dateOfBirth: String!
+  formEntriesValues: [String!]!
 }
 
 type SubscriberDetails {
@@ -310,6 +328,7 @@ type SubscriberDetails {
   address: String!
   phone: String!
   dateOfBirth: String!
+  formEntriesValues: [String!]!
 }
 
 type Subscription {
@@ -331,6 +350,7 @@ enum FileUploadKind {
   EventImage
   TrainerPhoto
   ClubLogo
+  SubscriptionFile
 }
 
 # unique key (index) is generated randomly

@@ -25,6 +25,7 @@ export function parseSubscriberDetails(
     address: details.Address.S,
     phone: details.Phone.S,
     dateOfBirth: details.DateOfBirth.S,
+    formEntriesValues: details.FormEntriesValues.L.map((v) => v.S),
   };
 }
 
@@ -39,6 +40,9 @@ export function subscriberDetailsToRecord(
     Address: { S: subscriberDetails.address },
     Phone: { S: subscriberDetails.phone },
     DateOfBirth: { S: subscriberDetails.dateOfBirth },
+    FormEntriesValues: {
+      L: subscriberDetails.formEntriesValues.map((v) => ({ S: v })),
+    },
   };
 }
 

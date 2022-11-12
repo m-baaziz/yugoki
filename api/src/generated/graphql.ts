@@ -99,6 +99,7 @@ export enum FileUploadKind {
   ClubLogo = 'ClubLogo',
   EventImage = 'EventImage',
   SiteImage = 'SiteImage',
+  SubscriptionFile = 'SubscriptionFile',
   TrainerPhoto = 'TrainerPhoto'
 }
 
@@ -107,6 +108,22 @@ export type FileUploadResponse = {
   file: FileUpload;
   url?: Maybe<Scalars['String']>;
 };
+
+export type FormEntry = {
+  __typename?: 'FormEntry';
+  kind: FormEntryKind;
+  label: Scalars['String'];
+};
+
+export type FormEntryInput = {
+  kind: FormEntryKind;
+  label: Scalars['String'];
+};
+
+export enum FormEntryKind {
+  File = 'File',
+  Text = 'Text'
+}
 
 export enum Gender {
   Female = 'Female',
@@ -544,6 +561,7 @@ export type SubscriberDetails = {
   dateOfBirth: Scalars['String'];
   email: Scalars['String'];
   firstname: Scalars['String'];
+  formEntriesValues: Array<Scalars['String']>;
   gender: Gender;
   lastname: Scalars['String'];
   phone: Scalars['String'];
@@ -554,6 +572,7 @@ export type SubscriberDetailsInput = {
   dateOfBirth: Scalars['String'];
   email: Scalars['String'];
   firstname: Scalars['String'];
+  formEntriesValues: Array<Scalars['String']>;
   gender: Gender;
   lastname: Scalars['String'];
   phone: Scalars['String'];
@@ -572,6 +591,7 @@ export type SubscriptionOption = {
   __typename?: 'SubscriptionOption';
   enabled: Scalars['Boolean'];
   features: Array<Scalars['String']>;
+  formEntries: Array<FormEntry>;
   id: Scalars['ID'];
   price: Scalars['Float'];
   site: Scalars['String'];
@@ -580,6 +600,7 @@ export type SubscriptionOption = {
 
 export type SubscriptionOptionInput = {
   features: Array<Scalars['String']>;
+  formEntries: Array<FormEntryInput>;
   price: Scalars['Float'];
   title: Scalars['String'];
 };
@@ -724,6 +745,9 @@ export type ResolversTypes = {
   FileUploadKind: FileUploadKind;
   FileUploadResponse: ResolverTypeWrapper<FileUploadResponse>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  FormEntry: ResolverTypeWrapper<FormEntry>;
+  FormEntryInput: FormEntryInput;
+  FormEntryKind: FormEntryKind;
   Gender: Gender;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
@@ -773,6 +797,8 @@ export type ResolversParentTypes = {
   FileUploadInput: FileUploadInput;
   FileUploadResponse: FileUploadResponse;
   Float: Scalars['Float'];
+  FormEntry: FormEntry;
+  FormEntryInput: FormEntryInput;
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Mutation: {};
@@ -863,6 +889,12 @@ export type FileUploadResolvers<ContextType = any, ParentType extends ResolversP
 export type FileUploadResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FileUploadResponse'] = ResolversParentTypes['FileUploadResponse']> = {
   file?: Resolver<ResolversTypes['FileUpload'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FormEntryResolvers<ContextType = any, ParentType extends ResolversParentTypes['FormEntry'] = ResolversParentTypes['FormEntry']> = {
+  kind?: Resolver<ResolversTypes['FormEntryKind'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1001,6 +1033,7 @@ export type SubscriberDetailsResolvers<ContextType = any, ParentType extends Res
   dateOfBirth?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   firstname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  formEntriesValues?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   gender?: Resolver<ResolversTypes['Gender'], ParentType, ContextType>;
   lastname?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1018,6 +1051,7 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
 export type SubscriptionOptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionOption'] = ResolversParentTypes['SubscriptionOption']> = {
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   features?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  formEntries?: Resolver<Array<ResolversTypes['FormEntry']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   price?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   site?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1082,6 +1116,7 @@ export type Resolvers<ContextType = any> = {
   EventPageInfo?: EventPageInfoResolvers<ContextType>;
   FileUpload?: FileUploadResolvers<ContextType>;
   FileUploadResponse?: FileUploadResponseResolvers<ContextType>;
+  FormEntry?: FormEntryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   ProUserProfile?: ProUserProfileResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
