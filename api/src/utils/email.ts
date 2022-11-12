@@ -18,9 +18,9 @@ export function generateMimeEmail(
     `Subject: ${content.subject}`,
     'MIME-Version: 1.0',
     'Content-Type: text/html; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
+    'Content-Transfer-Encoding: 7bit',
     '',
-    Buffer.from(content.html, 'utf-8').toString('base64'),
+    content.html,
   ];
   return lines.join('\n');
 }
@@ -47,9 +47,9 @@ export function generateMimeEmailWithPng(
     '',
     `--${boundary}`,
     'Content-Type: text/html; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
+    'Content-Transfer-Encoding: 7bit',
     '',
-    Buffer.from(content.html, 'utf-8').toString('base64'),
+    content.html,
     '',
     `--${boundary}`,
     `Content-Type: image/png; name="${pngInfo.name}.png"`,

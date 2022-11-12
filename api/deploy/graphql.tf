@@ -26,6 +26,7 @@ resource "aws_lambda_function" "graphql" {
 
   runtime = "nodejs16.x"
   handler = "handler.graphqlHandler"
+  timeout = 10
 
   source_code_hash = data.archive_file.graphql.output_base64sha256
 
