@@ -44,10 +44,6 @@ export default function RegistrationForm(props: RegistrationFormProps) {
   const { sx, details, formEntries, files, onChange, onFileChange, readOnly } =
     props;
 
-  console.log('details = ', details);
-  console.log('form entries = ', formEntries);
-  console.log('files = ', files);
-
   const handleTextInputChange =
     (key: keyof SubscriberDetailsInput) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {

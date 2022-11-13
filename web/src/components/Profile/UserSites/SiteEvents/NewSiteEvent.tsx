@@ -17,7 +17,7 @@ import { FileInfo } from '../../../FilesForm';
 import { useUploadFile } from '../../../../hooks/fileUpload';
 
 const DEFAULT_EVENT_INFO: EventInput = {
-  dateRFC3339: '',
+  dateRFC3339: new Date().toISOString(),
   title: '',
   description: '',
   image: undefined,

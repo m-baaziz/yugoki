@@ -27,7 +27,7 @@ const DEFAULT_SUBSCRIBER_DETAILS: SubscriberDetailsInput = {
   email: '',
   address: '',
   phone: '',
-  dateOfBirth: '',
+  dateOfBirth: new Date().toISOString(),
   formEntriesValues: [],
 };
 
