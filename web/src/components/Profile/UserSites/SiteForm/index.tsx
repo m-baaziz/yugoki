@@ -31,7 +31,7 @@ import ScheduleForm, {
   CalendarEntry,
   calendarEntryToSpan,
 } from './ScheduleForm';
-import ImagesForm, { FileInfo } from '../../../ImagesForm';
+import FilesForm, { FileInfo, FileKind } from '../../../FilesForm';
 import Schedule from '../../../SitePage/Schedule';
 import PositionForm from './PositionForm';
 import { Position } from '../../../SiteList/SiteMap';
@@ -341,7 +341,8 @@ export default function SiteForm() {
           />
         </Box>
         <Box>
-          <ImagesForm
+          <FilesForm
+            kind={FileKind.IMAGE}
             multiple
             files={siteImages}
             onChange={handleImagesChange}

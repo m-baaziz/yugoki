@@ -4,9 +4,26 @@ import { useParams } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
 import {
   QueryGetSubscriptionArgs,
+  QueryGetSubscriptionFilesArgs,
+  QueryGetSubscriptionOptionArgs,
   Subscription,
+  SubscriptionFile,
+  SubscriptionOption,
 } from '../../../../generated/graphql';
 import RegistrationForm from '../../../SitePage/Registration/RegistrationForm';
+import { FileInfo } from '../../../FilesForm';
+
+const GET_SUBSCRIPTION_OPTION = gql`
+  query getSubscriptionOption($siteId: ID!, $id: ID!) {
+    getSubscriptionOption(siteId: $siteId, id: $id) {
+      id
+      title
+      features
+      price
+      formEntries
+    }
+  }
+`;
 
 const GET_SUBSCRIPTION = gql`
   query getSubscription($siteId: ID!, $subscriptionOptionId: ID!, $id: ID!) {
@@ -37,6 +54,31 @@ const GET_SUBSCRIPTION = gql`
   }
 `;
 
+const GET_SUBSCRIPTION_FILES = gql`
+  query getSubscriptionFiles(
+    $siteId: ID!
+    $subscriptionOptionId: ID!
+    $id: ID!
+  ) {
+    getSubscriptionFiles(
+      siteId: $siteId
+      subscriptionOptionId: $subscriptionOptionId
+      id: $id
+    ) {
+      formEntryIndex
+      fileUpload {
+        file {
+          id
+          size
+          ext
+          kind
+        }
+        url
+      }
+    }
+  }
+`;
+
 const Container = styled(Box)<BoxProps>(() => ({
   display: 'grid',
   width: '100%',
@@ -53,6 +95,20 @@ const Container = styled(Box)<BoxProps>(() => ({
 export default function SubscriptionPage() {
   const { siteId, subscriptionOptionId, id } = useParams();
 
+  const { data: subscriptionOptionData } = useQuery<
+    {
+      getSubscriptionOption: SubscriptionOption;
+    },
+    QueryGetSubscriptionOptionArgs
+  >(GET_SUBSCRIPTION_OPTION, {
+    skip: !siteId || !subscriptionOptionId,
+    variables: {
+      siteId: siteId || '',
+      id: subscriptionOptionId || '',
+    },
+    fetchPolicy: 'no-cache',
+  });
+
   const { data: subscriptionData } = useQuery<
     { getSubscription: Subscription },
     QueryGetSubscriptionArgs
@@ -66,11 +122,47 @@ export default function SubscriptionPage() {
     fetchPolicy: 'no-cache',
   });
 
+  const { data: subscriptionFilesData } = useQuery<
+    { getSubscriptionFiles: SubscriptionFile[] },
+    QueryGetSubscriptionFilesArgs
+  >(GET_SUBSCRIPTION_FILES, {
+    skip: !siteId || !subscriptionOptionId || !id,
+    variables: {
+      siteId: siteId || '',
+      subscriptionOptionId: subscriptionOptionId || '',
+      id: id || '',
+    },
+    fetchPolicy: 'no-cache',
+  });
+
+  const subscriptionFiles = React.useMemo(() => {
+    const init = new Map<number, FileInfo>();
+    if (!subscriptionFilesData?.getSubscriptionFiles) return init;
+    return subscriptionFilesData.getSubscriptionFiles.reduce(
+      (acc, subscriptionFile) =>
+        acc.set(subscriptionFile.formEntryIndex, {
+          isNew: false,
+          url: subscriptionFile.fileUpload.url || '',
+          file: new File(
+            [],
+            subscriptionOptionData?.getSubscriptionOption.formEntries[
+              subscriptionFile.formEntryIndex
+            ].label || `entry ${subscriptionFile.formEntryIndex}`,
+          ),
+        }),
+      new Map(init),
+    );
+  }, [subscriptionFilesData]);
+
   return (
     <Container>
       {subscriptionData?.getSubscription ? (
         <RegistrationForm
           details={subscriptionData?.getSubscription.subscriberDetails}
+          formEntries={
+            subscriptionOptionData?.getSubscriptionOption.formEntries || []
+          }
+          files={subscriptionFiles}
           readOnly
           sx={{
             gridArea: 'info',

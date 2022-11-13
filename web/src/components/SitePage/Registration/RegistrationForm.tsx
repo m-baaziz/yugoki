@@ -12,7 +12,12 @@ import {
   SxProps,
   Theme,
 } from '@mui/material';
-import { Gender, SubscriberDetailsInput } from '../../../generated/graphql';
+import {
+  FormEntry,
+  FormEntryKind,
+  Gender,
+  SubscriberDetailsInput,
+} from '../../../generated/graphql';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -21,16 +26,23 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { parseGender } from '../../../utils/registration';
+import FilesForm, { FileInfo, FileKind } from '../../FilesForm';
+
+export type RegistrationFilesInfo = Map<number, FileInfo>;
 
 export type RegistrationFormProps = {
   details: SubscriberDetailsInput;
+  formEntries: FormEntry[];
+  files: RegistrationFilesInfo;
   onChange?: (details: SubscriberDetailsInput) => void;
+  onFileChange?: (entryIndex: number) => (files: FileInfo[]) => void;
   readOnly?: boolean;
   sx?: SxProps<Theme>;
 };
 
 export default function RegistrationForm(props: RegistrationFormProps) {
-  const { sx, details, onChange, readOnly } = props;
+  const { sx, details, formEntries, files, onChange, onFileChange, readOnly } =
+    props;
 
   const handleTextInputChange =
     (key: keyof SubscriberDetailsInput) =>
@@ -60,6 +72,14 @@ export default function RegistrationForm(props: RegistrationFormProps) {
       dateOfBirth: newValue?.toISOString() || '',
     });
   };
+
+  const handleTextFormEntryChange =
+    (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!onChange) return;
+      const formEntriesValues = [...details.formEntriesValues];
+      formEntriesValues[index] = e.target.value;
+      onChange({ ...details, formEntriesValues });
+    };
 
   return (
     <Stack
@@ -189,6 +209,27 @@ export default function RegistrationForm(props: RegistrationFormProps) {
           ),
         }}
       />
+      {formEntries.map((formEntry, i) =>
+        formEntry.kind === FormEntryKind.Text ? (
+          <TextField
+            key={i}
+            id={`form-entry-${i}`}
+            label={formEntry.label}
+            variant="standard"
+            required={!readOnly}
+            fullWidth
+            value={details.formEntriesValues[i]}
+            onChange={handleTextFormEntryChange(i)}
+          />
+        ) : (
+          <FilesForm
+            kind={FileKind.FILE}
+            files={files.has(i) ? [files.get(i) as FileInfo] : []}
+            onChange={onFileChange ? onFileChange(i) : undefined}
+            readOnly={readOnly}
+          />
+        ),
+      )}
     </Stack>
   );
 }

@@ -11,9 +11,12 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import pullAt from 'lodash/pullAt';
 
 const PREVIEW_IMG_PER_ROW = 10;
+const ACCEPTED_IMG_EXT = ['images/png', 'images/jpeg'];
+const ACCEPTED_FILE_EXT = [...ACCEPTED_IMG_EXT, 'application/pdf'];
 
 export type FileInfo = {
   url: string;
@@ -21,16 +24,22 @@ export type FileInfo = {
   isNew?: boolean;
 };
 
-export type ImagesFormProps = {
+export enum FileKind {
+  IMAGE,
+  FILE,
+}
+
+export type FilesFormProps = {
   files: FileInfo[];
+  kind: FileKind;
   onChange?: (files: FileInfo[]) => void;
   multiple?: boolean;
   sx?: SxProps<Theme>;
   readOnly?: boolean;
 };
 
-export default function ImagesForm(props: ImagesFormProps) {
-  const { sx, files, onChange, multiple, readOnly } = props;
+export default function FilesForm(props: FilesFormProps) {
+  const { sx, files, kind, onChange, multiple, readOnly } = props;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!onChange) return;
@@ -70,14 +79,17 @@ export default function ImagesForm(props: ImagesFormProps) {
             component="label"
             startIcon={<FileUploadIcon />}
           >
-            Upload Image
+            Upload {kind === FileKind.IMAGE ? 'Image' : 'File'}
             <input
               hidden
               type="file"
-              id="images"
-              name="images"
-              accept="images/png, images/jpeg"
-              multiple
+              id="files"
+              name="files"
+              accept={(kind === FileKind.IMAGE
+                ? ACCEPTED_IMG_EXT
+                : ACCEPTED_FILE_EXT
+              ).join(', ')}
+              multiple={multiple}
               onChange={handleFileChange}
             />
           </Button>
@@ -86,7 +98,13 @@ export default function ImagesForm(props: ImagesFormProps) {
       <ImageList sx={{ width: '100%' }} cols={PREVIEW_IMG_PER_ROW}>
         {files.map(({ file, url }, i) => (
           <ImageListItem key={i}>
-            <img src={url} alt={file?.name || url} loading="lazy" />
+            {kind === FileKind.IMAGE ? (
+              <img src={url} alt={file?.name || url} loading="lazy" />
+            ) : (
+              <Button variant="outlined" startIcon={<FileDownloadIcon />}>
+                {file?.name || url}
+              </Button>
+            )}
             {readOnly ? null : (
               <ImageListItemBar
                 position="top"

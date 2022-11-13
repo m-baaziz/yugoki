@@ -13,7 +13,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams } from 'react-router-dom';
 import appContext, { NotificationLevel } from '../../../../context';
 import EventForm from './EventForm';
-import { FileInfo } from '../../../ImagesForm';
+import { FileInfo } from '../../../FilesForm';
 import { useUploadFile } from '../../../../hooks/fileUpload';
 
 const DEFAULT_EVENT_INFO: EventInput = {

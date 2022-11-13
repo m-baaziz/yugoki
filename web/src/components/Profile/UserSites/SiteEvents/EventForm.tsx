@@ -5,7 +5,7 @@ import { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import ImagesForm, { FileInfo } from '../../../ImagesForm';
+import FilesForm, { FileInfo, FileKind } from '../../../FilesForm';
 
 export type EventFormProps = {
   details: EventInput;
@@ -72,7 +72,8 @@ export default function EventForm(props: EventFormProps) {
         />
       </Box>
       <Box>
-        <ImagesForm
+        <FilesForm
+          kind={FileKind.IMAGE}
           files={images}
           onChange={onImagesChange}
           readOnly={readOnly}

@@ -10,7 +10,7 @@ import {
   Trainer,
   TrainerInput,
 } from '../../../generated/graphql';
-import ImagesForm, { FileInfo } from '../../ImagesForm';
+import FilesForm, { FileInfo, FileKind } from '../../FilesForm';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -161,7 +161,11 @@ export default function ClubTrainerForm() {
           multiline
         />
         <Box>
-          <ImagesForm files={trainerImages} onChange={handleImagesChange} />
+          <FilesForm
+            kind={FileKind.IMAGE}
+            files={trainerImages}
+            onChange={handleImagesChange}
+          />
         </Box>
       </Stack>
       <Button

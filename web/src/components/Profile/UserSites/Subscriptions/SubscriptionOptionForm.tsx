@@ -6,32 +6,48 @@ import {
   Box,
   BoxProps,
   Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   ListSubheader,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { gql, useMutation } from '@apollo/client';
+import { useNavigate, useParams } from 'react-router-dom';
+import pullAt from 'lodash/pullAt';
 import {
+  FormEntryInput,
+  FormEntryKind,
   MutationCreateSubscriptionOptionArgs,
   SubscriptionOption,
   SubscriptionOptionInput,
 } from '../../../../generated/graphql';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { useNavigate, useParams } from 'react-router-dom';
 import appContext, { NotificationLevel } from '../../../../context';
+import { parseFormEntryKind } from '../../../../utils/registration';
 import LabelInputCombo from '../../../LabelInputCombo';
-import pullAt from 'lodash/pullAt';
+
+const DEFAULT_FORM_ENTRY: FormEntryInput = {
+  label: '',
+  kind: FormEntryKind.Text,
+};
 
 const DEFAULT_SUBSCRIPTION_OPTION: SubscriptionOptionInput = {
   title: '',
   features: [],
   price: 0,
+  formEntries: [],
 };
 
 const CREATE_SUBSCRIPTION_OPTION = gql`
@@ -119,6 +135,49 @@ export default function SubscriptionOptionForm() {
     } catch (e) {
       console.error(e);
     }
+  };
+  const handleNewFormEntryClick = () => {
+    setSubscriptionOptionInput({
+      ...subscriptionOptionInput,
+      formEntries: [
+        ...subscriptionOptionInput.formEntries,
+        { ...DEFAULT_FORM_ENTRY },
+      ],
+    });
+  };
+  const handleChangeFormEntryLabel =
+    (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const formEntries = [...subscriptionOptionInput.formEntries];
+      formEntries[index].label = e.target.value;
+      setSubscriptionOptionInput({
+        ...subscriptionOptionInput,
+        formEntries,
+      });
+    };
+
+  const handleChangeFormEntryKind =
+    (index: number) =>
+    (event: React.ChangeEvent<HTMLInputElement>, value: string) => {
+      const formEntries = [...subscriptionOptionInput.formEntries];
+      const kind = parseFormEntryKind(value);
+      if (!kind) {
+        console.error('unexpected null form entry type');
+        return;
+      }
+      formEntries[index].kind = kind;
+      setSubscriptionOptionInput({
+        ...subscriptionOptionInput,
+        formEntries,
+      });
+    };
+
+  const handleClickDelete = (index: number) => () => {
+    const formEntries = [...subscriptionOptionInput.formEntries];
+    pullAt(formEntries, [index]);
+    setSubscriptionOptionInput({
+      ...subscriptionOptionInput,
+      formEntries,
+    });
   };
 
   const handleBackClick = () => {
@@ -212,6 +271,67 @@ export default function SubscriptionOptionForm() {
           value={priceInputValue}
           onChange={handlePriceChange}
         />
+        <Button
+          variant="outlined"
+          onClick={handleNewFormEntryClick}
+          startIcon={<AddIcon />}
+        >
+          New Form Entry
+        </Button>
+        {subscriptionOptionInput.formEntries.map((formEntry, i) => (
+          <Box
+            key={i}
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: '10px',
+              flexWrap: 'wrap',
+            }}
+          >
+            <TextField
+              id={`label-${i}`}
+              label="Label"
+              variant="outlined"
+              value={formEntry.label}
+              onChange={handleChangeFormEntryLabel(i)}
+              required
+              sx={{ flexGrow: 2 }}
+            />
+            <FormControl>
+              <FormLabel id="type-radio-buttons-group-label">
+                Entry Type
+              </FormLabel>
+              <RadioGroup
+                row
+                aria-labelledby="type-radio-buttons-group-label"
+                name="type-row-radio-buttons-group"
+                value={formEntry.kind}
+                onChange={handleChangeFormEntryKind(i)}
+              >
+                <FormControlLabel
+                  value={FormEntryKind.Text}
+                  control={<Radio />}
+                  label="Text"
+                />
+                <FormControlLabel
+                  value={FormEntryKind.File}
+                  control={<Radio />}
+                  label="File"
+                />
+              </RadioGroup>
+            </FormControl>
+            <Box sx={{ display: 'flex' }}>
+              <IconButton
+                aria-label="delete"
+                size="small"
+                sx={{ margin: 'auto' }}
+                onClick={handleClickDelete(i)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          </Box>
+        ))}
       </Stack>
       <Button
         sx={{ gridArea: 'cancel' }}

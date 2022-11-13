@@ -305,6 +305,7 @@ export type Query = {
   getSite: Site;
   getSiteImages: Array<FileUploadResponse>;
   getSubscription: Subscription;
+  getSubscriptionFiles: Array<SubscriptionFile>;
   getSubscriptionOption: SubscriptionOption;
   listEnabledSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
   listSiteChatMessages: SiteChatMessagePageInfo;
@@ -350,6 +351,13 @@ export type QueryGetSiteImagesArgs = {
 
 
 export type QueryGetSubscriptionArgs = {
+  id: Scalars['ID'];
+  siteId: Scalars['ID'];
+  subscriptionOptionId: Scalars['ID'];
+};
+
+
+export type QueryGetSubscriptionFilesArgs = {
   id: Scalars['ID'];
   siteId: Scalars['ID'];
   subscriptionOptionId: Scalars['ID'];
@@ -587,6 +595,12 @@ export type Subscription = {
   subscriptionOption: SubscriptionOption;
 };
 
+export type SubscriptionFile = {
+  __typename?: 'SubscriptionFile';
+  fileUpload: FileUploadResponse;
+  formEntryIndex: Scalars['Int'];
+};
+
 export type SubscriptionOption = {
   __typename?: 'SubscriptionOption';
   enabled: Scalars['Boolean'];
@@ -770,6 +784,7 @@ export type ResolversTypes = {
   SubscriberDetails: ResolverTypeWrapper<SubscriberDetails>;
   SubscriberDetailsInput: SubscriberDetailsInput;
   Subscription: ResolverTypeWrapper<{}>;
+  SubscriptionFile: ResolverTypeWrapper<SubscriptionFile>;
   SubscriptionOption: ResolverTypeWrapper<SubscriptionOption>;
   SubscriptionOptionInput: SubscriptionOptionInput;
   SubscriptionOptionPageInfo: ResolverTypeWrapper<SubscriptionOptionPageInfo>;
@@ -820,6 +835,7 @@ export type ResolversParentTypes = {
   SubscriberDetails: SubscriberDetails;
   SubscriberDetailsInput: SubscriberDetailsInput;
   Subscription: {};
+  SubscriptionFile: SubscriptionFile;
   SubscriptionOption: SubscriptionOption;
   SubscriptionOptionInput: SubscriptionOptionInput;
   SubscriptionOptionPageInfo: SubscriptionOptionPageInfo;
@@ -940,6 +956,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getSite?: Resolver<ResolversTypes['Site'], ParentType, ContextType, RequireFields<QueryGetSiteArgs, 'id'>>;
   getSiteImages?: Resolver<Array<ResolversTypes['FileUploadResponse']>, ParentType, ContextType, RequireFields<QueryGetSiteImagesArgs, 'id'>>;
   getSubscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType, RequireFields<QueryGetSubscriptionArgs, 'id' | 'siteId' | 'subscriptionOptionId'>>;
+  getSubscriptionFiles?: Resolver<Array<ResolversTypes['SubscriptionFile']>, ParentType, ContextType, RequireFields<QueryGetSubscriptionFilesArgs, 'id' | 'siteId' | 'subscriptionOptionId'>>;
   getSubscriptionOption?: Resolver<ResolversTypes['SubscriptionOption'], ParentType, ContextType, RequireFields<QueryGetSubscriptionOptionArgs, 'id' | 'siteId'>>;
   listEnabledSubscriptionOptionsBySite?: Resolver<ResolversTypes['SubscriptionOptionPageInfo'], ParentType, ContextType, RequireFields<QueryListEnabledSubscriptionOptionsBySiteArgs, 'first' | 'siteId'>>;
   listSiteChatMessages?: Resolver<ResolversTypes['SiteChatMessagePageInfo'], ParentType, ContextType, RequireFields<QueryListSiteChatMessagesArgs, 'first' | 'roomId'>>;
@@ -1048,6 +1065,12 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   subscriptionOption?: SubscriptionResolver<ResolversTypes['SubscriptionOption'], "subscriptionOption", ParentType, ContextType>;
 };
 
+export type SubscriptionFileResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionFile'] = ResolversParentTypes['SubscriptionFile']> = {
+  fileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType>;
+  formEntryIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SubscriptionOptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['SubscriptionOption'] = ResolversParentTypes['SubscriptionOption']> = {
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   features?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1130,6 +1153,7 @@ export type Resolvers<ContextType = any> = {
   SportPageInfo?: SportPageInfoResolvers<ContextType>;
   SubscriberDetails?: SubscriberDetailsResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  SubscriptionFile?: SubscriptionFileResolvers<ContextType>;
   SubscriptionOption?: SubscriptionOptionResolvers<ContextType>;
   SubscriptionOptionPageInfo?: SubscriptionOptionPageInfoResolvers<ContextType>;
   SubscriptionPageInfo?: SubscriptionPageInfoResolvers<ContextType>;

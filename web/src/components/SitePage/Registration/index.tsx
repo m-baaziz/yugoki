@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Box, BoxProps, Button, Typography, Divider } from '@mui/material';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import {
+  FileUploadKind,
   Gender,
   MutationCreateSubscriptionArgs,
   QueryGetSubscriptionOptionArgs,
@@ -15,7 +16,9 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useNavigate, useParams } from 'react-router-dom';
 import appContext, { NotificationLevel } from '../../../context';
-import RegistrationForm from './RegistrationForm';
+import RegistrationForm, { RegistrationFilesInfo } from './RegistrationForm';
+import { FileInfo } from '../../FilesForm';
+import { useUploadFile } from '../../../hooks/fileUpload';
 
 const DEFAULT_SUBSCRIBER_DETAILS: SubscriberDetailsInput = {
   firstname: '',
@@ -25,6 +28,7 @@ const DEFAULT_SUBSCRIBER_DETAILS: SubscriberDetailsInput = {
   address: '',
   phone: '',
   dateOfBirth: '',
+  formEntriesValues: [],
 };
 
 const GET_SUBSCRIPTION_OPTION = gql`
@@ -34,6 +38,7 @@ const GET_SUBSCRIPTION_OPTION = gql`
       title
       features
       price
+      formEntries
     }
   }
 `;
@@ -76,8 +81,11 @@ export default function Registration() {
   const { notify } = React.useContext(appContext);
   const [subscriberDetailsInput, setSubscriberDetailsInput] =
     React.useState<SubscriberDetailsInput>(DEFAULT_SUBSCRIBER_DETAILS);
+  const [subscriptionFiles, setSubscriptionFiles] =
+    React.useState<RegistrationFilesInfo>(new Map());
   const { siteId, subscriptionOptionId } = useParams();
   const navigate = useNavigate();
+  const { uploadFile } = useUploadFile();
 
   const { data: subscriptionOptionData } = useQuery<
     {
@@ -97,8 +105,30 @@ export default function Registration() {
     MutationCreateSubscriptionArgs
   >(CREATE_SUBSCRIPTION);
 
+  React.useEffect(() => {
+    if (
+      !subscriptionOptionData?.getSubscriptionOption ||
+      subscriberDetailsInput.formEntriesValues.length ===
+        subscriptionOptionData.getSubscriptionOption.formEntries.length
+    )
+      return;
+    const formEntriesValues = Array(
+      subscriptionOptionData.getSubscriptionOption.formEntries.length,
+    ).fill('');
+    setSubscriberDetailsInput({ ...subscriberDetailsInput, formEntriesValues });
+  }, [subscriptionOptionData]);
+
   const handleDetailsChange = (details: SubscriberDetails) => {
     setSubscriberDetailsInput({ ...details });
+  };
+  const handleFileChange = (entryIndex: number) => (files: FileInfo[]) => {
+    const newFiles = new Map(subscriptionFiles);
+    if (files.length === 0) {
+      newFiles.delete(entryIndex);
+    } else {
+      newFiles.set(entryIndex, files[0]);
+    }
+    setSubscriptionFiles(newFiles);
   };
 
   const handleBackClick = () => {
@@ -107,11 +137,42 @@ export default function Registration() {
   const handleSubmitClick = async () => {
     try {
       if (!siteId || !subscriptionOptionId) return;
+
+      const formEntriesValues = {
+        ...subscriberDetailsInput.formEntriesValues,
+      };
+
+      const fileEntriesKeys = Array.from(subscriptionFiles.keys()).filter(
+        (key) =>
+          subscriptionFiles.get(key)?.isNew && subscriptionFiles.get(key)?.file,
+      );
+
+      notify({
+        level: NotificationLevel.INFO,
+        message: `uploading ${fileEntriesKeys.length} files ...`,
+      });
+
+      await Promise.all(
+        fileEntriesKeys.map((key) => {
+          const fileInfo = subscriptionFiles.get(key) as FileInfo;
+          return uploadFile(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            fileInfo.file!,
+            FileUploadKind.SubscriptionFile,
+          ).then((fileUpload) => {
+            formEntriesValues[key] = fileUpload.id || '';
+          });
+        }),
+      );
+
       await createSubscription({
         variables: {
           siteId,
           subscriptionOptionId,
-          details: subscriberDetailsInput,
+          details: {
+            ...subscriberDetailsInput,
+            formEntriesValues,
+          },
         },
       });
       notify({
@@ -151,6 +212,11 @@ export default function Registration() {
       <RegistrationForm
         sx={{ gridArea: 'form' }}
         details={subscriberDetailsInput}
+        formEntries={
+          subscriptionOptionData?.getSubscriptionOption.formEntries || []
+        }
+        files={subscriptionFiles}
+        onFileChange={handleFileChange}
         onChange={handleDetailsChange}
       />
       <Button

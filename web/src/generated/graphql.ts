@@ -97,6 +97,7 @@ export enum FileUploadKind {
   ClubLogo = 'ClubLogo',
   EventImage = 'EventImage',
   SiteImage = 'SiteImage',
+  SubscriptionFile = 'SubscriptionFile',
   TrainerPhoto = 'TrainerPhoto'
 }
 
@@ -105,6 +106,22 @@ export type FileUploadResponse = {
   file: FileUpload;
   url?: Maybe<Scalars['String']>;
 };
+
+export type FormEntry = {
+  __typename?: 'FormEntry';
+  kind: FormEntryKind;
+  label: Scalars['String'];
+};
+
+export type FormEntryInput = {
+  kind: FormEntryKind;
+  label: Scalars['String'];
+};
+
+export enum FormEntryKind {
+  File = 'File',
+  Text = 'Text'
+}
 
 export enum Gender {
   Female = 'Female',
@@ -286,6 +303,7 @@ export type Query = {
   getSite: Site;
   getSiteImages: Array<FileUploadResponse>;
   getSubscription: Subscription;
+  getSubscriptionFiles: Array<SubscriptionFile>;
   getSubscriptionOption: SubscriptionOption;
   listEnabledSubscriptionOptionsBySite: SubscriptionOptionPageInfo;
   listSiteChatMessages: SiteChatMessagePageInfo;
@@ -331,6 +349,13 @@ export type QueryGetSiteImagesArgs = {
 
 
 export type QueryGetSubscriptionArgs = {
+  id: Scalars['ID'];
+  siteId: Scalars['ID'];
+  subscriptionOptionId: Scalars['ID'];
+};
+
+
+export type QueryGetSubscriptionFilesArgs = {
   id: Scalars['ID'];
   siteId: Scalars['ID'];
   subscriptionOptionId: Scalars['ID'];
@@ -542,6 +567,7 @@ export type SubscriberDetails = {
   dateOfBirth: Scalars['String'];
   email: Scalars['String'];
   firstname: Scalars['String'];
+  formEntriesValues: Array<Scalars['String']>;
   gender: Gender;
   lastname: Scalars['String'];
   phone: Scalars['String'];
@@ -552,6 +578,7 @@ export type SubscriberDetailsInput = {
   dateOfBirth: Scalars['String'];
   email: Scalars['String'];
   firstname: Scalars['String'];
+  formEntriesValues: Array<Scalars['String']>;
   gender: Gender;
   lastname: Scalars['String'];
   phone: Scalars['String'];
@@ -566,10 +593,17 @@ export type Subscription = {
   subscriptionOption: SubscriptionOption;
 };
 
+export type SubscriptionFile = {
+  __typename?: 'SubscriptionFile';
+  fileUpload: FileUploadResponse;
+  formEntryIndex: Scalars['Int'];
+};
+
 export type SubscriptionOption = {
   __typename?: 'SubscriptionOption';
   enabled: Scalars['Boolean'];
   features: Array<Scalars['String']>;
+  formEntries: Array<FormEntry>;
   id: Scalars['ID'];
   price: Scalars['Float'];
   site: Scalars['String'];
@@ -578,6 +612,7 @@ export type SubscriptionOption = {
 
 export type SubscriptionOptionInput = {
   features: Array<Scalars['String']>;
+  formEntries: Array<FormEntryInput>;
   price: Scalars['Float'];
   title: Scalars['String'];
 };

@@ -21,6 +21,7 @@ import {
 } from './subscriptionOption';
 import {
   getSubscription,
+  getSubscriptionFiles,
   listSubscriptionsBySubscriptionOption,
   listSubscriptionsBySite,
   createSubscription,
@@ -58,6 +59,7 @@ const resolvers: Resolvers = {
     listSubscriptionsBySubscriptionOption,
     listSubscriptionsBySite,
     getSubscription,
+    getSubscriptionFiles,
     listTrainersByClub,
     getFileUpload,
     listSiteChatRooms,

@@ -7,6 +7,9 @@ import {
   Subscription,
   QueryListSubscriptionsBySiteArgs,
   QueryGetSubscriptionArgs,
+  QueryGetSubscriptionFilesArgs,
+  FormEntryKind,
+  SubscriptionFile,
 } from '../generated/graphql';
 import { logger } from '../logger';
 import { isUserAuthorized } from '../utils/club';
@@ -18,10 +21,23 @@ import {
 export async function getSubscription(
   _parent: unknown,
   { siteId, subscriptionOptionId, id }: QueryGetSubscriptionArgs,
-  { user, dataSources: { subscriptionAPI } }: ContextWithDataSources,
+  {
+    user,
+    dataSources: { subscriptionAPI, subscriptionOptionAPI, siteAPI, clubAPI },
+  }: ContextWithDataSources,
 ): Promise<Subscription> {
   try {
     if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    const subscriptionOption =
+      await subscriptionOptionAPI.findSubscriptionOptionById(
+        siteId,
+        subscriptionOptionId,
+      );
+    const site = await siteAPI.findSiteById(subscriptionOption.site);
+    const club = await clubAPI.findClubById(site.club.id);
+    if (!isUserAuthorized(club, user)) {
       return Promise.reject('Unauthorized');
     }
     return await subscriptionAPI.findSubscriptionById(
@@ -29,6 +45,68 @@ export async function getSubscription(
       subscriptionOptionId,
       id,
     );
+  } catch (e) {
+    logger.error(e.toString());
+    return Promise.reject(e);
+  }
+}
+
+export async function getSubscriptionFiles(
+  _parent: unknown,
+  { siteId, subscriptionOptionId, id }: QueryGetSubscriptionFilesArgs,
+  {
+    user,
+    dataSources: {
+      subscriptionAPI,
+      subscriptionOptionAPI,
+      siteAPI,
+      clubAPI,
+      fileUploadAPI,
+    },
+  }: ContextWithDataSources,
+): Promise<SubscriptionFile[]> {
+  try {
+    if (!user) {
+      return Promise.reject('Unauthorized');
+    }
+    const subscriptionOption =
+      await subscriptionOptionAPI.findSubscriptionOptionById(
+        siteId,
+        subscriptionOptionId,
+      );
+    const site = await siteAPI.findSiteById(subscriptionOption.site);
+    const club = await clubAPI.findClubById(site.club.id);
+    if (!isUserAuthorized(club, user)) {
+      return Promise.reject('Unauthorized');
+    }
+    const subscription = await subscriptionAPI.findSubscriptionById(
+      siteId,
+      subscriptionOptionId,
+      id,
+    );
+    const fileFormEntriesIndexes = subscriptionOption.formEntries.reduce(
+      (acc, entry, i) =>
+        entry.kind === FormEntryKind.File ? [...acc, i] : acc,
+      [] as number[],
+    );
+    const fileUploadResponses = await Promise.all(
+      fileFormEntriesIndexes.map(async (index) => {
+        try {
+          const fileId =
+            subscription.subscriberDetails.formEntriesValues[index];
+          return Promise.resolve({
+            formEntryIndex: index,
+            fileUpload: {
+              file: await fileUploadAPI.findFileUploadById(fileId),
+              url: await fileUploadAPI.generateFileUrlGet(fileId),
+            },
+          });
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }),
+    );
+    return Promise.resolve(fileUploadResponses);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

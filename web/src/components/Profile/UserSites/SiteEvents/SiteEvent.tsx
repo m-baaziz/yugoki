@@ -5,7 +5,7 @@ import { useQuery, gql } from '@apollo/client';
 import { Event, QueryGetEventArgs } from '../../../../generated/graphql';
 import EventForm from './EventForm';
 import { useGetFile } from '../../../../hooks/fileUpload';
-import { FileInfo } from '../../../ImagesForm';
+import { FileInfo } from '../../../FilesForm';
 
 const GET_EVENT = gql`
   query getEvent($siteId: ID!, $id: ID!) {

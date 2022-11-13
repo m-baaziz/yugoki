@@ -40,6 +40,11 @@ type Query {
     subscriptionOptionId: ID!
     id: ID!
   ): Subscription!
+  getSubscriptionFiles(
+    siteId: ID!
+    subscriptionOptionId: ID!
+    id: ID!
+  ): [SubscriptionFile!]!
   listTrainersByClub(clubId: ID!, first: Int!, after: String): TrainerPageInfo!
   getFileUpload(id: ID!): FileUploadResponse!
   listSiteChatRooms(
@@ -337,6 +342,11 @@ type Subscription {
   site: String!
   subscriberDetails: SubscriberDetails!
   createdAtRFC3339: String!
+}
+
+type SubscriptionFile {
+  formEntryIndex: Int!
+  fileUpload: FileUploadResponse!
 }
 
 type SubscriptionPageInfo {
