@@ -6,6 +6,7 @@ export function parseFileUploadKind(kind: string): FileUploadKind | null {
   if (kind === 'EventImage') return FileUploadKind.EventImage;
   if (kind === 'TrainerPhoto') return FileUploadKind.TrainerPhoto;
   if (kind === 'ClubLogo') return FileUploadKind.ClubLogo;
+  if (kind === 'SubscriptionFile') return FileUploadKind.SubscriptionFile;
   return null;
 }
 

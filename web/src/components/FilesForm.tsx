@@ -12,11 +12,10 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { Link } from 'react-router-dom';
 import pullAt from 'lodash/pullAt';
 
 const PREVIEW_IMG_PER_ROW = 10;
-const ACCEPTED_IMG_EXT = ['images/png', 'images/jpeg'];
+const ACCEPTED_IMG_EXT = ['image/png', 'image/jpeg'];
 const ACCEPTED_FILE_EXT = [...ACCEPTED_IMG_EXT, 'application/pdf'];
 
 export type FileInfo = {
@@ -37,10 +36,11 @@ export type FilesFormProps = {
   multiple?: boolean;
   sx?: SxProps<Theme>;
   readOnly?: boolean;
+  label?: string;
 };
 
 export default function FilesForm(props: FilesFormProps) {
-  const { sx, files, kind, onChange, multiple, readOnly } = props;
+  const { sx, files, kind, onChange, multiple, readOnly, label } = props;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!onChange) return;
@@ -80,7 +80,7 @@ export default function FilesForm(props: FilesFormProps) {
             component="label"
             startIcon={<FileUploadIcon />}
           >
-            Upload {kind === FileKind.IMAGE ? 'Image' : 'File'}
+            {label || `Upload ${kind === FileKind.IMAGE ? 'Image' : 'File'}`}
             <input
               hidden
               type="file"
@@ -91,6 +91,7 @@ export default function FilesForm(props: FilesFormProps) {
                 : ACCEPTED_FILE_EXT
               ).join(', ')}
               multiple={multiple}
+              value={''}
               onChange={handleFileChange}
             />
           </Button>
@@ -102,8 +103,9 @@ export default function FilesForm(props: FilesFormProps) {
             {kind === FileKind.IMAGE ? (
               <img src={url} alt={file?.name || url} loading="lazy" />
             ) : (
-              <Link
-                to={url}
+              <a
+                href={url}
+                target="blank"
                 style={{
                   textDecoration: 'none',
                   color: 'inherit',
@@ -113,7 +115,7 @@ export default function FilesForm(props: FilesFormProps) {
                 <Button variant="outlined" startIcon={<FileDownloadIcon />}>
                   {file?.name || url}
                 </Button>
-              </Link>
+              </a>
             )}
             {readOnly ? null : (
               <ImageListItemBar

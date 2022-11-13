@@ -38,7 +38,10 @@ const GET_SUBSCRIPTION_OPTION = gql`
       title
       features
       price
-      formEntries
+      formEntries {
+        kind
+        label
+      }
     }
   }
 `;
@@ -68,8 +71,10 @@ const Container = styled(Box)<BoxProps>(() => ({
     "  \
     '   .        .           .          .       .      '  1em  \
     '   .   description description description .      '  auto \
+    '   .        .           .          .       .      '  1em  \
     '   .        .           .          .       .      '  1fr  \
     '   .      form        form       form      .      '  auto \
+    '   .        .           .          .       .      '  2em  \
     '   .        .           .          .       .      '  1fr  \
     '   .     cancel         .        submit    .      '  auto \
     '   .        .           .          .       .      '  2em  \
@@ -138,9 +143,9 @@ export default function Registration() {
     try {
       if (!siteId || !subscriptionOptionId) return;
 
-      const formEntriesValues = {
+      const formEntriesValues: string[] = [
         ...subscriberDetailsInput.formEntriesValues,
-      };
+      ];
 
       const fileEntriesKeys = Array.from(subscriptionFiles.keys()).filter(
         (key) =>

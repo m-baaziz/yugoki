@@ -44,6 +44,10 @@ export default function RegistrationForm(props: RegistrationFormProps) {
   const { sx, details, formEntries, files, onChange, onFileChange, readOnly } =
     props;
 
+  console.log('details = ', details);
+  console.log('form entries = ', formEntries);
+  console.log('files = ', files);
+
   const handleTextInputChange =
     (key: keyof SubscriberDetailsInput) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,27 +213,38 @@ export default function RegistrationForm(props: RegistrationFormProps) {
           ),
         }}
       />
-      {formEntries.map((formEntry, i) =>
-        formEntry.kind === FormEntryKind.Text ? (
-          <TextField
-            key={i}
-            id={`form-entry-${i}`}
-            label={formEntry.label}
-            variant="standard"
-            required={!readOnly}
-            fullWidth
-            value={details.formEntriesValues[i]}
-            onChange={handleTextFormEntryChange(i)}
-          />
-        ) : (
-          <FilesForm
-            kind={FileKind.FILE}
-            files={files.has(i) ? [files.get(i) as FileInfo] : []}
-            onChange={onFileChange ? onFileChange(i) : undefined}
-            readOnly={readOnly}
-          />
-        ),
-      )}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '10px',
+          flexWrap: 'wrap',
+        }}
+      >
+        {formEntries.map((formEntry, i) =>
+          formEntry.kind === FormEntryKind.Text ? (
+            <TextField
+              key={i}
+              id={`form-entry-${i}`}
+              label={formEntry.label}
+              variant="standard"
+              required={!readOnly}
+              fullWidth
+              value={details.formEntriesValues[i] || ''}
+              onChange={handleTextFormEntryChange(i)}
+            />
+          ) : (
+            <FilesForm
+              key={i}
+              kind={FileKind.FILE}
+              files={files.has(i) ? [files.get(i) as FileInfo] : []}
+              onChange={onFileChange ? onFileChange(i) : undefined}
+              readOnly={readOnly}
+              label={formEntry.label}
+            />
+          ),
+        )}
+      </Box>
     </Stack>
   );
 }

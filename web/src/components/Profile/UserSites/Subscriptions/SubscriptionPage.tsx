@@ -20,7 +20,10 @@ const GET_SUBSCRIPTION_OPTION = gql`
       title
       features
       price
-      formEntries
+      formEntries {
+        kind
+        label
+      }
     }
   }
 `;
@@ -49,6 +52,7 @@ const GET_SUBSCRIPTION = gql`
         address
         phone
         dateOfBirth
+        formEntriesValues
       }
     }
   }

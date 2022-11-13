@@ -219,7 +219,6 @@ export async function createSubscription(
       club.id,
       qrCodeContentId,
     );
-    console.log(ownerEmail, userEmail);
 
     const ownerEmailId = await emailAPI.sendEmail(owner.email, ownerEmail);
     logger.info(`Email sent to club owner (message id = ${ownerEmailId})`);
