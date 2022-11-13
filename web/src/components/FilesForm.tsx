@@ -12,6 +12,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { Link } from 'react-router-dom';
 import pullAt from 'lodash/pullAt';
 
 const PREVIEW_IMG_PER_ROW = 10;
@@ -101,9 +102,18 @@ export default function FilesForm(props: FilesFormProps) {
             {kind === FileKind.IMAGE ? (
               <img src={url} alt={file?.name || url} loading="lazy" />
             ) : (
-              <Button variant="outlined" startIcon={<FileDownloadIcon />}>
-                {file?.name || url}
-              </Button>
+              <Link
+                to={url}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  margin: 'auto',
+                }}
+              >
+                <Button variant="outlined" startIcon={<FileDownloadIcon />}>
+                  {file?.name || url}
+                </Button>
+              </Link>
             )}
             {readOnly ? null : (
               <ImageListItemBar
