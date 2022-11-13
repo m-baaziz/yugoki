@@ -33,7 +33,7 @@ resource "aws_dynamodb_table" "user" {
 resource "aws_dynamodb_table" "sport" {
   name           = "Sport"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 1
+  read_capacity  = 10
   write_capacity = 1
   hash_key       = "SportId"
 
@@ -51,7 +51,7 @@ resource "aws_dynamodb_table" "sport" {
 resource "aws_dynamodb_table" "club" {
   name           = "Club"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 1
+  read_capacity  = 5
   write_capacity = 1
   hash_key       = "ClubId"
   range_key      = "Sk1"
@@ -73,8 +73,8 @@ resource "aws_dynamodb_table" "club" {
     name            = "ClubOwnerIndex"
     hash_key        = "ClubOwner"
     range_key       = "ClubId"
+    read_capacity   = 3
     write_capacity  = 1
-    read_capacity   = 1
     projection_type = "ALL"
   }
 
@@ -87,7 +87,7 @@ resource "aws_dynamodb_table" "club" {
 resource "aws_dynamodb_table" "site" {
   name           = "Site"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 1
+  read_capacity  = 10
   write_capacity = 1
   hash_key       = "SiteId"
   range_key      = "Sk1"
@@ -119,7 +119,7 @@ resource "aws_dynamodb_table" "site" {
     name            = "SiteClubIndex"
     hash_key        = "ClubId"
     range_key       = "Sk1"
-    write_capacity  = 1
+    write_capacity  = 3
     read_capacity   = 1
     projection_type = "ALL"
   }
@@ -127,7 +127,7 @@ resource "aws_dynamodb_table" "site" {
     name            = "SiteSportGeohashIndex"
     hash_key        = "SportId"
     range_key       = "Sk2"
-    write_capacity  = 1
+    write_capacity  = 10
     read_capacity   = 1
     projection_type = "ALL"
   }
@@ -141,7 +141,7 @@ resource "aws_dynamodb_table" "site" {
 resource "aws_dynamodb_table" "fileUpload" {
   name           = "FileUpload"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 1
+  read_capacity  = 5
   write_capacity = 1
   hash_key       = "FileUploadId"
 
@@ -159,7 +159,7 @@ resource "aws_dynamodb_table" "fileUpload" {
 resource "aws_dynamodb_table" "subscription" {
   name           = "Subscription"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 1
+  read_capacity  = 5
   write_capacity = 1
   hash_key       = "SiteId"
   range_key      = "Sk1"
@@ -192,7 +192,7 @@ resource "aws_dynamodb_table" "subscription" {
 resource "aws_dynamodb_table" "site_chat" {
   name           = "SiteChat"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 1
+  read_capacity  = 3
   write_capacity = 1
   hash_key       = "RoomId"
   range_key      = "Sk1"
@@ -231,7 +231,7 @@ resource "aws_dynamodb_table" "site_chat" {
     name            = "SiteIndex"
     hash_key        = "SiteId"
     range_key       = "Sk2"
-    write_capacity  = 1
+    write_capacity  = 3
     read_capacity   = 1
     projection_type = "ALL"
   }
@@ -240,7 +240,7 @@ resource "aws_dynamodb_table" "site_chat" {
     name            = "UserIndex"
     hash_key        = "RoomUserId"
     range_key       = "Sk2"
-    write_capacity  = 1
+    write_capacity  = 3
     read_capacity   = 1
     projection_type = "ALL"
   }
@@ -249,7 +249,7 @@ resource "aws_dynamodb_table" "site_chat" {
     name            = "MessageIndex"
     hash_key        = "RoomId"
     range_key       = "Sk3"
-    write_capacity  = 1
+    write_capacity  = 10
     read_capacity   = 1
     projection_type = "ALL"
   }
@@ -263,7 +263,7 @@ resource "aws_dynamodb_table" "site_chat" {
 resource "aws_dynamodb_table" "ws_connection" {
   name           = "WsConnection"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 1
+  read_capacity  = 3
   write_capacity = 1
   hash_key       = "UserId"
   ttl {
@@ -284,7 +284,7 @@ resource "aws_dynamodb_table" "ws_connection" {
   global_secondary_index {
     name            = "ConnectionIdIndex"
     hash_key        = "ConnectionId"
-    write_capacity  = 1
+    write_capacity  = 3
     read_capacity   = 1
     projection_type = "ALL"
   }
