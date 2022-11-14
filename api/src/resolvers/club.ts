@@ -45,7 +45,7 @@ export async function getClub(
 
 export async function createClub(
   _parent: unknown,
-  { name }: MutationCreateClubArgs,
+  { input }: MutationCreateClubArgs,
   { user, dataSources: { clubAPI } }: ContextWithDataSources,
 ): Promise<Club> {
   try {
@@ -56,7 +56,7 @@ export async function createClub(
       logger.error('Unexpected empty user id');
       return Promise.reject('Internal Server Error');
     }
-    return await clubAPI.createClub(user.id, name);
+    return await clubAPI.createClub(user.id, input);
   } catch (e) {
     logger.error(e.toString());
     return Promise.reject(e);

@@ -29,6 +29,7 @@ import Images from './Images';
 import Schedule from './Schedule';
 import SubscriptionOptions from './SubscriptionOptions';
 import appContext, { NotificationLevel } from '../../context';
+import { useGetFile } from '../../hooks/fileUpload';
 
 const ICON_SIZE = 20;
 
@@ -147,6 +148,7 @@ export default function SitePage(props: SitePageProps) {
     },
     fetchPolicy: 'no-cache',
   });
+  const { data: logoData } = useGetFile(data?.getSite.club.logo || undefined);
   const [createSiteChatRoomAndMessage] = useMutation<
     { createSiteChatRoomAndMessage: SiteChatRoom },
     MutationCreateSiteChatRoomAndMessageArgs
@@ -196,7 +198,7 @@ export default function SitePage(props: SitePageProps) {
             }}
           >
             <IconTextCombo
-              icon={data.getSite.club.logo || undefined}
+              icon={logoData?.getFileUpload.url || undefined}
               size={20}
               text={
                 <Typography

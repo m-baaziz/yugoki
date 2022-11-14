@@ -48,6 +48,11 @@ export type Club = {
   owner: Scalars['String'];
 };
 
+export type ClubInput = {
+  logo?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+};
+
 export type ClubPageInfo = {
   __typename?: 'ClubPageInfo';
   clubs: Array<Club>;
@@ -158,7 +163,7 @@ export type Mutation = {
 
 
 export type MutationCreateClubArgs = {
-  name: Scalars['String'];
+  input: ClubInput;
 };
 
 

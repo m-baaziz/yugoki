@@ -50,6 +50,11 @@ export type Club = {
   owner: Scalars['String'];
 };
 
+export type ClubInput = {
+  logo?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+};
+
 export type ClubPageInfo = {
   __typename?: 'ClubPageInfo';
   clubs: Array<Club>;
@@ -160,7 +165,7 @@ export type Mutation = {
 
 
 export type MutationCreateClubArgs = {
-  name: Scalars['String'];
+  input: ClubInput;
 };
 
 
@@ -750,6 +755,7 @@ export type ResolversTypes = {
   CalendarSpan: ResolverTypeWrapper<CalendarSpan>;
   CalendarSpanInput: CalendarSpanInput;
   Club: ResolverTypeWrapper<Club>;
+  ClubInput: ClubInput;
   ClubPageInfo: ResolverTypeWrapper<ClubPageInfo>;
   Event: ResolverTypeWrapper<Event>;
   EventInput: EventInput;
@@ -804,6 +810,7 @@ export type ResolversParentTypes = {
   CalendarSpan: CalendarSpan;
   CalendarSpanInput: CalendarSpanInput;
   Club: Club;
+  ClubInput: ClubInput;
   ClubPageInfo: ClubPageInfo;
   Event: Event;
   EventInput: EventInput;
@@ -915,7 +922,7 @@ export type FormEntryResolvers<ContextType = any, ParentType extends ResolversPa
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'name'>>;
+  createClub?: Resolver<ResolversTypes['Club'], ParentType, ContextType, RequireFields<MutationCreateClubArgs, 'input'>>;
   createEvent?: Resolver<ResolversTypes['Event'], ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'input' | 'siteId'>>;
   createFileUpload?: Resolver<ResolversTypes['FileUploadResponse'], ParentType, ContextType, RequireFields<MutationCreateFileUploadArgs, 'input'>>;
   createSite?: Resolver<Maybe<ResolversTypes['Site']>, ParentType, ContextType, RequireFields<MutationCreateSiteArgs, 'clubId' | 'input'>>;

@@ -49,6 +49,7 @@ import SiteChat from './components/Profile/UserSites/SiteChat';
 import AccountVerification, {
   PATH_NAME as ACCOUNT_VERIF_PATH_NAME,
 } from './components/AccountVerification';
+import NewClub from './components/Profile/UserClubs/NewClub';
 
 const Container = styled(Box)<BoxProps>(() => ({
   height: '100%',
@@ -203,6 +204,7 @@ function App() {
               element={<Registration />}
             />
             <Route {...withUser('/profile/clubs', <UserClubs />)} />
+            <Route {...withUser('/profile/clubs/new', <NewClub />)} />
             <Route {...withUser('/profile/clubs/:id', <UserClub />)} />
             <Route
               {...withUser('/profile/clubs/:id/trainers', <UserClubTrainers />)}

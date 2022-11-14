@@ -8,7 +8,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Club, ClubPageInfo } from '../generated/graphql';
+import { Club, ClubInput, ClubPageInfo } from '../generated/graphql';
 import { logger } from '../logger';
 import SiteAPI from './site';
 import FileUploadAPI from './fileUpload';
@@ -110,13 +110,13 @@ export default class ClubAPI extends DataSource {
     }
   }
 
-  async createClub(ownerId: string, name: string): Promise<Club> {
+  async createClub(ownerId: string, input: ClubInput): Promise<Club> {
     try {
       const id = uuidv4();
       const item: Club = {
         id,
         owner: ownerId,
-        name,
+        ...input,
       };
       await this.dynamodbClient.send(
         new PutItemCommand({

@@ -34,6 +34,7 @@ const LIST_CLUB_SPORT_LOCATIONS = gql`
         id
         club {
           name
+          logo
         }
         address
         lat
@@ -200,7 +201,13 @@ export default function SiteList() {
           gap: '20px',
         }}
       >
-        <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+          }}
+        >
           {data?.searchSites.sites
             .filter((site) => site.id)
             .map((site) => (
@@ -208,6 +215,7 @@ export default function SiteList() {
                 key={site.id!}
                 id={site.id!}
                 name={site.club.name}
+                logoId={site.club.logo || undefined}
                 address={site.address}
                 onClick={handleSiteClick}
                 sx={{ cursor: 'pointer' }}

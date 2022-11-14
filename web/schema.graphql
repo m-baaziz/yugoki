@@ -66,7 +66,7 @@ type Mutation {
   verify(token: String!): User!
   createSport(input: SportInput!): Sport!
   deleteSport(id: ID!): Boolean!
-  createClub(name: String!): Club!
+  createClub(input: ClubInput!): Club!
   deleteClub(id: ID!): Boolean!
   createTrainer(clubId: ID!, input: TrainerInput!): Trainer!
   deleteTrainer(clubId: ID!, id: ID!): Boolean!
@@ -145,6 +145,11 @@ type SportPageInfo {
   sports: [Sport!]!
   hasNextPage: Boolean!
   endCursor: String
+}
+
+input ClubInput {
+  name: String!
+  logo: String
 }
 
 type Club {

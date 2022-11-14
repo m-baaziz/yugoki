@@ -1,31 +1,18 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import {
-  Box,
-  BoxProps,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Fab,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Box, BoxProps, Fab, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, gql, useMutation } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 import appContext, { NotificationLevel } from '../../../context';
 import {
-  Club,
   ClubPageInfo,
-  MutationCreateClubArgs,
   MutationDeleteClubArgs,
   QueryListUserClubsArgs,
 } from '../../../generated/graphql';
 import UserClubCard from './UserClubCard';
-import LabelInputCombo from '../../LabelInputCombo';
 
 const CLUBS_PAGE_SIZE = 100;
-const NEW_CLUB_DEFAULT_NAME = 'New Club';
 
 const LIST_USER_CLUBS = gql`
   query listUserClubs($first: Int!, $after: String) {
@@ -37,16 +24,6 @@ const LIST_USER_CLUBS = gql`
       }
       hasNextPage
       endCursor
-    }
-  }
-`;
-
-const CREATE_CLUB = gql`
-  mutation createClub($name: String!) {
-    createClub(name: $name) {
-      id
-      name
-      logo
     }
   }
 `;
@@ -74,8 +51,7 @@ const Container = styled(Box)<BoxProps>(() => ({
 
 export default function UserClubs() {
   const { notify } = React.useContext(appContext);
-  const [addMode, setAddMode] = React.useState(false);
-  const [newClubName, setNewClubName] = React.useState(NEW_CLUB_DEFAULT_NAME);
+  const navigate = useNavigate();
 
   const { data, refetch } = useQuery<
     { listUserClubs: ClubPageInfo },
@@ -87,10 +63,7 @@ export default function UserClubs() {
     },
     fetchPolicy: 'no-cache',
   });
-  const [createClub] = useMutation<
-    { createClub: Club },
-    MutationCreateClubArgs
-  >(CREATE_CLUB);
+
   const [deleteClub] = useMutation<
     { deleteClub: boolean },
     MutationDeleteClubArgs
@@ -110,31 +83,7 @@ export default function UserClubs() {
   };
 
   const handleAddClick = () => {
-    setAddMode(true);
-  };
-
-  const handleNewClubNameInputChange = (name: string) => {
-    setNewClubName(name);
-  };
-
-  const handleValidateNewClub = async () => {
-    setAddMode(false);
-    try {
-      await createClub({
-        variables: {
-          name: newClubName,
-        },
-      });
-      await refetch();
-      setNewClubName(NEW_CLUB_DEFAULT_NAME);
-    } catch (e) {
-      notify({ level: NotificationLevel.ERROR, message: `${e}` });
-    }
-  };
-
-  const handleCancelNewClub = () => {
-    setAddMode(false);
-    setNewClubName(NEW_CLUB_DEFAULT_NAME);
+    navigate('new');
   };
 
   return (
@@ -153,51 +102,6 @@ export default function UserClubs() {
             <UserClubCard club={club} onDelete={handleDelete} />
           </Grid>
         ))}
-        {addMode ? (
-          <Grid item xs={6}>
-            <Card>
-              <CardContent sx={{ display: 'flex' }}>
-                <LabelInputCombo
-                  value={newClubName}
-                  inputLabel="name"
-                  onChange={handleNewClubNameInputChange}
-                  sx={{ margin: 'auto' }}
-                >
-                  <Typography
-                    variant="h5"
-                    component="div"
-                    sx={{ margin: 'auto' }}
-                  >
-                    {newClubName}
-                  </Typography>
-                </LabelInputCombo>
-              </CardContent>
-              <CardActions
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'flex-end',
-                }}
-              >
-                <Button
-                  size="small"
-                  onClick={handleValidateNewClub}
-                  color="success"
-                  disabled={newClubName.length === 0}
-                >
-                  Validate
-                </Button>
-                <Button
-                  size="small"
-                  onClick={handleCancelNewClub}
-                  color="inherit"
-                >
-                  Cancel
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ) : null}
       </Grid>
       <Fab
         color="primary"
