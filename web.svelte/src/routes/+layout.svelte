@@ -1,152 +1,190 @@
-<script>
+<script lang="ts">
 	import '../app.css';
+
+	let menuOpen: boolean = false;
 </script>
 
-<nav class="bg-white border-gray-200 dark:bg-gray-900">
-	<div class="max-w-screen-uw flex flex-wrap items-center justify-between mx-auto p-4">
-		<a href="https://flowbite.com/" class="flex items-center">
-			<img src="https://flowbite.com/docs/images/logo.svg" class="h-8 mr-3" alt="Flowbite Logo" />
-			<span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-				>Flowbite</span
-			>
-		</a>
-		<div class="flex md:order-2">
-			<button
-				type="button"
-				data-collapse-toggle="navbar-search"
-				aria-controls="navbar-search"
-				aria-expanded="false"
-				class="md:hidden text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 mr-1"
-			>
-				<svg
-					class="w-5 h-5"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 20 20"
+<header class="bg-white">
+	<nav class="mx-auto flex flex-col items-center max-w-screen-uw" aria-label="Global">
+		<div class="mx-auto flex w-full items-center justify-between gap-x-6 p-6 lg:px-8">
+			<div class="flex lg:flex-1">
+				<a href="/" class="-m-1.5 p-1.5">
+					<span class="sr-only">Limz.io</span>
+					<img class="h-8 w-auto" src="/logo.png" alt="" />
+				</a>
+			</div>
+			<div class="hidden sm:flex">
+				<div class="mt-2 flex w-96 rounded-md shadow-sm">
+					<div class="relative flex flex-grow items-stretch focus-within:z-10">
+						<input
+							type="search"
+							name="search"
+							id="search"
+							class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+							placeholder="Anywhere ..."
+						/>
+					</div>
+					<button
+						type="button"
+						class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+					>
+						<svg
+							class="h-5 w-5 text-gray-400"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+							aria-hidden="true"
+						>
+							<path
+								d="M3.05,13H1V11H3.05C3.5,6.83 6.83,3.5 11,3.05V1H13V3.05C17.17,3.5 20.5,6.83 20.95,11H23V13H20.95C20.5,17.17 17.17,20.5 13,20.95V23H11V20.95C6.83,20.5 3.5,17.17 3.05,13M12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5Z"
+							/>
+						</svg>
+						<!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>crosshairs</title><path d="M3.05,13H1V11H3.05C3.5,6.83 6.83,3.5 11,3.05V1H13V3.05C17.17,3.5 20.5,6.83 20.95,11H23V13H20.95C20.5,17.17 17.17,20.5 13,20.95V23H11V20.95C6.83,20.5 3.5,17.17 3.05,13M12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5Z" /></svg> -->
+					</button>
+				</div>
+			</div>
+			<div class="flex flex-1 items-center justify-end gap-x-6">
+				<a
+					href="/"
+					class="hidden lg:block lg:text-sm lg:font-semibold lg:leading-6 lg:text-gray-900"
+					>Log in</a
 				>
-					<path
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-					/>
-				</svg>
-				<span class="sr-only">Search</span>
-			</button>
-			<div class="relative hidden md:block">
-				<div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+				<a
+					href="/"
+					class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+					>Sign up</a
+				>
+			</div>
+			<div class="flex lg:hidden">
+				<button
+					type="button"
+					class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+					on:click={() => {
+						menuOpen = true;
+					}}
+				>
+					<span class="sr-only">Open main menu</span>
 					<svg
-						class="w-4 h-4 text-gray-500 dark:text-gray-400"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
+						class="h-6 w-6"
 						fill="none"
-						viewBox="0 0 20 20"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						aria-hidden="true"
 					>
 						<path
-							stroke="currentColor"
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							stroke-width="2"
-							d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+							d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
 						/>
 					</svg>
-					<span class="sr-only">Search icon</span>
-				</div>
-				<input
-					type="text"
-					id="search-navbar"
-					class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-					placeholder="Search..."
-				/>
+				</button>
 			</div>
-			<button
-				data-collapse-toggle="navbar-search"
-				type="button"
-				class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-				aria-controls="navbar-search"
-				aria-expanded="false"
-			>
-				<span class="sr-only">Open main menu</span>
-				<svg
-					class="w-5 h-5"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 17 14"
-				>
-					<path
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M1 1h15M1 7h15M1 13h15"
-					/>
-				</svg>
-			</button>
 		</div>
-		<div
-			class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
-			id="navbar-search"
-		>
-			<div class="relative mt-3 md:hidden">
-				<div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+		<div class="flex sm:hidden px-8">
+			<div class="mt-2 flex w-full rounded-md shadow-sm">
+				<div class="relative flex flex-grow items-stretch focus-within:z-10">
+					<input
+						type="search"
+						name="search"
+						id="search"
+						class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+						placeholder="Anywhere ..."
+					/>
+				</div>
+				<button
+					type="button"
+					class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+				>
 					<svg
-						class="w-4 h-4 text-gray-500 dark:text-gray-400"
+						class="h-5 w-5 text-gray-400"
+						viewBox="0 0 24 24"
+						fill="currentColor"
 						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 20 20"
 					>
 						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+							d="M3.05,13H1V11H3.05C3.5,6.83 6.83,3.5 11,3.05V1H13V3.05C17.17,3.5 20.5,6.83 20.95,11H23V13H20.95C20.5,17.17 17.17,20.5 13,20.95V23H11V20.95C6.83,20.5 3.5,17.17 3.05,13M12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5Z"
 						/>
 					</svg>
-				</div>
-				<input
-					type="text"
-					id="search-navbar"
-					class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-					placeholder="Search..."
-				/>
+					<!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>crosshairs</title><path d="M3.05,13H1V11H3.05C3.5,6.83 6.83,3.5 11,3.05V1H13V3.05C17.17,3.5 20.5,6.83 20.95,11H23V13H20.95C20.5,17.17 17.17,20.5 13,20.95V23H11V20.95C6.83,20.5 3.5,17.17 3.05,13M12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5Z" /></svg> -->
+				</button>
 			</div>
-			<ul
-				class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
-			>
-				<li>
-					<a
-						href="/"
-						class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
-						aria-current="page">Home</a
+		</div>
+	</nav>
+	<!-- Mobile menu, show/hide based on menu open state. -->
+	<div class="lg:hidden" class:hidden={!menuOpen} role="dialog" aria-modal="true">
+		<!-- Background backdrop, show/hide based on slide-over state. -->
+		<div class="fixed inset-0 z-10" />
+		<div
+			class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10"
+		>
+			<div class="flex items-center gap-x-6">
+				<a href="/" class="-m-1.5 p-1.5">
+					<span class="sr-only">Limz.io</span>
+					<img class="h-8 w-auto" src="/logo.png" alt="" />
+				</a>
+				<a
+					href="/"
+					class="ml-auto rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+					>Sign up</a
+				>
+				<button
+					type="button"
+					class="-m-2.5 rounded-md p-2.5 text-gray-700"
+					on:click={() => {
+						menuOpen = false;
+					}}
+				>
+					<span class="sr-only">Close menu</span>
+					<svg
+						class="h-6 w-6"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						aria-hidden="true"
 					>
-				</li>
-				<li>
-					<a
-						href="/"
-						class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-						>About</a
-					>
-				</li>
-				<li>
-					<a
-						href="/"
-						class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-						>Services</a
-					>
-				</li>
-			</ul>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+			<div class="mt-6 flow-root">
+				<div class="-my-6 divide-y divide-gray-500/10">
+					<div class="space-y-2 py-6">
+						<a
+							href="/"
+							class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+							>Product</a
+						>
+						<a
+							href="/"
+							class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+							>Features</a
+						>
+						<a
+							href="/"
+							class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+							>Marketplace</a
+						>
+						<a
+							href="/"
+							class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+							>Company</a
+						>
+					</div>
+					<div class="py-6">
+						<a
+							href="/"
+							class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+							>Log in</a
+						>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-</nav>
+</header>
 
 <slot />
-
-<h5>This is a footer !</h5>
 
 <style>
 	.max-w-screen-uw {
