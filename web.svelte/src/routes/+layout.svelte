@@ -4,8 +4,11 @@
 	let menuOpen: boolean = false;
 </script>
 
-<header class="bg-white">
-	<nav class="mx-auto flex flex-col items-center max-w-screen-uw" aria-label="Global">
+<div class="min-h-full">
+	<nav
+		class="mx-auto flex flex-col items-center max-w-screen-uw border-b border-gray-200 bg-white"
+		aria-label="Global"
+	>
 		<div class="mx-auto flex w-full items-center justify-between gap-x-6 p-6 lg:px-8">
 			<div class="flex lg:flex-1">
 				<a href="/" class="-m-1.5 p-1.5">
@@ -182,9 +185,15 @@
 			</div>
 		</div>
 	</div>
-</header>
 
-<slot />
+	<div class="py-10">
+		<main>
+			<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+				<slot />
+			</div>
+		</main>
+	</div>
+</div>
 
 <style>
 	.max-w-screen-uw {
