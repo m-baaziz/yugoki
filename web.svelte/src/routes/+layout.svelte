@@ -6,11 +6,17 @@
 <div class="min-h-full">
 	<Header --max-width="2520px" />
 
-	<div class="py-10">
+	<div class="mx-auto py-1 max-w-screen-uw">
 		<main>
-			<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+			<div class="mx-auto sm:px-6 lg:px-8">
 				<slot />
 			</div>
 		</main>
 	</div>
 </div>
+
+<style>
+	.max-w-screen-uw {
+		max-width: 2520px;
+	}
+</style>

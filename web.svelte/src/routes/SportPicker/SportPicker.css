@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+	.selected-sport p {
+		@apply text-indigo-600;
+	}
+	.selected-sport .sport-btn-border {
+		@apply border-indigo-500;
+	}
+	.unselected-sport p {
+		@apply text-gray-500;
+	}
+	.unselected-sport:hover p {
+		@apply text-gray-700;
+	}
+	.unselected-sport .sport-btn-border {
+		@apply border-transparent;
+	}
+	.unselected-sport:hover .sport-btn-border {
+		@apply border-gray-300;
+	}
+}
