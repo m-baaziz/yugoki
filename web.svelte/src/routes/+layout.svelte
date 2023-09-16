@@ -3,12 +3,12 @@
 	import Header from './Header/Header.svelte';
 </script>
 
-<div class="min-h-full">
+<div class="h-screen flex flex-col">
 	<Header --max-width="2520px" />
 
-	<div class="mx-auto py-1 max-w-screen-uw">
-		<main>
-			<div class="mx-auto sm:px-6 lg:px-8">
+	<div class="flex-grow mx-auto py-1 max-w-screen-uw">
+		<main class="h-full">
+			<div class="mx-auto h-full sm:px-6 lg:px-8">
 				<slot />
 			</div>
 		</main>

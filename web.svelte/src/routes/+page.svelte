@@ -7,17 +7,10 @@
 	// TODO: search store
 </script>
 
-<div>
+<div class="h-full flex flex-col">
 	<SportPicker />
-</div>
-
-<div>
 	<SportGrid entries={[mapEntries[0], mapEntries[1]]} />
+	<div class="flex-grow">
+		<SportMap />
+	</div>
 </div>
-
-<div>
-	<SportMap />
-</div>
-
-<style>
-</style>
