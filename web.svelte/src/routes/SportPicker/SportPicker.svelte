@@ -22,11 +22,6 @@
 			behavior: 'smooth'
 		});
 	};
-
-	$: {
-		// console.log('scrollLeft = ', sportListElmt?.scrollLeft);
-		console.log('max scroll width = ', maxScrollWidth);
-	}
 </script>
 
 <div class="mx-auto flex w-full items-center justify-between p-6">
@@ -49,7 +44,6 @@
 			class="flex-shrink-0 px-1"
 			use:inview
 			on:inview_change={({ detail: { inView } }) => {
-				console.log('firt elmt view = ', inView);
 				firstElementInView = inView;
 			}}
 		/>
@@ -79,7 +73,6 @@
 			class="flex-shrink-0 px-1"
 			use:inview
 			on:inview_change={({ detail: { inView } }) => {
-				console.log('last elmt view = ', inView);
 				lastElementInView = inView;
 			}}
 		/>
