@@ -58,7 +58,7 @@
 			>
 				<div class="flex items-center">
 					<div>
-						<img class="inline-block h-9 w-9 rounded-full" src={icon} alt={name} />
+						<img class="inline-block h-9 w-9 rounded-sm" src={icon} alt={name} />
 					</div>
 					<div class="ml-3">
 						<p class="text-sm font-medium">

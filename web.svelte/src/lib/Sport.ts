@@ -176,3 +176,38 @@ export const sports: Sport[] = [
 		icon: '/icons/80/golf.png'
 	}
 ];
+
+// weight-lifting
+// football
+// basketball
+// baseball
+// tennis
+// table-tennis
+// cycling
+// running
+// swimming
+// horse-riding
+// boxing
+// kung-fu
+// karate
+// muay-thai
+// skateboard
+// inline
+// golf
+// weight-lifting-2
+// football-2
+// basketball-2
+// baseball-2
+// tennis-2
+// table-tennis-2
+// cycling-2
+// running-2
+// swimming-2
+// horse-riding-2
+// boxing-2
+// kung-fu-2
+// karate-2
+// muay-thai-2
+// skateboard-2
+// inline-2
+// golf-2
