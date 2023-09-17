@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Error as ErrorIcon } from '@mui/icons-material';
 
-export const MAPS_API_KEY = 'AIzaSyA4iYD91nzR3c4YXwpB9EAcGFugk3jjVPE'; // revoked
+export const MAPS_API_KEY = ''; // revoked
 const INITIAL_ZOOM = 14;
 
 const render = (status: Status): React.ReactElement => {

@@ -20,6 +20,9 @@
 							class="overflow-hidden"
 							use:carousel
 							on:emblaInit={({ detail }) => {
+								detail.on('scroll', () => {
+									carouselApis = carouselApis;
+								});
 								carouselApis.set(entry.id, detail);
 								carouselApis = carouselApis;
 							}}
@@ -40,10 +43,7 @@
 							<button
 								type="button"
 								class="absolute left-2 self-center rounded-full bg-gray-100 p-1 text-black shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-200 opacity-70 invisible hover:opacity-100 group-hover:visible"
-								on:click|preventDefault={() => {
-									carouselApis.get(entry.id)?.scrollPrev();
-									carouselApis = carouselApis;
-								}}
+								on:click|preventDefault={() => carouselApis.get(entry.id)?.scrollPrev()}
 							>
 								<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 									<path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" />
@@ -54,10 +54,7 @@
 							<button
 								type="button"
 								class="absolute right-2 self-center rounded-full bg-gray-100 p-1 text-black shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-200 opacity-70 invisible hover:opacity-100 group-hover:visible"
-								on:click|preventDefault={() => {
-									carouselApis.get(entry.id)?.scrollNext();
-									carouselApis = carouselApis;
-								}}
+								on:click|preventDefault={() => carouselApis.get(entry.id)?.scrollNext()}
 							>
 								<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 									<path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
