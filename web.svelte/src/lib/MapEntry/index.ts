@@ -6,7 +6,7 @@ export type MapEntry = {
 	address: Address;
 	startingPrice: number;
 	reviews: Reviews;
-	image: string;
+	images: string[];
 };
 
 export type Address = {

@@ -1,5 +1,5 @@
 import fs from 'fs';
-import data from './src/lib/MapEntry/data.json' assert { type: 'json' };
+import data from '../src/lib/MapEntry/data.json' assert { type: 'json' };
 
 const newData = data.map((d) => ({
 	id: d.id.toString(),
@@ -20,7 +20,7 @@ const newData = data.map((d) => ({
 		rating: d.rating,
 		count: d.count
 	},
-	image: '/picture.png'
+	images: ['/picture.png', '/picture.png', '/picture.png']
 }));
 
 fs.writeFileSync('./src/lib/MapEntry/valid.json', JSON.stringify(newData));
